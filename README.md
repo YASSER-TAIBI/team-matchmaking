@@ -1,4 +1,4 @@
-# ⚽ Application Web – Organisation de Matchs à 5
+# ⚽ Organisation de Matchs à 5
 
 ## 📌 Présentation du projet
 
