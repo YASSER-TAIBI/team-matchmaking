@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Builder
 public class MatchRequestDto {
 
-    private Integer id;
+    private Long id;
 
     private LocalDate matchDate;
 
@@ -22,7 +22,7 @@ public class MatchRequestDto {
 
     private MatchRequestStatus status;
 
-    private Integer teamId;
+    private Long teamId;
 
     public static MatchRequestDto fromEntity(MatchRequest matchRequest) {
         if (matchRequest == null) {

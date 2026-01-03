@@ -38,6 +38,8 @@ public class User extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private AvailabilityStatus availabilityStatus;
 
+    private boolean active;
+
 
     /* ================= RELATIONS ================= */
 
@@ -46,4 +48,8 @@ public class User extends AbstractEntity {
 
     @OneToMany(mappedBy = "sender")
     private List<Message> messages;
+
+    @ManyToOne
+    @JoinColumn(name = "id_role") // tu gardes la colonne existante
+    private Role role;
 }

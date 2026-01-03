@@ -14,15 +14,15 @@ import java.time.LocalDateTime;
 @Builder
 public class MessageDto {
 
-    private Integer id;
+    private Long id;
 
     private String content;
 
     private LocalDateTime sentAt;
 
-    private Integer userId;
+    private Long userId;
 
-    private Integer matchRequestId;
+    private Long matchRequestId;
 
     public static MessageDto fromEntity(Message message) {
         if (message == null) {
