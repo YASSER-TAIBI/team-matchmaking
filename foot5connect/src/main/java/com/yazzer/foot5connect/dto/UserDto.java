@@ -14,7 +14,7 @@ import lombok.Setter;
 @Builder
 public class UserDto {
 
-    private Integer id;
+    private Long id;
 
     @NotNull(message = "le username ne doit pas etre vide")
     @NotEmpty(message = "le username ne doit pas etre vide")

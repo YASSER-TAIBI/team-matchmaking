@@ -15,7 +15,7 @@ import lombok.Setter;
 @Builder
 public class TeamMemberDto {
 
-    private Integer id;
+    private Long id;
 
     private Integer jerseyNumber;
 
@@ -23,9 +23,9 @@ public class TeamMemberDto {
 
     private boolean isCaptain;
 
-    private Integer userId;
+    private Long userId;
 
-    private Integer teamId;
+    private Long teamId;
 
     public static TeamMemberDto fromEntity(TeamMember teamMember) {
         if (teamMember == null) {

@@ -16,7 +16,7 @@ import java.util.Set;
 @Builder
 public class TeamDto {
 
-    private Integer id;
+    private Long id;
 
     private String name;
 
@@ -28,7 +28,7 @@ public class TeamDto {
 
     private TeamStatus status;
 
-    private Integer captainId;
+    private Long captainId;
 
     public static TeamDto fromEntity(Team team) {
         if (team == null){

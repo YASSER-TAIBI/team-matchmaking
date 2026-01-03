@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Builder
 public class MatchDto {
 
-    private Integer id;
+    private Long id;
 
     private LocalDate matchDate;
     private LocalTime startTime;
@@ -27,9 +27,9 @@ public class MatchDto {
     private Integer scoreTeamA;
     private Integer scoreTeamB;
 
-    private Set<Integer> teamIds;
+    private Set<Long> teamIds;
 
-    private Integer matchRequestId;
+    private Long matchRequestId;
 
     public static MatchDto fromEntity(Match match) {
         if (match == null) {
