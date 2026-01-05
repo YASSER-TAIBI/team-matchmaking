@@ -11,7 +11,6 @@
 }
 
 .login-split {
-  position: relative;
   z-index: 1;
   max-width: 1180px;
   margin: 0 auto;
@@ -90,9 +89,8 @@
 
 .auth-tabs {
   width: 100%;
-  max-width: 400px;
   margin: 0 0 22px;
-  padding: 6px;
+  padding: 4px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
 }
@@ -122,10 +120,21 @@
   gap: 18px;
 }
 
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.form-row > .field-block {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
 .field-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
 }
 
 .field-row {
@@ -156,7 +165,8 @@
 
 :host ::ng-deep .field .mat-mdc-text-field-wrapper {
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.32);
+  position: static;
 }
 
 :host ::ng-deep .field .mdc-notched-outline__leading,
@@ -331,6 +341,14 @@
   .promo__stats {
     display: flex;
     gap: 16px;
+  }
+
+  .form-row--4 > .field-block {
+    flex: 1 1 calc(25% - 14px);
+  }
+
+  .form-row--2 > .field-block {
+    flex: 1 1 calc(50% - 14px);
   }
 
   .stat {

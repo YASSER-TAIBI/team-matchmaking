@@ -21,31 +21,111 @@
             class="auth-tabs"
             [hideSingleSelectionIndicator]="true"
             [value]="selectedAuthTab"
-            (valueChange)="selectedAuthTab = $event"
+            (valueChange)="onAuthTabChange($event)"
           >
             <mat-button-toggle value="login">Login</mat-button-toggle>
             <mat-button-toggle value="register">Register</mat-button-toggle>
           </mat-button-toggle-group>
 
           <form class="auth-form" [formGroup]="form">
-            <div class="field-block">
-              <div class="label">Email Address</div>
-              <mat-form-field class="field" appearance="outline">
-                <mat-icon matPrefix>mail_outline</mat-icon>
-                <input matInput formControlName="email" placeholder="striker@example.com" />
-              </mat-form-field>
-            </div>
-
-            <div class="field-block">
-              <div class="field-row">
-                <div class="label">Password</div>
-                <button class="forgot" type="button">Forgot Password?</button>
+            <ng-container *ngIf="selectedAuthTab === 'login'">
+              <div class="field-block">
+                <div class="label">Email Address</div>
+                <mat-form-field class="field" appearance="outline">
+                  <mat-icon matPrefix>mail_outline</mat-icon>
+                  <input matInput formControlName="email" placeholder="striker@example.com" />
+                </mat-form-field>
               </div>
-              <mat-form-field class="field" appearance="outline">
-                <mat-icon matPrefix>lock_outline</mat-icon>
-                <input matInput formControlName="password" type="password" placeholder="••••••••" />
-              </mat-form-field>
-            </div>
+
+              <div class="field-block">
+                <div class="field-row">
+                  <div class="label">Password</div>
+                  <button class="forgot" type="button">Forgot Password?</button>
+                </div>
+                <mat-form-field class="field" appearance="outline">
+                  <mat-icon matPrefix>lock_outline</mat-icon>
+                  <input matInput formControlName="password" type="password" placeholder="••••••••" />
+                </mat-form-field>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="selectedAuthTab === 'register'">
+              <div class="form-row form-row--2">
+                <div class="field-block">
+                  <div class="label">First Name</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>badge</mat-icon>
+                    <input matInput formControlName="firstName" placeholder="Yasser" />
+                  </mat-form-field>
+                </div>
+
+                <div class="field-block">
+                  <div class="label">Last Name</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>badge</mat-icon>
+                    <input matInput formControlName="lastName" placeholder="Taibi" />
+                  </mat-form-field>
+                </div>
+              </div>
+
+                <div class="field-block">
+                  <div class="label">Username</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>person_outline</mat-icon>
+                    <input matInput formControlName="username" placeholder="champion" />
+                  </mat-form-field>
+                </div>
+
+                <div class="field-block">
+                  <div class="label">Email</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>mail_outline</mat-icon>
+                    <input matInput formControlName="email" placeholder="champion@example.com" />
+                  </mat-form-field>
+                </div>
+
+                <div class="field-block">
+                  <div class="label">Password</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>lock_outline</mat-icon>
+                    <input matInput formControlName="password" type="password" placeholder="••••••••" />
+                  </mat-form-field>
+                </div>
+
+                <div class="field-block">
+                  <div class="label">Confirmation Password</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>lock_outline</mat-icon>
+                    <input matInput formControlName="confirmPassword" type="password" placeholder="••••••••" />
+                  </mat-form-field>
+                </div>
+
+              <div class="form-row form-row--2">
+                <div class="field-block">
+                  <div class="label">Country</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>public</mat-icon>
+                    <mat-select
+                      formControlName="country"
+                      placeholder="Select a country"
+                      (selectionChange)="onCountrySelected($event.value)"
+                    >
+                      <mat-option *ngFor="let c of countries" [value]="c.name">{{ c.name }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="field-block">
+                  <div class="label">City</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>location_city</mat-icon>
+                    <mat-select formControlName="city" placeholder="Select a city">
+                      <mat-option *ngFor="let c of cities" [value]="c.name">{{ c.name }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </ng-container>
 
             <button mat-flat-button class="primary" type="button">
               <span>Kick Off</span>
