@@ -1,1 +1,188 @@
-<p>login works!</p>
+<div class="login-page">
+  <div class="login-page__bg"></div>
+
+  <div class="login-split">
+    <div class="login-split__left">
+      <div class="auth-card">
+        <div class="auth-surface">
+          <div class="brand">
+            <div class="brand__logo" aria-hidden="true">
+              <mat-icon class="brand__logo-icon">sports_soccer</mat-icon>
+            </div>
+            <div class="brand__name">PitchPerfect</div>
+          </div>
+
+          <h1 class="title">Bienvenue à Nouveau, <strong style="color: #35ff7a;">Champion</strong></h1>
+          <p class="subtitle">
+            Trouve ta prochaine rencontre en quelques secondes. Entrez vos détails pour revenir sur le terrain.
+          </p>
+
+          <mat-button-toggle-group
+            class="auth-tabs"
+            [hideSingleSelectionIndicator]="true"
+            [value]="selectedAuthTab"
+            (valueChange)="onAuthTabChange($event)"
+          >
+            <mat-button-toggle value="login">Login</mat-button-toggle>
+            <mat-button-toggle value="register">Register</mat-button-toggle>
+          </mat-button-toggle-group>
+
+          <form class="auth-form" [formGroup]="form">
+            <ng-container *ngIf="selectedAuthTab === 'login'">
+              <div class="field-block">
+                <div class="label">Email Address</div>
+                <mat-form-field class="field" appearance="outline">
+                  <mat-icon matPrefix>mail_outline</mat-icon>
+                  <input matInput formControlName="email" placeholder="striker@example.com" />
+                </mat-form-field>
+              </div>
+
+              <div class="field-block">
+                <div class="field-row">
+                  <div class="label">Password</div>
+                  <button class="forgot" type="button">Forgot Password?</button>
+                </div>
+                <mat-form-field class="field" appearance="outline">
+                  <mat-icon matPrefix>lock_outline</mat-icon>
+                  <input matInput formControlName="password" type="password" placeholder="••••••••" />
+                </mat-form-field>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="selectedAuthTab === 'register'">
+              <div class="form-row form-row--2">
+                <div class="field-block">
+                  <div class="label">First Name</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>badge</mat-icon>
+                    <input matInput formControlName="firstName" placeholder="Yasser" />
+                  </mat-form-field>
+                </div>
+
+                <div class="field-block">
+                  <div class="label">Last Name</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>badge</mat-icon>
+                    <input matInput formControlName="lastName" placeholder="Taibi" />
+                  </mat-form-field>
+                </div>
+              </div>
+
+                <div class="field-block">
+                  <div class="label">Username</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>person_outline</mat-icon>
+                    <input matInput formControlName="username" placeholder="champion" />
+                  </mat-form-field>
+                </div>
+
+                <div class="field-block">
+                  <div class="label">Email</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>mail_outline</mat-icon>
+                    <input matInput formControlName="email" placeholder="champion@example.com" />
+                  </mat-form-field>
+                </div>
+
+                <div class="field-block">
+                  <div class="label">Password</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>lock_outline</mat-icon>
+                    <input matInput formControlName="password" type="password" placeholder="••••••••" />
+                  </mat-form-field>
+                </div>
+
+                <div class="field-block">
+                  <div class="label">Confirmation Password</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>lock_outline</mat-icon>
+                    <input matInput formControlName="confirmPassword" type="password" placeholder="••••••••" />
+                  </mat-form-field>
+                </div>
+
+              <div class="form-row form-row--2">
+                <div class="field-block">
+                  <div class="label">Country</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>public</mat-icon>
+                    <mat-select
+                      formControlName="country"
+                      placeholder="Select a country"
+                      (selectionChange)="onCountrySelected($event.value)"
+                    >
+                      <mat-option *ngFor="let c of countries" [value]="c.name">{{ c.name }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="field-block">
+                  <div class="label">City</div>
+                  <mat-form-field class="field" appearance="outline">
+                    <mat-icon matPrefix>location_city</mat-icon>
+                    <mat-select formControlName="city" placeholder="Select a city">
+                      <mat-option *ngFor="let c of cities" [value]="c.name">{{ c.name }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </ng-container>
+
+            <button mat-flat-button class="primary" type="button">
+              <span>Kick Off</span>
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+
+            <div class="divider">
+              <mat-divider></mat-divider>
+              <span class="divider__label">OR CONTINUE WITH</span>
+              <mat-divider></mat-divider>
+            </div>
+
+            <div class="providers">
+              <button mat-stroked-button class="provider" type="button">
+                <mat-icon class="provider__svg" svgIcon="google" aria-hidden="true"></mat-icon>
+                <span>Google</span>
+              </button>
+
+              <button mat-stroked-button class="provider" type="button">
+                <mat-icon class="provider__svg" svgIcon="apple" aria-hidden="true"></mat-icon>
+                <span>Apple</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-split__right" aria-hidden="true">
+      <div class="promo">
+        <div class="promo__stats">
+          <div class="stat">
+            <div class="stat__value">500+</div>
+            <div class="stat__caption">Matches organized<br />tonight</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat__value">4.9/5</div>
+            <div class="stat__caption">Player Rating</div>
+          </div>
+        </div>
+
+        <div class="quote">
+          <div class="quote__text">
+            “PitchPerfect made organizing our Tuesday night league effortless. No more chasing
+            players for payments.”
+          </div>
+
+          <div class="quote__author">
+            <div class="avatar"></div>
+            <div class="author">
+              <div class="author__name">Yasser Taibi</div>
+              <div class="author__role">Team Captain, FC Marcos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
