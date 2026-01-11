@@ -52,6 +52,8 @@ public class UserDto {
     @NotBlank(message = "le ville ne doit pas etre vide")
     private String city;
 
+    private boolean active;
+
     private AvailabilityStatus availabilityStatus;
 
     public static UserDto fromEntity(User user) {
@@ -68,6 +70,7 @@ public class UserDto {
                 .lastName(user.getLastName())
                 .country(user.getCountry())
                 .city(user.getCity())
+                .active(user.isActive())
                 .availabilityStatus(user.getAvailabilityStatus())
                 .build();
     }
@@ -79,9 +82,11 @@ public class UserDto {
         }
         return User.builder()
                 .id(userDto.getId())
-                .username(userDto.getFirstName())
+                .username(userDto.getUsername())
                 .email(userDto.getEmail())
                 .password(userDto.getPassword())
+                .firstName(userDto.getFirstName())
+                .lastName(userDto.getLastName())
                 .country(userDto.getCountry())
                 .city(userDto.getCity())
                 .build();
