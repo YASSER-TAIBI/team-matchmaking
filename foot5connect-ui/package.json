@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "api-gen": "npx ng-openapi-gen --input ./src/app/swagger/swagger.json --output src/app/services"
   },
   "private": true,
   "dependencies": {
@@ -20,7 +21,9 @@
     "@angular/platform-browser": "^19.1.0",
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
+    "@auth0/angular-jwt": "^5.2.0",
     "country-state-city": "^3.2.1",
+    "ng-openapi-gen": "^1.0.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

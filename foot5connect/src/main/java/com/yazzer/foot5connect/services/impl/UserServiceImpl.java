@@ -25,6 +25,7 @@ import com.yazzer.foot5connect.repositories.UserRepository;
 import com.yazzer.foot5connect.services.TokenService;
 import com.yazzer.foot5connect.services.UserService;
 import com.yazzer.foot5connect.services.email.EmailService;
+import com.yazzer.foot5connect.validators.ObjectsValidator;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -39,6 +40,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authManager;
+    private final ObjectsValidator<UserDto> validator;
     private final RoleRepository roleRepository;
     private final TokenService tokenService;
     private final EmailService emailService;
@@ -46,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Long save(UserDto dto) {
-        // TODO validator.validate(dto);
+        validator.validate(dto);
         User user = UserDto.toEntity(dto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user).getId();
@@ -70,7 +72,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Long id) {
-        // TODO validator.validate(dto);
         // TODO check before delete
         userRepository.deleteById(id);
     }
@@ -78,7 +79,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public AuthenticationResponse register(UserDto dto) {
-        // TODO validator.validate(dto);
+        validator.validate(dto);
         
         if (!dto.getPassword().equals(dto.getConfirmPassword())) {
             throw new IllegalArgumentException("Les mots de passe ne correspondent pas");
@@ -90,6 +91,7 @@ public class UserServiceImpl implements UserService {
         user.setAvailabilityStatus(AvailabilityStatus.INDISPONIBLE);
         var savedUser = userRepository.save(user);
 
+        // Create confirmation token
         Token confirmationToken = new Token();
         confirmationToken.setUser(savedUser);
         confirmationToken.setExpiresAt(LocalDateTime.now().plusMinutes(20));

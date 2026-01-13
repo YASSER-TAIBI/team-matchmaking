@@ -27,87 +27,100 @@
             <mat-button-toggle value="register">Register</mat-button-toggle>
           </mat-button-toggle-group>
 
-          <form class="auth-form" [formGroup]="form">
+          <form class="auth-form">
             <ng-container *ngIf="selectedAuthTab === 'login'">
+
+              <!-- Login / EMAIL-->
               <div class="field-block">
-                <div class="label">Email Address</div>
+                <div class="label">Email</div>
                 <mat-form-field class="field" appearance="outline">
                   <mat-icon matPrefix>mail_outline</mat-icon>
-                  <input matInput formControlName="email" placeholder="striker@example.com" />
+                  <input matInput type="email" placeholder="ex: name@email.com" [(ngModel)]="authRequest.email" name="email" required/>
                 </mat-form-field>
               </div>
 
+              <!-- Login / PASSWORD-->
               <div class="field-block">
                 <div class="field-row">
-                  <div class="label">Password</div>
-                  <button class="forgot" type="button">Forgot Password?</button>
+                  <div class="label">Mot de passe</div>
+                  <button class="forgot" type="button">Mot de passe oublié ?</button>
                 </div>
                 <mat-form-field class="field" appearance="outline">
                   <mat-icon matPrefix>lock_outline</mat-icon>
-                  <input matInput formControlName="password" type="password" placeholder="••••••••" />
+                  <input matInput type="password" placeholder="••••••••" [(ngModel)]="authRequest.password" name="password" required/>
                 </mat-form-field>
               </div>
             </ng-container>
 
             <ng-container *ngIf="selectedAuthTab === 'register'">
               <div class="form-row form-row--2">
+
+                <!-- Register / PRENOM -->
                 <div class="field-block">
-                  <div class="label">First Name</div>
+                  <div class="label">Prénom</div>
                   <mat-form-field class="field" appearance="outline">
                     <mat-icon matPrefix>badge</mat-icon>
-                    <input matInput formControlName="firstName" placeholder="Yasser" />
+                    <input matInput type="text" placeholder="ex: Karim" [(ngModel)]="userDto.firstName" name="firstName" required/>
                   </mat-form-field>
                 </div>
 
+                <!-- Register / NOM -->
                 <div class="field-block">
-                  <div class="label">Last Name</div>
+                  <div class="label">Nom</div>
                   <mat-form-field class="field" appearance="outline">
                     <mat-icon matPrefix>badge</mat-icon>
-                    <input matInput formControlName="lastName" placeholder="Taibi" />
+                    <input matInput type="text" placeholder="ex: Taibi" [(ngModel)]="userDto.lastName" name="lastName" required/>
                   </mat-form-field>
                 </div>
               </div>
 
+                <!-- Register / USERNAME-->
                 <div class="field-block">
                   <div class="label">Username</div>
                   <mat-form-field class="field" appearance="outline">
                     <mat-icon matPrefix>person_outline</mat-icon>
-                    <input matInput formControlName="username" placeholder="champion" />
+                    <input matInput type="text" placeholder="ex: championGoat" [(ngModel)]="userDto.username" name="username" required/>
                   </mat-form-field>
                 </div>
 
+                <!-- Register / EMAIL-->
                 <div class="field-block">
                   <div class="label">Email</div>
                   <mat-form-field class="field" appearance="outline">
                     <mat-icon matPrefix>mail_outline</mat-icon>
-                    <input matInput formControlName="email" placeholder="champion@example.com" />
+                    <input matInput type="email" placeholder="ex: champion@example.com" [(ngModel)]="userDto.email" name="email" required/>
                   </mat-form-field>
                 </div>
 
+                <!-- Register / PASSWORD-->
                 <div class="field-block">
-                  <div class="label">Password</div>
+                  <div class="label">Mot de passe</div>
                   <mat-form-field class="field" appearance="outline">
                     <mat-icon matPrefix>lock_outline</mat-icon>
-                    <input matInput formControlName="password" type="password" placeholder="••••••••" />
+                    <input matInput type="password" placeholder="••••••••" [(ngModel)]="userDto.password" name="password" required/>
                   </mat-form-field>
                 </div>
 
+                <!-- Register / CONFIRM PASSWORD-->
                 <div class="field-block">
-                  <div class="label">Confirmation Password</div>
+                  <div class="label">Confirmer mot de passe</div>
                   <mat-form-field class="field" appearance="outline">
                     <mat-icon matPrefix>lock_outline</mat-icon>
-                    <input matInput formControlName="confirmPassword" type="password" placeholder="••••••••" />
+                    <input matInput type="password" placeholder="••••••••" [(ngModel)]="userDto.confirmPassword" name="confirmPassword" required/>
                   </mat-form-field>
                 </div>
 
               <div class="form-row form-row--2">
+
+                <!-- Register / PAYS -->
                 <div class="field-block">
-                  <div class="label">Country</div>
+                  <div class="label">Pays</div>
                   <mat-form-field class="field" appearance="outline">
                     <mat-icon matPrefix>public</mat-icon>
                     <mat-select
-                      formControlName="country"
-                      placeholder="Select a country"
+                      [(ngModel)]="userDto.country"
+                      name="country"
+                      placeholder="ex: France"
                       (selectionChange)="onCountrySelected($event.value)"
                     >
                       <mat-option *ngFor="let c of countries" [value]="c.name">{{ c.name }}</mat-option>
@@ -115,11 +128,12 @@
                   </mat-form-field>
                 </div>
 
+                <!-- Register / VILLE -->
                 <div class="field-block">
-                  <div class="label">City</div>
+                  <div class="label">Ville</div>
                   <mat-form-field class="field" appearance="outline">
                     <mat-icon matPrefix>location_city</mat-icon>
-                    <mat-select formControlName="city" placeholder="Select a city">
+                    <mat-select [(ngModel)]="userDto.city" name="city" placeholder="ex: Paris">
                       <mat-option *ngFor="let c of cities" [value]="c.name">{{ c.name }}</mat-option>
                     </mat-select>
                   </mat-form-field>
@@ -127,14 +141,26 @@
               </div>
             </ng-container>
 
-            <button mat-flat-button class="primary" type="button">
+            <!-- BOUTON -->
+            <button mat-flat-button class="primary" type="button" (click)="onKickOff()">
               <span>Kick Off</span>
               <mat-icon>arrow_forward</mat-icon>
             </button>
 
+            <!-- MESSAGE D'ERREUR -->
+            @if(errorMessage.length) {
+              <div class="error-block">
+                <ul>
+                  @for(error of errorMessage; track $index) {
+                    <li>{{ error }}</li>
+                  }
+                </ul>
+              </div>
+            }
+
             <div class="divider">
               <mat-divider></mat-divider>
-              <span class="divider__label">OR CONTINUE WITH</span>
+              <span class="divider__label">OU CONTINUER AVEC</span>
               <mat-divider></mat-divider>
             </div>
 

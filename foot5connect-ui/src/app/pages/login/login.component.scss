@@ -201,6 +201,25 @@
   margin-left: 10px;
 }
 
+.error-block {
+  margin-top: 12px;
+  padding: 15px;
+  border-radius: 25px;
+  color: #7bf9a6;
+  border: 1.8px solid #7bf9a6;
+  font-size: 13px;
+}
+
+.error-block ul {
+  margin: 0;
+  padding-left: 30px;
+}
+
+.error-block li {
+  margin-bottom: 5px;
+  list-style-type: disc;
+}
+
 .divider {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
