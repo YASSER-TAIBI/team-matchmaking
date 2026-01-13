@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -10,12 +10,17 @@ import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { City, Country } from 'country-state-city';
+import { AuthenticationRequest, UserDto } from '../../services/models';
+import { AuthService } from '../../services/auth/auth.service';
+import { Router } from '@angular/router';
+import { JwtHelperService } from '@auth0/angular-jwt';
+
 
 @Component({
   selector: 'app-login',
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    FormsModule,
     MatButtonModule,
     MatButtonToggleModule,
     MatDividerModule,
@@ -29,20 +34,26 @@ import { City, Country } from 'country-state-city';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
+
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   readonly countries = Country.getAllCountries().sort((a, b) => a.name.localeCompare(b.name));
   cities: Array<{ name: string }> = [];
+  authRequest: AuthenticationRequest = {};
 
-  readonly form = new FormGroup({
-    username: new FormControl<string>('', { nonNullable: true }),
-    email: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
-    password: new FormControl<string>('', { nonNullable: true }),
-    confirmPassword: new FormControl<string>('', { nonNullable: true }),
-    firstName: new FormControl<string>('', { nonNullable: true }),
-    lastName: new FormControl<string>('', { nonNullable: true }),
-    country: new FormControl<string>('', { nonNullable: true }),
-    city: new FormControl<string>('', { nonNullable: true })
-  });
+  userDto: UserDto = {
+    email: '',
+    firstName: '',
+    lastName: '',
+    password: '',
+    confirmPassword: '',
+    city: '',
+    country: '',
+    username: ''
+  };
 
+  errorMessage: Array<string> = [];
   selectedAuthTab: 'login' | 'register' = 'login';
   private selectedCountryIsoCode: string | null = null;
 
@@ -68,8 +79,7 @@ export class LoginComponent {
     const selected = this.countries.find((c) => c.name === countryName) ?? null;
     this.selectedCountryIsoCode = selected?.isoCode ?? null;
 
-    this.form.controls.city.setValue('', { emitEvent: false });
-    this.form.controls.city.disable({ emitEvent: false });
+    this.userDto.city = '';
 
     if (!this.selectedCountryIsoCode) {
       this.cities = [];
@@ -79,50 +89,91 @@ export class LoginComponent {
     const cities = City.getCitiesOfCountry(this.selectedCountryIsoCode) ?? [];
 
     this.cities = cities.map((c) => ({ name: c.name })).sort((a, b) => a.name.localeCompare(b.name));
-
-    this.form.controls.city.enable({ emitEvent: false });
   }
 
   onAuthTabChange(tab: 'login' | 'register'): void {
     this.selectedAuthTab = tab;
 
-    const registerControls = [
-      this.form.controls.username,
-      this.form.controls.confirmPassword,
-      this.form.controls.firstName,
-      this.form.controls.lastName,
-      this.form.controls.country,
-      this.form.controls.city
-    ];
-
     if (tab === 'login') {
-      this.form.controls.email.setValidators([Validators.required, Validators.email]);
-      this.form.controls.password.setValidators([Validators.required]);
-
-      for (const c of registerControls) {
-        c.clearValidators();
-        c.disable({ emitEvent: false });
-        c.setValue('', { emitEvent: false });
-      }
-
+      this.userDto = {
+        email: '',
+        firstName: '',
+        lastName: '',
+        password: '',
+        confirmPassword: '',
+        city: '',
+        country: '',
+        username: ''
+      };
       this.selectedCountryIsoCode = null;
       this.cities = [];
+      this.errorMessage = [];
     } else {
-      this.form.controls.email.setValidators([Validators.required, Validators.email]);
-      this.form.controls.password.setValidators([Validators.required]);
-
-      for (const c of registerControls) {
-        c.enable({ emitEvent: false });
-        c.setValidators([Validators.required]);
+      this.authRequest = {};
+      this.errorMessage = [];
+      if (this.userDto.country) {
+        this.onCountrySelected(this.userDto.country);
+      } else {
+        this.selectedCountryIsoCode = null;
+        this.cities = [];
       }
+    }
+  }
 
-      this.onCountrySelected(this.form.controls.country.value);
+  onKickOff(): void {
+    console.log('[LoginComponent] Kick Off clicked, tab =', this.selectedAuthTab);
+
+    if (this.selectedAuthTab === 'login') {
+      this.login();
+      return;
     }
 
-    this.form.controls.email.updateValueAndValidity({ emitEvent: false });
-    this.form.controls.password.updateValueAndValidity({ emitEvent: false });
-    for (const c of registerControls) {
-      c.updateValueAndValidity({ emitEvent: false });
-    }
+    this.register();
+  }
+
+  private login(): void {
+    this.errorMessage = [];
+    this.authService.login(this.authRequest)
+    .subscribe({
+      next: (res) => {
+        localStorage.setItem('token', res.body.token as string);
+        const helper = new JwtHelperService();
+        const decodedToken = helper.decodeToken(res.body.token as string);
+        if (decodedToken.authorities[0].authority === 'ROLE_USER'){
+          // this.router.navigate(['user/dashboard']);
+          console.log(decodedToken);
+        }else{
+          // this.router.navigate(['admin/dashboard']);
+          console.log(decodedToken);
+        }
+      },
+      error: (err) => {
+        // err.error correspond au body JSON de ExceptionRepresentation
+        const backendError = err.error;
+        // message global (par ex. "Object not valid exception has occured")
+        if (backendError?.errorMessage) {
+          this.errorMessage.push(backendError.errorMessage);
+        }
+      }
+    });
+  }
+
+  private register(): void {
+    this.errorMessage = [];
+    this.authService.register(this.userDto)
+      .subscribe({
+        next: async (res) => {
+          await this.router.navigate(['/confirm-register']);
+          console.log(res.body);
+        },
+        error: (err) => {
+          // err.error correspond au body JSON de ExceptionRepresentation
+          const backendError = err.error;
+          // messages de validation (annotations de UserDto)
+          if (backendError?.validationErrors && Array.isArray(backendError.validationErrors)) {
+            this.errorMessage.push(...backendError.validationErrors);
+          }
+        }
+      });
   }
 }

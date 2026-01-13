@@ -16,40 +16,46 @@ public class UserDto {
 
     private Long id;
 
-    @NotNull(message = "le username ne doit pas etre vide")
-    @NotEmpty(message = "le username ne doit pas etre vide")
-    @NotBlank(message = "le username ne doit pas etre vide")
+    @NotNull(message = "Le champ username ne doit pas être vide.")
+    @NotEmpty(message = "Le champ username ne doit pas être vide.")
+    @NotBlank(message = "Le champ username ne doit pas être vide.")
     private String username;
 
-    @NotNull(message = "l'email ne doit pas etre vide")
-    @NotEmpty(message = "l'email ne doit pas etre vide")
-    @NotBlank(message = "l'email ne doit pas etre vide")
-    @Email(message = "l'email n'est pas conforme")
+    @NotNull(message = "Le champ email ne doit pas être vide.")
+    @NotEmpty(message = "Le champ email ne doit pas être vide.")
+    @NotBlank(message = "Le champ email ne doit pas être vide.")
+    @Email(message = "L'adresse e-mail n'est pas conforme.")
     private String email;
 
-    @NotNull(message = "le Mot de passe ne doit pas etre vide")
-    @NotEmpty(message = "le Mot de passe ne doit pas etre vide")
-    @NotBlank(message = "le Mot de passe ne doit pas etre vide")
-    @Size(min = 8, max = 16, message = "le Mot de passe doit être comprise entre 8 et 16")
+    @NotNull(message = "Le champ mot de passe ne doit pas être vide.")
+    @NotEmpty(message = "Le champ mot de passe ne doit pas être vide.")
+    @NotBlank(message = "Le champ mot de passe ne doit pas être vide.")
+    @Size(min = 8, max = 16, message = "Le champ mot de passe doit contenir entre 8 et 16 caractères.")
     private String password;
 
-    @NotNull(message = "la confirmation du mot de passe ne doit pas etre vide")
-    @NotEmpty(message = "la confirmation du mot de passe ne doit pas etre vide")
-    @NotBlank(message = "la confirmation du mot de passe ne doit pas etre vide")
+    @NotNull(message = "Le champ confirmation du mot de passe ne doit pas être vide.")
+    @NotEmpty(message = "Le champ confirmation du mot de passe ne doit pas être vide.")
+    @NotBlank(message = "Le champ confirmation du mot de passe ne doit pas être vide.")
     private String confirmPassword;
 
+    @NotNull(message = "Le champ prénom ne doit pas être vide.")
+    @NotEmpty(message = "Le champ prénom ne doit pas être vide.")
+    @NotBlank(message = "Le champ prénom ne doit pas être vide.")
     private String firstName;
 
+    @NotNull(message = "Le champ nom ne doit pas être vide.")
+    @NotEmpty(message = "Le champ nom ne doit pas être vide.")
+    @NotBlank(message = "Le champ nom ne doit pas être vide.")
     private String lastName;
 
-    @NotNull(message = "le pays ne doit pas etre vide")
-    @NotEmpty(message = "le pays ne doit pas etre vide")
-    @NotBlank(message = "le pays ne doit pas etre vide")
+    @NotNull(message = "Le champ pays ne doit pas être vide.")
+    @NotEmpty(message = "Le champ pays ne doit pas être vide.")
+    @NotBlank(message = "Le champ pays ne doit pas être vide.")
     private String country;
 
-    @NotNull(message = "le ville ne doit pas etre vide")
-    @NotEmpty(message = "le ville ne doit pas etre vide")
-    @NotBlank(message = "le ville ne doit pas etre vide")
+    @NotNull(message = "Le champ ville ne doit pas être vide.")
+    @NotEmpty(message = "Le champ ville ne doit pas être vide.")
+    @NotBlank(message = "Le champ ville ne doit pas être vide.")
     private String city;
 
     private boolean active;
