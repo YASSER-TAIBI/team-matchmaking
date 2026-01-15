@@ -3,4 +3,7 @@
 
 export type { AuthenticationRequest } from './models/authentication-request';
 export type { AuthenticationResponse } from './models/authentication-response';
+export type { PasswordResetDto } from './models/password-reset-dto';
+export type { PasswordResetRequest } from './models/password-reset-request';
+export type { TokenValidationResponse } from './models/token-validation-response';
 export type { UserDto } from './models/user-dto';

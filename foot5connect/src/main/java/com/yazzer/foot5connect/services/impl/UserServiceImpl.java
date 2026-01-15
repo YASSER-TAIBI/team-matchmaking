@@ -15,10 +15,13 @@ import org.springframework.stereotype.Service;
 import com.yazzer.foot5connect.config.JwtUtils;
 import com.yazzer.foot5connect.dto.AuthenticationRequest;
 import com.yazzer.foot5connect.dto.AuthenticationResponse;
+import com.yazzer.foot5connect.dto.PasswordResetDto;
+import com.yazzer.foot5connect.dto.PasswordResetRequest;
 import com.yazzer.foot5connect.dto.UserDto;
 import com.yazzer.foot5connect.models.AvailabilityStatus;
 import com.yazzer.foot5connect.models.Role;
 import com.yazzer.foot5connect.models.Token;
+import com.yazzer.foot5connect.models.TokenType;
 import com.yazzer.foot5connect.models.User;
 import com.yazzer.foot5connect.repositories.RoleRepository;
 import com.yazzer.foot5connect.repositories.UserRepository;
@@ -94,6 +97,7 @@ public class UserServiceImpl implements UserService {
         // Create confirmation token
         Token confirmationToken = new Token();
         confirmationToken.setUser(savedUser);
+        confirmationToken.setType(TokenType.CONFIRMATION);
         confirmationToken.setExpiresAt(LocalDateTime.now().plusMinutes(20));
         confirmationToken.setToken(UUID.randomUUID().toString());
         tokenService.saveToken(confirmationToken);
@@ -126,7 +130,7 @@ public class UserServiceImpl implements UserService {
     public void confirmToken(String token) {
         
         // 1. Find the confirmation token
-       Token confirmationToken = tokenService.findByToken(token)
+       Token confirmationToken = tokenService.findByTokenAndType(token, TokenType.CONFIRMATION)
                .orElseThrow(() -> new EntityNotFoundException("No confirmation token was found with the provided token :" + token));
 
         // 2. Check if the token is already confirmed
@@ -146,6 +150,83 @@ public class UserServiceImpl implements UserService {
 
         // 5. Enable the user
         enableUser(confirmationToken.getUser());
+    }
+
+    @Override
+    public AuthenticationResponse requestPasswordReset(PasswordResetRequest request) {
+        if (request == null || request.getEmail() == null) {
+            throw new IllegalArgumentException("Email is required");
+        }
+
+        userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
+            Token resetToken = new Token();
+            resetToken.setUser(user);
+            resetToken.setType(TokenType.PASSWORD_RESET);
+            resetToken.setExpiresAt(LocalDateTime.now().plusMinutes(20));
+            resetToken.setToken(UUID.randomUUID().toString());
+            tokenService.saveToken(resetToken);
+            emailService.sendPasswordResetEmail(user.getEmail(), resetToken.getToken());
+        });
+
+        return AuthenticationResponse.builder()
+                .token("not_accessible")
+                .message("Si un compte existe pour cet email, un lien de réinitialisation vous a été envoyé.")
+                .build();
+    }
+
+    @Override
+    public void validatePasswordResetToken(String token) {
+        Token resetToken = tokenService.findByTokenAndType(token, TokenType.PASSWORD_RESET)
+                .orElseThrow(() -> new EntityNotFoundException("No reset token was found with the provided token :" + token));
+
+        if (resetToken.getConfirmedAt() != null) {
+            throw new IllegalStateException("Token already used");
+        }
+
+        LocalDateTime expiredAt = resetToken.getExpiresAt();
+        if (expiredAt.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Token expired");
+        }
+    }
+
+    @Override
+    @Transactional
+    public AuthenticationResponse resetPassword(PasswordResetDto request) {
+        if (request == null || request.getToken() == null) {
+            throw new IllegalArgumentException("Token is required");
+        }
+
+        if (request.getPassword() == null || request.getConfirmPassword() == null) {
+            throw new IllegalArgumentException("Password and confirmPassword are required");
+        }
+
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("Les mots de passe ne correspondent pas");
+        }
+
+        Token resetToken = tokenService.findByTokenAndType(request.getToken(), TokenType.PASSWORD_RESET)
+                .orElseThrow(() -> new EntityNotFoundException("No reset token was found with the provided token :" + request.getToken()));
+
+        if (resetToken.getConfirmedAt() != null) {
+            throw new IllegalStateException("Token already used");
+        }
+
+        LocalDateTime expiredAt = resetToken.getExpiresAt();
+        if (expiredAt.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Token expired");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+
+        resetToken.setConfirmedAt(LocalDateTime.now());
+        tokenService.saveToken(resetToken);
+
+        return AuthenticationResponse.builder()
+                .token("not_accessible")
+                .message("Mot de passe mis à jour avec succès")
+                .build();
     }
     
 

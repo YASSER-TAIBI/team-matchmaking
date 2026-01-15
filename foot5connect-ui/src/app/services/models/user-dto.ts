@@ -8,9 +8,9 @@ export interface UserDto {
   confirmPassword: string;
   country: string;
   email: string;
-  firstName?: string;
+  firstName: string;
   id?: number;
-  lastName?: string;
+  lastName: string;
   password: string;
   username: string;
 }
