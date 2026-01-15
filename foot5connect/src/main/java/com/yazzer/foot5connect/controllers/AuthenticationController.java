@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yazzer.foot5connect.dto.AuthenticationRequest;
 import com.yazzer.foot5connect.dto.AuthenticationResponse;
+import com.yazzer.foot5connect.dto.PasswordResetDto;
+import com.yazzer.foot5connect.dto.PasswordResetRequest;
+import com.yazzer.foot5connect.dto.TokenValidationResponse;
 import com.yazzer.foot5connect.dto.UserDto;
 import com.yazzer.foot5connect.services.UserService;
 
@@ -41,5 +44,27 @@ public class AuthenticationController {
     ){
         userService.confirmToken(token);
         return ResponseEntity.ok("Token confirmed");
+    }
+
+    @PostMapping("/password-reset/request")
+    public ResponseEntity<AuthenticationResponse> requestPasswordReset(
+            @RequestBody PasswordResetRequest request
+    ) {
+        return ResponseEntity.ok(userService.requestPasswordReset(request));
+    }
+
+    @GetMapping("/password-reset/validate")
+    public ResponseEntity<TokenValidationResponse> validatePasswordResetToken(
+            @RequestParam("token") String token
+    ) {
+        userService.validatePasswordResetToken(token);
+        return ResponseEntity.ok(new TokenValidationResponse("Token valid"));
+    }
+
+    @PostMapping("/password-reset/reset")
+    public ResponseEntity<AuthenticationResponse> resetPassword(
+            @RequestBody PasswordResetDto request
+    ) {
+        return ResponseEntity.ok(userService.resetPassword(request));
     }
 }

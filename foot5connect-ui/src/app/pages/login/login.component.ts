@@ -12,7 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { City, Country } from 'country-state-city';
 import { AuthenticationRequest, UserDto } from '../../services/models';
 import { AuthService } from '../../services/auth/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
 
@@ -21,6 +21,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     MatButtonModule,
     MatButtonToggleModule,
     MatDividerModule,

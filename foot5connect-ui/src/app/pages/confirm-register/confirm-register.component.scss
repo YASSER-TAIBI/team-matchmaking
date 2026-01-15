@@ -16,6 +16,9 @@
 }
 
 .confirm-split {
+  min-height: calc(100vh - 112px);
+  display: grid;
+  align-content: center;
   z-index: 1;
   position: relative;
   max-width: 1180px;
@@ -45,7 +48,6 @@
   background: rgba(10, 25, 23, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(10px);
 }
 
 .brand {
@@ -177,12 +179,6 @@
 @media (min-width: 768px) {
   .confirm-page {
     padding: 56px 32px;
-  }
-
-  .confirm-split {
-    min-height: calc(100vh - 112px);
-    display: grid;
-    align-content: center;
   }
 
   .auth-surface {

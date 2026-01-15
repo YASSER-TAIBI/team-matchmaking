@@ -63,4 +63,20 @@ public class GlobalExceptionHandler {
                 .build();
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(representation);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ExceptionRepresentation> handleIllegalArgumentException(IllegalArgumentException exception) {
+        ExceptionRepresentation representation = ExceptionRepresentation.builder()
+                .errorMessage(exception.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(representation);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ExceptionRepresentation> handleIllegalStateException(IllegalStateException exception) {
+        ExceptionRepresentation representation = ExceptionRepresentation.builder()
+                .errorMessage(exception.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(representation);
+    }
 }

@@ -3,7 +3,13 @@
 
 export type { Register$Params } from './fn/authentication-controller/register';
 export { register } from './fn/authentication-controller/register';
+export type { ResetPassword$Params } from './fn/authentication-controller/reset-password';
+export { resetPassword } from './fn/authentication-controller/reset-password';
+export type { RequestPasswordReset$Params } from './fn/authentication-controller/request-password-reset';
+export { requestPasswordReset } from './fn/authentication-controller/request-password-reset';
 export type { Login$Params } from './fn/authentication-controller/login';
 export { login } from './fn/authentication-controller/login';
+export type { ValidatePasswordResetToken$Params } from './fn/authentication-controller/validate-password-reset-token';
+export { validatePasswordResetToken } from './fn/authentication-controller/validate-password-reset-token';
 export type { ConfirmToken$Params } from './fn/authentication-controller/confirm-token';
 export { confirmToken } from './fn/authentication-controller/confirm-token';
