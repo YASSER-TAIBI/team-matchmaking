@@ -1,0 +1,102 @@
+<section class="dashboard">
+  <header class="welcome dashboard__header">
+    <div>
+      <h1>Welcome to the pitch, <span>Yasser </span>!</h1>
+      <p>You haven't joined any matches yet. Let's get you on the field.</p>
+    </div>
+  </header>
+
+  <div class="dashboard__main">
+
+    <section class="card card--hero">
+      <div class="hero-icon">
+        <mat-icon>sports_soccer</mat-icon>
+      </div>
+      <div class="hero-content">
+        <h2>No upcoming matches</h2>
+        <p>Your boots are looking a bit too clean. Find a local game and start your journey.</p>
+        <div class="hero-actions">
+          <button class="btn btn--primary">Find your first match →</button>
+          <button class="btn btn--ghost">How it works</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card--schedule">
+      <div class="card__header">
+        <h3>Upcoming Schedule</h3>
+      </div>
+      <div class="schedule-empty">
+        <div class="empty-icon">
+          <mat-icon>event_busy</mat-icon>
+        </div>
+        <div class="empty-content">
+          <h4>Schedule Empty</h4>
+          <p>Join a match or league to see your calendar here.</p>
+          <button class="btn btn--link">Browse Leagues</button>
+        </div>
+      </div>
+    </section>
+    
+  </div>
+
+  <aside class="dashboard__aside">
+
+    <section class="card card--stats">
+      <div class="card__header">
+        <h3>Your Career Stats</h3>
+      </div>
+      <div class="stats-grid">
+        <div class="stat">
+          <span>Matches</span>
+          <strong>0</strong>
+        </div>
+        <div class="stat">
+          <span>Goals</span>
+          <strong>0</strong>
+        </div>
+        <div class="stat">
+          <span>MOTM</span>
+          <strong>0</strong>
+        </div>
+      </div>
+      <p class="stats-note">Statistics will update after your first match</p>
+    </section>
+
+    <div class="status-card">
+        <div>
+          <span>Status: <strong>Available</strong></span>
+          <small>Teams can invite you</small>
+        </div>
+        <label class="switch">
+          <input type="checkbox" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+    <section class="card card--actions">
+      <div class="card__header">
+        <h3>Quick Actions</h3>
+      </div>
+      <button class="action-item">
+        <div class="action-icon">
+          <mat-icon>group_add</mat-icon>
+        </div>
+        <div>
+          <h4 class="action-title">Create a team</h4>
+          <p>Manage squad</p>
+        </div>
+      </button>
+      <button class="action-item">
+        <div class="action-icon">
+          <mat-icon>person_search</mat-icon>
+        </div>
+        <div>
+          <h4 class="action-title">Find local players</h4>
+          <p>Nearby players</p>
+        </div>
+      </button>
+    </section>
+
+  </aside>
+</section>

@@ -1,14 +1,30 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: auto; }
+* {
+  box-sizing: border-box;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap');
+
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-  background:
-  radial-gradient(1200px 800px at 20% -10%, rgba(20, 255, 128, 0.10), rgba(0, 0, 0, 0) 60%),
-  radial-gradient(900px 600px at 120% 70%, rgba(20, 255, 128, 0.08), rgba(0, 0, 0, 0) 55%),
-  linear-gradient(180deg, rgba(1, 39, 39, 1) 0%, rgba(0, 24, 24, 1) 100%);
-  color: #ffffff;
-  letter-spacing: 0.2px;
+  font-family: "Lexend", "Poppins", "Inter", "SF Pro Display", "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, #102216 0%, #0c1812 100%);
+  color: #f4fdf8;
+  letter-spacing: 0.1px;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+:root {
+  --neon-green: #13ec5b;
+  --deep-green: #102216;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(10, 25, 23, 0.45);
+  --text-muted: rgba(255, 255, 255, 0.68);
+  --shadow-glow: 0 16px 32px rgba(53, 255, 122, 0.18);
 }
 
