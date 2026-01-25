@@ -43,5 +43,18 @@
 @media (max-width: 960px) {
   .app-shell {
     grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  app-sidenav {
+    display: none;
+  }
+
+  .app-main {
+    padding-top: 72px;
+  }
+
+  .app-content {
+    padding: 0 16px 24px;
   }
 }

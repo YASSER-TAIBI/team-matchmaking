@@ -1,9 +1,24 @@
+<input id="mobile-nav-toggle" class="mobile-nav-toggle" type="checkbox" />
 <header class="topbar">
-  <div class="search">
-    <span class="icon"><mat-icon>search</mat-icon></span>
-    <input type="text" placeholder="Search teams, players or local pitches..." />
+  <div class="topbar-left">
+    <label class="icon-btn icon-btn--ghost" for="mobile-nav-toggle" aria-label="Open navigation">
+      <mat-icon>menu</mat-icon>
+    </label>
+    <div class="search">
+      <span class="icon"><mat-icon>search</mat-icon></span>
+      <input type="text" placeholder="Search teams, players or local pitches..." />
+    </div>
+  </div>
+  <div class="topbar-center">
+    <span class="topbar-logo">
+      <span class="topbar-logo__mark"></span>
+      PitchSide
+    </span>
   </div>
   <div class="topbar-actions">
+    <button class="icon-btn icon-btn--search" aria-label="Search">
+      <mat-icon>search</mat-icon>
+    </button>
     <button class="icon-btn" aria-label="Notifications">
       <mat-icon>notifications</mat-icon>
     </button>
@@ -12,3 +27,47 @@
     </button>
   </div>
 </header>
+<div class="mobile-drawer">
+  <nav class="mobile-nav">
+    <button class="mobile-nav__item is-active">
+      <span class="icon"><mat-icon>dashboard</mat-icon></span>
+      Dashboard
+    </button>
+    <button class="mobile-nav__item">
+      <span class="icon"><mat-icon>search</mat-icon></span>
+      Find Match
+    </button>
+    <button class="mobile-nav__item">
+      <span class="icon"><mat-icon>groups</mat-icon></span>
+      My Team
+    </button>
+    <button class="mobile-nav__item">
+      <span class="icon"><mat-icon>emoji_events</mat-icon></span>
+      Leagues
+    </button>
+    <button class="mobile-nav__item">
+      <span class="icon"><mat-icon>stadium</mat-icon></span>
+      Pitches
+    </button>
+  </nav>
+  <div class="sidebar__profile mobile-profile">
+    <input id="mobile-profile-toggle" class="profile-toggle" type="checkbox" />
+    <label class="profile__details mobile-profile__details" for="mobile-profile-toggle">
+      <div class="avatar">YT</div>
+      <div>
+        <div class="profile__name">Yasser Taibi</div>
+        <div class="profile__role">New Player</div>
+      </div>
+    </label>
+    <div class="profile-dropdown mobile-profile__actions">
+      <button class="dropdown-item" type="button">
+        <mat-icon>person</mat-icon>
+        Profile
+      </button>
+      <button class="dropdown-item" type="button">
+        <mat-icon>logout</mat-icon>
+        Logout
+      </button>
+    </div>
+  </div>
+</div>
