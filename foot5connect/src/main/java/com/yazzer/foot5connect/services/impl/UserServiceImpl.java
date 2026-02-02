@@ -15,14 +15,18 @@ import org.springframework.stereotype.Service;
 import com.yazzer.foot5connect.config.JwtUtils;
 import com.yazzer.foot5connect.dto.AuthenticationRequest;
 import com.yazzer.foot5connect.dto.AuthenticationResponse;
+import com.yazzer.foot5connect.dto.DisponibilityDetailDto;
 import com.yazzer.foot5connect.dto.PasswordResetDto;
 import com.yazzer.foot5connect.dto.PasswordResetRequest;
 import com.yazzer.foot5connect.dto.UserDto;
 import com.yazzer.foot5connect.models.AvailabilityStatus;
+import com.yazzer.foot5connect.models.DisponibilityDetail;
+import com.yazzer.foot5connect.models.PlayerLevel;
 import com.yazzer.foot5connect.models.Role;
 import com.yazzer.foot5connect.models.Token;
 import com.yazzer.foot5connect.models.TokenType;
 import com.yazzer.foot5connect.models.User;
+import com.yazzer.foot5connect.repositories.DisponibilityDetailRepository;
 import com.yazzer.foot5connect.repositories.RoleRepository;
 import com.yazzer.foot5connect.repositories.UserRepository;
 import com.yazzer.foot5connect.services.TokenService;
@@ -39,6 +43,7 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService {
     
     private final UserRepository userRepository;
+    private final DisponibilityDetailRepository disponibilityDetailRepository;
     private static final String ROLE_USER = "ROLE_USER";
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
@@ -88,13 +93,20 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Les mots de passe ne correspondent pas");
         }
 
+        /* ================= CREATE USER ================= */
+
         User user = UserDto.toEntity(dto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(findOrCreateRole(ROLE_USER));
         user.setAvailabilityStatus(AvailabilityStatus.INDISPONIBLE);
+        user.setLevel(PlayerLevel.DEBUTANT);
+        user.setTotalMatches(0);
+        user.setTotalGoals(0);
+        user.setActive(false);
         var savedUser = userRepository.save(user);
 
-        // Create confirmation token
+        /* ================= CREATE CONFIRMATION TOKEN ================= */
+
         Token confirmationToken = new Token();
         confirmationToken.setUser(savedUser);
         confirmationToken.setType(TokenType.CONFIRMATION);
@@ -102,7 +114,8 @@ public class UserServiceImpl implements UserService {
         confirmationToken.setToken(UUID.randomUUID().toString());
         tokenService.saveToken(confirmationToken);
 
-        // Send email
+        /* ================= SEND CONFIRMATION EMAIL ================= */
+
         emailService.sendEmail(savedUser.getEmail(), confirmationToken.getToken());
 
         return AuthenticationResponse.builder()
@@ -227,6 +240,55 @@ public class UserServiceImpl implements UserService {
                 .token("not_accessible")
                 .message("Mot de passe mis à jour avec succès")
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public UserDto saveAvailability(Long userId, DisponibilityDetailDto request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Request body is required");
+        }
+        if (request.getAvailableDate() == null || request.getStartTime() == null || request.getEndTime() == null) {
+            throw new IllegalArgumentException("availableDate, startTime and endTime are required");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("No user was found with the provided ID :" + userId));
+
+        boolean exists = disponibilityDetailRepository.existsByUser_IdAndAvailableDateAndStartTimeAndEndTime(
+                userId,
+                request.getAvailableDate(),
+                request.getStartTime(),
+                request.getEndTime()
+        );
+        if (exists) {
+            throw new IllegalStateException("Disponibility detail already exists for this user");
+        }
+
+        DisponibilityDetail detail = DisponibilityDetail.builder()
+                .availableDate(request.getAvailableDate())
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .user(user)
+                .build();
+        disponibilityDetailRepository.save(detail);
+
+        user.setAvailabilityStatus(AvailabilityStatus.DISPONIBLE);
+        userRepository.save(user);
+
+        return UserDto.fromEntity(user);
+    }
+
+    @Override
+    @Transactional
+    public UserDto setUnavailable(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("No user was found with the provided ID :" + userId));
+
+        user.setAvailabilityStatus(AvailabilityStatus.INDISPONIBLE);
+        userRepository.save(user);
+
+        return UserDto.fromEntity(user);
     }
     
 

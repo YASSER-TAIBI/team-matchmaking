@@ -10,14 +10,26 @@ export class HelperService {
   private decodedToken: any;
 
   constructor() {
-    this.decodedToken = this.jwtHelper.decodeToken(localStorage.getItem('token')!);
+    this.refreshDecodedToken();
    }
 
-   get userId(): number {
-  return this.decodedToken.userId;
+  private refreshDecodedToken(): void {
+    const token = localStorage.getItem('token');
+    this.decodedToken = token ? this.jwtHelper.decodeToken(token) : null;
+  }
+
+   get userId(): number | null {
+  this.refreshDecodedToken();
+  return this.decodedToken?.userId ?? null;
  }
 
- get userFullName(): string {
-  return this.decodedToken.fullName;
+ get userFullName(): string | null {
+  this.refreshDecodedToken();
+  return this.decodedToken?.fullName ?? null;
+ }
+ 
+ get userEmail(): string | null {
+  this.refreshDecodedToken();
+  return this.decodedToken?.sub ?? null;
  }
 }

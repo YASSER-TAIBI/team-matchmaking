@@ -1,0 +1,54 @@
+<aside class="sidebar">
+  <div class="sidebar__brand">
+    <span class="brand-mark"></span>
+    <span class="brand-text">PitchSide</span>
+  </div>
+
+  <nav class="sidebar__nav">
+    <button class="nav-item" routerLink="/user/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+      <span class="icon"><i class="fa-solid fa-gauge"></i></span>
+      Tableau de bord
+    </button>
+    <button class="nav-item" routerLink="/user/available-players" routerLinkActive="is-active">
+      <span class="icon"><i class="fa-solid fa-futbol"></i></span>
+      Joueurs dispos
+    </button>
+    <button class="nav-item">
+      <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+      Trouver un match
+    </button>
+    <button class="nav-item">
+      <span class="icon"><i class="fa-solid fa-users"></i></span>
+      Mon équipe
+    </button>
+    <button class="nav-item">
+      <span class="icon"><i class="fa-solid fa-trophy"></i></span>
+      Ligues
+    </button>
+    <button class="nav-item">
+      <span class="icon"><i class="fa-solid fa-map"></i></span>
+      Terrains
+    </button>
+  </nav>
+
+  <div class="sidebar__profile">
+    <input id="profile-toggle" class="profile-toggle" type="checkbox" />
+    <label class="profile__details" for="profile-toggle">
+      <div class="avatar">{{ initials }}</div>
+      <div>
+        <div class="profile__name">{{ fullName }}</div>
+        <div class="profile__email">{{ email }}</div>
+      </div>
+    </label>
+    <div class="profile-dropdown">
+      <button class="dropdown-item" type="button">
+        <i class="fa-solid fa-user"></i>
+        Profil
+      </button>
+      <button class="dropdown-item" type="button">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Déconnexion
+      </button>
+    </div>
+  </div>
+</aside>

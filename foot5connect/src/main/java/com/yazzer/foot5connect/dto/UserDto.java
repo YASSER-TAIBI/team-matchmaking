@@ -1,7 +1,9 @@
 package com.yazzer.foot5connect.dto;
 
 import com.yazzer.foot5connect.models.AvailabilityStatus;
+import com.yazzer.foot5connect.models.PlayerLevel;
 import com.yazzer.foot5connect.models.User;
+
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,6 +60,12 @@ public class UserDto {
     @NotBlank(message = "Le champ ville ne doit pas être vide.")
     private String city;
 
+    private Integer totalMatches;
+
+    private Integer totalGoals;
+
+    private PlayerLevel level;
+
     private boolean active;
 
     private AvailabilityStatus availabilityStatus;
@@ -76,6 +84,9 @@ public class UserDto {
                 .lastName(user.getLastName())
                 .country(user.getCountry())
                 .city(user.getCity())
+                .totalMatches(user.getTotalMatches())
+                .totalGoals(user.getTotalGoals())
+                .level(user.getLevel())
                 .active(user.isActive())
                 .availabilityStatus(user.getAvailabilityStatus())
                 .build();

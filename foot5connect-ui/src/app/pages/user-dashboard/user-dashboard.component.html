@@ -1,0 +1,109 @@
+<section class="dashboard">
+  <header class="welcome dashboard__header">
+    <div>
+      <h1>Bienvenue sur le terrain, <span>{{ firstName }} </span>!</h1>
+      <p>Vous n'avez encore rejoint aucun match. Allons vous mettre sur le terrain.</p>
+    </div>
+  </header>
+
+  <div class="dashboard__main">
+
+    <section class="card card--hero">
+      <div class="hero-icon">
+        <i class="fa-solid fa-futbol"></i>
+      </div>
+      <div class="hero-content">
+        <h2>Aucun match à venir</h2>
+        <p>Vos crampons sont trop propres. Trouvez un match local et lancez votre parcours.</p>
+        <div class="hero-actions">
+          <button class="btn btn--primary">Trouver votre premier match →</button>
+          <button class="btn btn--ghost">Comment ça marche</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card--schedule">
+      <div class="card__header">
+        <h3>Calendrier à venir</h3>
+      </div>
+      <div class="schedule-empty">
+        <div class="empty-icon">
+          <i class="fa-solid fa-calendar-xmark"></i>
+        </div>
+        <div class="empty-content">
+          <h4>Calendrier vide</h4>
+          <p>Rejoignez un match ou une ligue pour voir votre calendrier ici.</p>
+          <button class="btn btn--link">Parcourir les ligues</button>
+        </div>
+      </div>
+    </section>
+    
+  </div>
+
+  <aside class="dashboard__aside">
+
+    <section class="card card--stats">
+      <div class="card__header">
+        <h3>Vos statistiques</h3>
+      </div>
+      <div class="stats-grid-level">
+        <div class="stat">
+          <span>Niveau</span>
+          <span class="badge badge--green">{{ levelLabel }}</span>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat">
+          <span>Matchs</span>
+          <strong>{{ matchesCount }}</strong>
+        </div>
+        <div class="stat">
+          <span>Buts</span>
+          <strong>{{ goalsCount }}</strong>
+        </div>
+      </div>
+      <p class="stats-note">Les statistiques se mettront à jour après votre premier match</p>
+    </section>
+
+    <div class="status-card">
+        <div>
+          <span>Statut : <strong>{{ availabilityLabel }}</strong></span>
+          <small>Les équipes peuvent vous inviter</small>
+        </div>
+        <label class="switch">
+          <input
+            type="checkbox"
+            [checked]="isAvailabilityChecked"
+            [disabled]="isAvailabilityDisabled"
+            (change)="onAvailabilityToggle($event)"
+          />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+    <section class="card card--actions">
+      <div class="card__header">
+        <h3>Actions rapides</h3>
+      </div>
+      <button class="action-item">
+        <div class="action-icon">
+          <i class="fa-solid fa-user-plus"></i>
+        </div>
+        <div>
+          <h4 class="action-title">Créer une équipe</h4>
+          <p>Gérer l'équipe</p>
+        </div>
+      </button>
+      <button class="action-item" routerLink="/user/available-players">
+        <div class="action-icon">
+          <i class="fa-solid fa-person-circle-check"></i>
+        </div>
+        <div>
+          <h4 class="action-title">Trouver des joueurs</h4>
+          <p>Joueurs à proximité</p>
+        </div>
+      </button>
+    </section>
+
+  </aside>
+</section>

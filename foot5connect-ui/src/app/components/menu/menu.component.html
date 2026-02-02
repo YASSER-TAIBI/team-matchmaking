@@ -1,0 +1,77 @@
+<input id="mobile-nav-toggle" class="mobile-nav-toggle" type="checkbox" />
+<header class="topbar">
+  <div class="topbar-left">
+    <label class="icon-btn icon-btn--ghost" for="mobile-nav-toggle" aria-label="Ouvrir la navigation">
+      <i class="fa-solid fa-bars"></i>
+    </label>
+    <div class="search">
+      <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+      <input type="text" placeholder="Rechercher des équipes, joueurs ou terrains locaux..." />
+    </div>
+  </div>
+  <div class="topbar-center">
+    <span class="topbar-logo">
+      <span class="topbar-logo__mark"></span>
+      PitchSide
+    </span>
+  </div>
+  <div class="topbar-actions">
+    <button class="icon-btn icon-btn--search" aria-label="Rechercher">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+    <button class="icon-btn" aria-label="Notifications">
+      <i class="fa-solid fa-bell"></i>
+    </button>
+    <button class="icon-btn" aria-label="Paramètres">
+      <i class="fa-solid fa-gear"></i>
+    </button>
+  </div>
+</header>
+<div class="mobile-drawer">
+  <nav class="mobile-nav">
+    <button class="mobile-nav__item" routerLink="/user/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+      <span class="icon"><i class="fa-solid fa-gauge"></i></span>
+      Tableau de bord
+    </button>
+    <button class="mobile-nav__item" routerLink="/user/available-players" routerLinkActive="is-active">
+      <span class="icon"><i class="fa-solid fa-futbol"></i></span>
+      Joueurs disponibles
+    </button>
+    <button class="mobile-nav__item">
+      <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+      Trouver un match
+    </button>
+    <button class="mobile-nav__item">
+      <span class="icon"><i class="fa-solid fa-users"></i></span>
+      Mon équipe
+    </button>
+    <button class="mobile-nav__item">
+      <span class="icon"><i class="fa-solid fa-trophy"></i></span>
+      Ligues
+    </button>
+    <button class="mobile-nav__item">
+      <span class="icon"><i class="fa-solid fa-futbol"></i></span>
+      Terrains
+    </button>
+  </nav>
+  <div class="sidebar__profile mobile-profile">
+    <input id="mobile-profile-toggle" class="profile-toggle" type="checkbox" />
+    <label class="profile__details mobile-profile__details" for="mobile-profile-toggle">
+      <div class="avatar">{{ initials }}</div>
+      <div>
+        <div class="profile__name">{{ fullName }}</div>
+        <div class="profile__role">{{ email }}</div>
+      </div>
+    </label>
+    <div class="profile-dropdown mobile-profile__actions">
+      <button class="dropdown-item" type="button">
+        <i class="fa-solid fa-user"></i>
+        Profil
+      </button>
+      <button class="dropdown-item" type="button">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Déconnexion
+      </button>
+    </div>
+  </div>
+</div>

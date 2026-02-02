@@ -4,6 +4,9 @@ import {ConfirmRegisterComponent} from './pages/confirm-register/confirm-registe
 import {AccessDeniedComponent} from './pages/access-denied/access-denied.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { MainPageComponent } from './pages/main-page/main-page.component';
+import { UserDashboardComponent } from './pages/user-dashboard/user-dashboard.component';
+import { AvailablePlayersComponent } from './pages/available-players/available-players.component';
 
 export const routes: Routes = [
   {
@@ -29,5 +32,26 @@ export const routes: Routes = [
   {
     path: 'access-denied',
     component: AccessDeniedComponent
+  },
+  {
+    path: 'user',
+    component: MainPageComponent,
+    children: [
+      {
+        path: 'dashboard',
+        component: UserDashboardComponent
+      },
+      {
+        path: 'available-players',
+        component: AvailablePlayersComponent
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: "full"
+      }
+    ]
+
   }
+
 ];

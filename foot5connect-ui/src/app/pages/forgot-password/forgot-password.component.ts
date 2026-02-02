@@ -5,7 +5,6 @@ import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { AuthService } from '../../services/auth/auth.service';
 
@@ -18,7 +17,6 @@ import { AuthService } from '../../services/auth/auth.service';
     MatButtonModule,
     MatDividerModule,
     MatFormFieldModule,
-    MatIconModule,
     MatInputModule
   ],
   standalone: true,

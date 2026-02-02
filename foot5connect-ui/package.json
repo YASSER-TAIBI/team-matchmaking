@@ -22,6 +22,7 @@
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
     "@auth0/angular-jwt": "^5.2.0",
+    "@fortawesome/fontawesome-free": "^6.5.2",
     "country-state-city": "^3.2.1",
     "ng-openapi-gen": "^1.0.4",
     "rxjs": "~7.8.0",
