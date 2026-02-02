@@ -7,7 +7,7 @@
         <div class="auth-surface">
           <div class="brand">
             <div class="brand__logo" aria-hidden="true">
-              <mat-icon class="brand__logo-icon">sports_soccer</mat-icon>
+              <i class="fa-solid fa-futbol brand__logo-icon"></i>
             </div>
             <div class="brand__name">PitchPerfect</div>
           </div>
@@ -34,7 +34,7 @@
               <div class="field-block">
                 <div class="label">Email</div>
                 <mat-form-field class="field" appearance="outline">
-                  <mat-icon matPrefix>mail_outline</mat-icon>
+                  <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-envelope"></i></span>
                   <input matInput type="email" placeholder="ex: name@email.com" [(ngModel)]="authRequest.email" name="email" required/>
                 </mat-form-field>
               </div>
@@ -46,7 +46,7 @@
                   <button class="forgot" type="button" routerLink="/forgot-password">Mot de passe oublié ?</button>
                 </div>
                 <mat-form-field class="field" appearance="outline">
-                  <mat-icon matPrefix>lock_outline</mat-icon>
+                  <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-lock"></i></span>
                   <input matInput type="password" placeholder="••••••••" [(ngModel)]="authRequest.password" name="password" required/>
                 </mat-form-field>
               </div>
@@ -59,7 +59,7 @@
                 <div class="field-block">
                   <div class="label">Prénom</div>
                   <mat-form-field class="field" appearance="outline">
-                    <mat-icon matPrefix>badge</mat-icon>
+                    <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-id-badge"></i></span>
                     <input matInput type="text" placeholder="ex: Karim" [(ngModel)]="userDto.firstName" name="firstName" required/>
                   </mat-form-field>
                 </div>
@@ -68,7 +68,7 @@
                 <div class="field-block">
                   <div class="label">Nom</div>
                   <mat-form-field class="field" appearance="outline">
-                    <mat-icon matPrefix>badge</mat-icon>
+                    <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-id-badge"></i></span>
                     <input matInput type="text" placeholder="ex: Taibi" [(ngModel)]="userDto.lastName" name="lastName" required/>
                   </mat-form-field>
                 </div>
@@ -78,7 +78,7 @@
                 <div class="field-block">
                   <div class="label">Username</div>
                   <mat-form-field class="field" appearance="outline">
-                    <mat-icon matPrefix>person_outline</mat-icon>
+                    <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-user"></i></span>
                     <input matInput type="text" placeholder="ex: championGoat" [(ngModel)]="userDto.username" name="username" required/>
                   </mat-form-field>
                 </div>
@@ -87,7 +87,7 @@
                 <div class="field-block">
                   <div class="label">Email</div>
                   <mat-form-field class="field" appearance="outline">
-                    <mat-icon matPrefix>mail_outline</mat-icon>
+                    <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-envelope"></i></span>
                     <input matInput type="email" placeholder="ex: champion@example.com" [(ngModel)]="userDto.email" name="email" required/>
                   </mat-form-field>
                 </div>
@@ -96,7 +96,7 @@
                 <div class="field-block">
                   <div class="label">Mot de passe</div>
                   <mat-form-field class="field" appearance="outline">
-                    <mat-icon matPrefix>lock_outline</mat-icon>
+                    <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-lock"></i></span>
                     <input matInput type="password" placeholder="••••••••" [(ngModel)]="userDto.password" name="password" required/>
                   </mat-form-field>
                 </div>
@@ -105,7 +105,7 @@
                 <div class="field-block">
                   <div class="label">Confirmer mot de passe</div>
                   <mat-form-field class="field" appearance="outline">
-                    <mat-icon matPrefix>lock_outline</mat-icon>
+                    <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-lock"></i></span>
                     <input matInput type="password" placeholder="••••••••" [(ngModel)]="userDto.confirmPassword" name="confirmPassword" required/>
                   </mat-form-field>
                 </div>
@@ -116,7 +116,7 @@
                 <div class="field-block">
                   <div class="label">Pays</div>
                   <mat-form-field class="field" appearance="outline">
-                    <mat-icon matPrefix>public</mat-icon>
+                    <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-globe"></i></span>
                     <mat-select
                       [(ngModel)]="userDto.country"
                       name="country"
@@ -132,7 +132,7 @@
                 <div class="field-block">
                   <div class="label">Ville</div>
                   <mat-form-field class="field" appearance="outline">
-                    <mat-icon matPrefix>location_city</mat-icon>
+                    <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-city"></i></span>
                     <mat-select [(ngModel)]="userDto.city" name="city" placeholder="ex: Paris">
                       <mat-option *ngFor="let c of cities" [value]="c.name">{{ c.name }}</mat-option>
                     </mat-select>
@@ -144,7 +144,7 @@
             <!-- BOUTON -->
             <button mat-flat-button class="primary" type="button" (click)="onKickOff()">
               <span>Kick Off</span>
-              <mat-icon>arrow_forward</mat-icon>
+              <i class="fa-solid fa-arrow-right"></i>
             </button>
 
             <!-- MESSAGE D'ERREUR -->
@@ -166,12 +166,12 @@
 
             <div class="providers">
               <button mat-stroked-button class="provider" type="button">
-                <mat-icon class="provider__svg" svgIcon="google" aria-hidden="true"></mat-icon>
+                <i class="fa-brands fa-google provider__svg" aria-hidden="true"></i>
                 <span>Google</span>
               </button>
 
               <button mat-stroked-button class="provider" type="button">
-                <mat-icon class="provider__svg" svgIcon="apple" aria-hidden="true"></mat-icon>
+                <i class="fa-brands fa-apple provider__svg" aria-hidden="true"></i>
                 <span>Apple</span>
               </button>
             </div>

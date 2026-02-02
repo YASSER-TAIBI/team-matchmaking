@@ -5,45 +5,49 @@
   </div>
 
   <nav class="sidebar__nav">
-    <button class="nav-item is-active">
-      <span class="icon"><mat-icon>dashboard</mat-icon></span>
-      Dashboard
+    <button class="nav-item" routerLink="/user/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+      <span class="icon"><i class="fa-solid fa-gauge"></i></span>
+      Tableau de bord
+    </button>
+    <button class="nav-item" routerLink="/user/available-players" routerLinkActive="is-active">
+      <span class="icon"><i class="fa-solid fa-futbol"></i></span>
+      Joueurs dispos
     </button>
     <button class="nav-item">
-      <span class="icon"><mat-icon>search</mat-icon></span>
-      Find Match
+      <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+      Trouver un match
     </button>
     <button class="nav-item">
-      <span class="icon"><mat-icon>groups</mat-icon></span>
-      My Team
+      <span class="icon"><i class="fa-solid fa-users"></i></span>
+      Mon équipe
     </button>
     <button class="nav-item">
-      <span class="icon"><mat-icon>emoji_events</mat-icon></span>
-      Leagues
+      <span class="icon"><i class="fa-solid fa-trophy"></i></span>
+      Ligues
     </button>
     <button class="nav-item">
-      <span class="icon"><mat-icon>stadium</mat-icon></span>
-      Pitches
+      <span class="icon"><i class="fa-solid fa-map"></i></span>
+      Terrains
     </button>
   </nav>
 
   <div class="sidebar__profile">
     <input id="profile-toggle" class="profile-toggle" type="checkbox" />
     <label class="profile__details" for="profile-toggle">
-      <div class="avatar">YT</div>
+      <div class="avatar">{{ initials }}</div>
       <div>
-        <div class="profile__name">Yasser Taibi</div>
-        <div class="profile__role">New Player</div>
+        <div class="profile__name">{{ fullName }}</div>
+        <div class="profile__email">{{ email }}</div>
       </div>
     </label>
     <div class="profile-dropdown">
       <button class="dropdown-item" type="button">
-        <mat-icon>person</mat-icon>
-        Profile
+        <i class="fa-solid fa-user"></i>
+        Profil
       </button>
       <button class="dropdown-item" type="button">
-        <mat-icon>logout</mat-icon>
-        Logout
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Déconnexion
       </button>
     </div>
   </div>

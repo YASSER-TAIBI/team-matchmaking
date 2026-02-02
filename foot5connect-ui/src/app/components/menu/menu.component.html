@@ -1,12 +1,12 @@
 <input id="mobile-nav-toggle" class="mobile-nav-toggle" type="checkbox" />
 <header class="topbar">
   <div class="topbar-left">
-    <label class="icon-btn icon-btn--ghost" for="mobile-nav-toggle" aria-label="Open navigation">
-      <mat-icon>menu</mat-icon>
+    <label class="icon-btn icon-btn--ghost" for="mobile-nav-toggle" aria-label="Ouvrir la navigation">
+      <i class="fa-solid fa-bars"></i>
     </label>
     <div class="search">
-      <span class="icon"><mat-icon>search</mat-icon></span>
-      <input type="text" placeholder="Search teams, players or local pitches..." />
+      <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+      <input type="text" placeholder="Rechercher des équipes, joueurs ou terrains locaux..." />
     </div>
   </div>
   <div class="topbar-center">
@@ -16,57 +16,61 @@
     </span>
   </div>
   <div class="topbar-actions">
-    <button class="icon-btn icon-btn--search" aria-label="Search">
-      <mat-icon>search</mat-icon>
+    <button class="icon-btn icon-btn--search" aria-label="Rechercher">
+      <i class="fa-solid fa-magnifying-glass"></i>
     </button>
     <button class="icon-btn" aria-label="Notifications">
-      <mat-icon>notifications</mat-icon>
+      <i class="fa-solid fa-bell"></i>
     </button>
-    <button class="icon-btn" aria-label="Settings">
-      <mat-icon>settings</mat-icon>
+    <button class="icon-btn" aria-label="Paramètres">
+      <i class="fa-solid fa-gear"></i>
     </button>
   </div>
 </header>
 <div class="mobile-drawer">
   <nav class="mobile-nav">
-    <button class="mobile-nav__item is-active">
-      <span class="icon"><mat-icon>dashboard</mat-icon></span>
-      Dashboard
+    <button class="mobile-nav__item" routerLink="/user/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+      <span class="icon"><i class="fa-solid fa-gauge"></i></span>
+      Tableau de bord
+    </button>
+    <button class="mobile-nav__item" routerLink="/user/available-players" routerLinkActive="is-active">
+      <span class="icon"><i class="fa-solid fa-futbol"></i></span>
+      Joueurs disponibles
     </button>
     <button class="mobile-nav__item">
-      <span class="icon"><mat-icon>search</mat-icon></span>
-      Find Match
+      <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+      Trouver un match
     </button>
     <button class="mobile-nav__item">
-      <span class="icon"><mat-icon>groups</mat-icon></span>
-      My Team
+      <span class="icon"><i class="fa-solid fa-users"></i></span>
+      Mon équipe
     </button>
     <button class="mobile-nav__item">
-      <span class="icon"><mat-icon>emoji_events</mat-icon></span>
-      Leagues
+      <span class="icon"><i class="fa-solid fa-trophy"></i></span>
+      Ligues
     </button>
     <button class="mobile-nav__item">
-      <span class="icon"><mat-icon>stadium</mat-icon></span>
-      Pitches
+      <span class="icon"><i class="fa-solid fa-futbol"></i></span>
+      Terrains
     </button>
   </nav>
   <div class="sidebar__profile mobile-profile">
     <input id="mobile-profile-toggle" class="profile-toggle" type="checkbox" />
     <label class="profile__details mobile-profile__details" for="mobile-profile-toggle">
-      <div class="avatar">YT</div>
+      <div class="avatar">{{ initials }}</div>
       <div>
-        <div class="profile__name">Yasser Taibi</div>
-        <div class="profile__role">New Player</div>
+        <div class="profile__name">{{ fullName }}</div>
+        <div class="profile__role">{{ email }}</div>
       </div>
     </label>
     <div class="profile-dropdown mobile-profile__actions">
       <button class="dropdown-item" type="button">
-        <mat-icon>person</mat-icon>
-        Profile
+        <i class="fa-solid fa-user"></i>
+        Profil
       </button>
       <button class="dropdown-item" type="button">
-        <mat-icon>logout</mat-icon>
-        Logout
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Déconnexion
       </button>
     </div>
   </div>

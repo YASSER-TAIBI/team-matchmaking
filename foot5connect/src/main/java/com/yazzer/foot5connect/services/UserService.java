@@ -2,6 +2,7 @@ package com.yazzer.foot5connect.services;
 
 import com.yazzer.foot5connect.dto.AuthenticationRequest;
 import com.yazzer.foot5connect.dto.AuthenticationResponse;
+import com.yazzer.foot5connect.dto.DisponibilityDetailDto;
 import com.yazzer.foot5connect.dto.PasswordResetDto;
 import com.yazzer.foot5connect.dto.PasswordResetRequest;
 import com.yazzer.foot5connect.dto.UserDto;
@@ -19,4 +20,8 @@ public interface UserService extends AbstractService <UserDto>{
     void validatePasswordResetToken(String token);
 
     AuthenticationResponse resetPassword(PasswordResetDto request);
+
+    UserDto saveAvailability(Long userId, DisponibilityDetailDto request);
+
+    UserDto setUnavailable(Long userId);
 }

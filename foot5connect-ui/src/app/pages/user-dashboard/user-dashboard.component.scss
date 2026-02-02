@@ -3,6 +3,7 @@
   grid-template-columns: minmax(0, 1fr) 380px;
   gap: 24px;
   align-items: start;
+  padding: 24px 28px 40px;
 }
 
 .dashboard__header {
@@ -14,13 +15,13 @@
   justify-content: flex-start;
   align-items: center;
   gap: 24px;
-  margin: 0 0 25px 30px;
+  margin: 0 0 25px 0px;
 }
 
 .welcome h1 {
   font-size: 34px;
-  margin-top: 20px;
-  margin-bottom: 8px;
+  margin-top: 0 !important;
+  margin-bottom: 6px;
   font-weight: 800;
 }
 
@@ -46,12 +47,12 @@
 
 .status-card span {
   display: block;
-  font-size: 13px;
   font-weight: 700;
 }
 
 .status-card strong {
   color: var(--neon-green);
+  font-size: 15px;
 }
 
 .status-card small {
@@ -320,7 +321,14 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stats-grid-level {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -331,6 +339,9 @@
   padding: 14px;
   text-align: center;
   border: 1px solid rgba(40, 57, 46, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .stat strong {
@@ -347,6 +358,39 @@
 
 .stat strong {
   font-size: 20px;
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 800;
+}
+
+// Badges Confirmé
+.badge--yellow {
+  background: rgba(255, 200, 90, 0.15) !important;
+  color: #f5c15c !important;
+}
+
+// Badges Avancé
+.badge--red {
+  background: rgba(255, 93, 93, 0.2) !important;
+  color: #ff6b6b !important;
+}
+
+// Badges Débutant
+.badge--green {
+  background: rgba(19, 236, 91, 0.18) !important;
+  color: var(--neon-green) !important;
+}
+
+// Badges Intermediaire
+.badge--blue {
+  background: rgb(2 167 239 / 28%) !important;
+  color: #51b5f1 !important;
 }
 
 .stats-note {

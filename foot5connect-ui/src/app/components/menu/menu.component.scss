@@ -211,7 +211,19 @@
   .mobile-nav__item.is-active {
     background: rgba(53, 255, 122, 0.18);
     color: #f7fffb;
+    position: relative;
   }
+
+  .mobile-nav__item.is-active::after {
+    content: '';
+    position: absolute;
+    right: 20px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--neon-green);
+    box-shadow: 0 0 12px rgba(26, 255, 140, 0.8);
+  }  
 
   .mobile-profile {
     margin-top: 18px;
@@ -276,10 +288,9 @@
     justify-content: flex-start;
   }
 
-  .mobile-profile .dropdown-item mat-icon {
+  .mobile-profile .dropdown-item i {
     font-size: 18px;
     width: 18px;
-    height: 18px;
   }
 
   .mobile-profile .dropdown-item:hover {

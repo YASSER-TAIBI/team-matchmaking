@@ -16,6 +16,78 @@
     }
   ],
   "paths": {
+    "/users/{id}/availability": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "saveAvailability",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisponibilityDetailDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/availability/unavailable": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "setUnavailable",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/register": {
       "post": {
         "tags": [
@@ -136,6 +208,37 @@
         }
       }
     },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "findById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/password-reset/validate": {
       "get": {
         "tags": [
@@ -199,6 +302,29 @@
   },
   "components": {
     "schemas": {
+      "DisponibilityDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "availableDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          }
+        }
+      },
       "UserDto": {
         "type": "object",
         "properties": {
@@ -239,6 +365,23 @@
           "city": {
             "type": "string",
             "minLength": 1
+          },
+          "totalMatches": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalGoals": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "DEBUTANT",
+              "INTERMEDIAIRE",
+              "CONFIRMER",
+              "AVANCE"
+            ]
           },
           "active": {
             "type": "boolean"

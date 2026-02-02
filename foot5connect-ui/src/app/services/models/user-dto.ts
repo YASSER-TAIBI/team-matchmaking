@@ -11,6 +11,9 @@ export interface UserDto {
   firstName: string;
   id?: number;
   lastName: string;
+  level?: 'DEBUTANT' | 'INTERMEDIAIRE' | 'CONFIRMER' | 'AVANCE';
   password: string;
+  totalGoals?: number;
+  totalMatches?: number;
   username: string;
 }

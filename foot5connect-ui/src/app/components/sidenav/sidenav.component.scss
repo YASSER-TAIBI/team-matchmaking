@@ -144,10 +144,9 @@
   transition: background 0.2s ease, color 0.2s ease;
 }
 
-.dropdown-item mat-icon {
+.dropdown-item i {
   font-size: 18px;
   width: 18px;
-  height: 18px;
 }
 
 .dropdown-item:hover {
@@ -176,7 +175,7 @@
   font-weight: 600;
 }
 
-.profile__role {
+.profile__email {
   font-size: 12px;
   color: var(--text-muted);
 }

@@ -44,6 +44,16 @@ public class User extends AbstractEntity implements UserDetails{
     @Enumerated(EnumType.STRING)
     private AvailabilityStatus availabilityStatus;
 
+    @Column(nullable = false)
+    private Integer totalMatches;
+
+    @Column(nullable = false)
+    private Integer totalGoals;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PlayerLevel level;
+
     private boolean active;
 
 
@@ -59,6 +69,10 @@ public class User extends AbstractEntity implements UserDetails{
     @JoinColumn(name = "id_role") // tu gardes la colonne existante
     private Role role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DisponibilityDetail> disponibilityDetails;
+
+    /* =============================================== */
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
