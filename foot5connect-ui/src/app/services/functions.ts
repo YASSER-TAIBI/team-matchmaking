@@ -7,6 +7,10 @@ export type { SetUnavailable$Params } from './fn/user-controller/set-unavailable
 export { setUnavailable } from './fn/user-controller/set-unavailable';
 export type { FindById$Params } from './fn/user-controller/find-by-id';
 export { findById } from './fn/user-controller/find-by-id';
+export type { FindAvailablePlayers$Params } from './fn/user-controller/find-available-players';
+export { findAvailablePlayers } from './fn/user-controller/find-available-players';
+export type { FindAvailablePlayersInMyLocation$Params } from './fn/user-controller/find-available-players-in-my-location';
+export { findAvailablePlayersInMyLocation } from './fn/user-controller/find-available-players-in-my-location';
 export type { Register$Params } from './fn/authentication-controller/register';
 export { register } from './fn/authentication-controller/register';
 export type { ResetPassword$Params } from './fn/authentication-controller/reset-password';

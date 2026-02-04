@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router } from '@angular/router';
 import { HelperService } from '../../services/helper/helper.service';
 
 @Component({
@@ -10,6 +11,7 @@ import { HelperService } from '../../services/helper/helper.service';
 })
 export class SidenavComponent {
   private helperService = inject(HelperService);
+  private router = inject(Router);
 
   get fullName(): string {
     const value = this.helperService.userFullName ?? '';
@@ -35,5 +37,10 @@ export class SidenavComponent {
 
   get email(): string {
     return this.helperService.userEmail ?? '';
+  }
+
+  logout(): void {
+    localStorage.removeItem('token');
+    this.router.navigate(['/login']);
   }
 }

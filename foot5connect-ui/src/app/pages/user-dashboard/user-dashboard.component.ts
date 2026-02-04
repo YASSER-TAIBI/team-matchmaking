@@ -66,6 +66,22 @@ export class UserDashboardComponent implements OnInit {
     }
   }
 
+  get levelBadgeClass(): string {
+    const level = this.user?.level;
+    switch (level) {
+      case 'DEBUTANT':
+        return 'badge--green';
+      case 'INTERMEDIAIRE':
+        return 'badge--blue';
+      case 'CONFIRMER':
+        return 'badge--yellow';
+      case 'AVANCE':
+        return 'badge--red';
+      default:
+        return 'badge--green';
+    }
+  }
+
   get matchesCount(): number {
     return this.user?.totalMatches ?? 0;
   }

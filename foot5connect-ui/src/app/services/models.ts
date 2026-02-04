@@ -3,6 +3,7 @@
 
 export type { AuthenticationRequest } from './models/authentication-request';
 export type { AuthenticationResponse } from './models/authentication-response';
+export type { AvailablePlayerDto } from './models/available-player-dto';
 export type { DisponibilityDetailDto } from './models/disponibility-detail-dto';
 export type { PasswordResetDto } from './models/password-reset-dto';
 export type { PasswordResetRequest } from './models/password-reset-request';

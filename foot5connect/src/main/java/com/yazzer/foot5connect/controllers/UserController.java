@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
+import com.yazzer.foot5connect.dto.AvailablePlayerDto;
 import com.yazzer.foot5connect.dto.DisponibilityDetailDto;
 import com.yazzer.foot5connect.dto.UserDto;
 import com.yazzer.foot5connect.services.UserService;
@@ -24,6 +27,16 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> findById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(userService.findById(id));
+    }
+
+    @GetMapping("/available")
+    public ResponseEntity<List<AvailablePlayerDto>> findAvailablePlayers() {
+        return ResponseEntity.ok(userService.findAvailablePlayers());
+    }
+
+    @GetMapping("/available/local")
+    public ResponseEntity<List<AvailablePlayerDto>> findAvailablePlayersInMyLocation() {
+        return ResponseEntity.ok(userService.findAvailablePlayersInMyLocation());
     }
 
     @PostMapping("/{id}/availability")

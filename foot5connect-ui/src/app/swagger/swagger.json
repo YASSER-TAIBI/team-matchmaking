@@ -239,6 +239,52 @@
         }
       }
     },
+    "/users/available": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "findAvailablePlayers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvailablePlayerDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/available/local": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "findAvailablePlayersInMyLocation",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvailablePlayerDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/password-reset/validate": {
       "get": {
         "tags": [
@@ -446,6 +492,54 @@
             "type": "string"
           },
           "password": {
+            "type": "string"
+          }
+        }
+      },
+      "AvailablePlayerDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "DEBUTANT",
+              "INTERMEDIAIRE",
+              "CONFIRMER",
+              "AVANCE"
+            ]
+          },
+          "totalMatches": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalGoals": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "availableDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
             "type": "string"
           }
         }

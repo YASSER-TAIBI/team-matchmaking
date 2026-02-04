@@ -1,6 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router } from '@angular/router';
 import { HelperService } from '../../services/helper/helper.service';
+import { NavigationEnd } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-menu',
@@ -8,8 +11,24 @@ import { HelperService } from '../../services/helper/helper.service';
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.scss'
 })
-export class MenuComponent {
+export class MenuComponent implements OnInit, OnDestroy {
 private helperService = inject(HelperService);
+private router = inject(Router);
+
+  private routerSubscription: Subscription | null = null;
+
+  ngOnInit(): void {
+    this.routerSubscription = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.closeMobileDrawer();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.routerSubscription?.unsubscribe();
+    this.routerSubscription = null;
+  }
 
   get fullName(): string {
     const value = this.helperService.userFullName ?? '';
@@ -35,5 +54,18 @@ private helperService = inject(HelperService);
 
   get email(): string {
     return this.helperService.userEmail ?? '';
+  }
+
+  logout(): void {
+    localStorage.removeItem('token');
+    this.closeMobileDrawer();
+    this.router.navigate(['/login']);
+  }
+
+  private closeMobileDrawer(): void {
+    const el = document.getElementById('mobile-nav-toggle') as HTMLInputElement | null;
+    if (el) {
+      el.checked = false;
+    }
   }
 }

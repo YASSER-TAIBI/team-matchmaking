@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ApiConfiguration } from '../api-configuration';
-import { map } from 'rxjs';
-import { findById, saveAvailability, setUnavailable } from '../functions';
+import { map, Observable } from 'rxjs';
+import { findAvailablePlayers, findAvailablePlayersInMyLocation, findById, saveAvailability, setUnavailable } from '../functions';
 import { DisponibilityDetailDto } from '../models';
+import { AvailablePlayerDto } from '../models/available-player-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -26,5 +27,15 @@ export class UserService {
   setUnavailable(userId: number) {
     return setUnavailable(this.http, this.apiConfig.rootUrl, { 'id': userId })
       .pipe(map(res => res.body ?? null));
+  }
+
+  findAvailablePlayers(): Observable<AvailablePlayerDto[]> {
+    return findAvailablePlayers(this.http, this.apiConfig.rootUrl)
+      .pipe(map(res => (res.body ?? []) as AvailablePlayerDto[]));
+  }
+
+  findAvailablePlayersInMyLocation(): Observable<AvailablePlayerDto[]> {
+    return findAvailablePlayersInMyLocation(this.http, this.apiConfig.rootUrl)
+      .pipe(map(res => (res.body ?? []) as AvailablePlayerDto[]));
   }
 }

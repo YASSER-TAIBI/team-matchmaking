@@ -32,4 +32,14 @@ export class HelperService {
   this.refreshDecodedToken();
   return this.decodedToken?.sub ?? null;
  }
+
+ get userCountry(): string | null {
+  this.refreshDecodedToken();
+  return this.decodedToken?.country ?? null;
+ }
+
+ get userCity(): string | null {
+  this.refreshDecodedToken();
+  return this.decodedToken?.city ?? null;
+ }
 }

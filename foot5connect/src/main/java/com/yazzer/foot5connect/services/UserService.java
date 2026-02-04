@@ -2,10 +2,13 @@ package com.yazzer.foot5connect.services;
 
 import com.yazzer.foot5connect.dto.AuthenticationRequest;
 import com.yazzer.foot5connect.dto.AuthenticationResponse;
+import com.yazzer.foot5connect.dto.AvailablePlayerDto;
 import com.yazzer.foot5connect.dto.DisponibilityDetailDto;
 import com.yazzer.foot5connect.dto.PasswordResetDto;
 import com.yazzer.foot5connect.dto.PasswordResetRequest;
 import com.yazzer.foot5connect.dto.UserDto;
+
+import java.util.List;
 
 public interface UserService extends AbstractService <UserDto>{
     
@@ -24,4 +27,8 @@ public interface UserService extends AbstractService <UserDto>{
     UserDto saveAvailability(Long userId, DisponibilityDetailDto request);
 
     UserDto setUnavailable(Long userId);
+
+    List<AvailablePlayerDto> findAvailablePlayers();
+
+    List<AvailablePlayerDto> findAvailablePlayersInMyLocation();
 }
