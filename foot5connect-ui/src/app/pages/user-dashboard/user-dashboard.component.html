@@ -49,7 +49,7 @@
       <div class="stats-grid-level">
         <div class="stat">
           <span>Niveau</span>
-          <span class="badge badge--green">{{ levelLabel }}</span>
+          <span class="badge" [ngClass]="levelBadgeClass">{{ levelLabel }}</span>
         </div>
       </div>
       <div class="stats-grid">
@@ -107,3 +107,10 @@
 
   </aside>
 </section>
+
+<app-confirm-dialog
+  [visible]="showConfirmUnavailable"
+  message="Êtes-vous sûr(e) de vouloir passer votre profil en indisponible ?"
+  (confirmed)="confirmUnavailable()"
+  (cancelled)="cancelUnavailable()"
+></app-confirm-dialog>

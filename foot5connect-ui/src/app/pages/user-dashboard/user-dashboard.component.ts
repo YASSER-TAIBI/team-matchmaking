@@ -9,9 +9,10 @@ import { AvailabilityDialogComponent, AvailabilityDialogResult } from '../../com
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 
+
 @Component({
   selector: 'app-user-dashboard',
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, ConfirmDialogComponent],
   standalone: true,
   templateUrl: './user-dashboard.component.html',
   styleUrl: './user-dashboard.component.scss'
@@ -23,6 +24,8 @@ export class UserDashboardComponent implements OnInit {
   private dialog = inject(MatDialog);
 
   user: UserDto | null = null;
+  showConfirmUnavailable = false;
+  private unavailableCheckbox: HTMLInputElement | null = null;
 
   ngOnInit(): void {
     this.findByUserId();
@@ -63,6 +66,22 @@ export class UserDashboardComponent implements OnInit {
         return 'Confirmé';
       default:
         return String(level);
+    }
+  }
+
+  get levelBadgeClass(): string {
+    const level = this.user?.level;
+    switch (level) {
+      case 'DEBUTANT':
+        return 'badge--green';
+      case 'INTERMEDIAIRE':
+        return 'badge--blue';
+      case 'CONFIRMER':
+        return 'badge--yellow';
+      case 'AVANCE':
+        return 'badge--red';
+      default:
+        return 'badge--green';
     }
   }
 
@@ -115,35 +134,8 @@ export class UserDashboardComponent implements OnInit {
     }
 
     if (status === 'DISPONIBLE' && !checked) {
-      const checkbox = event.target as HTMLInputElement;
-      const userId = this.user.id as number;
-      const dialogRef = this.dialog.open<ConfirmDialogComponent, { message: string }, boolean>(
-        ConfirmDialogComponent,
-        {
-          data: {
-            message: 'Êtes-vous sûr(e) de vouloir passer votre profil en indisponible ?'
-          },
-          panelClass: ['availability-dialog-panel', 'confirm-dialog-panel']
-        }
-      );
-
-      dialogRef.afterClosed().subscribe((confirmed) => {
-        if (!confirmed) {
-          checkbox.checked = true;
-          return;
-        }
-
-        this.userService.setUnavailable(userId).subscribe({
-          next: (updatedUser) => {
-            this.user = updatedUser as UserDto;
-            checkbox.checked = false;
-          },
-          error: (err) => {
-            console.log(err);
-            checkbox.checked = true;
-          }
-        });
-      });
+      this.unavailableCheckbox = event.target as HTMLInputElement;
+      this.showConfirmUnavailable = true;
       return;
     }
 
@@ -151,6 +143,32 @@ export class UserDashboardComponent implements OnInit {
       ...this.user,
       availabilityStatus: checked ? 'DISPONIBLE' : 'INDISPONIBLE'
     };
+  }
+
+  confirmUnavailable(): void {
+    this.showConfirmUnavailable = false;
+    if (!this.user || !this.unavailableCheckbox) return;
+
+    const userId = this.user.id as number;
+    const checkbox = this.unavailableCheckbox;
+
+    this.userService.setUnavailable(userId).subscribe({
+      next: (updatedUser) => {
+        this.user = updatedUser as UserDto;
+        checkbox.checked = false;
+      },
+      error: (err: any) => {
+        console.log(err);
+        checkbox.checked = true;
+      }
+    });
+  }
+
+  cancelUnavailable(): void {
+    this.showConfirmUnavailable = false;
+    if (this.unavailableCheckbox) {
+      this.unavailableCheckbox.checked = true;
+    }
   }
 
   private openAvailabilityDialog(checkbox: HTMLInputElement): void {

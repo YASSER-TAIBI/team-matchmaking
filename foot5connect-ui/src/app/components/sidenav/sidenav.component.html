@@ -5,27 +5,43 @@
   </div>
 
   <nav class="sidebar__nav">
-    <button class="nav-item" routerLink="/user/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+    <button class="nav-item" routerLink="/user/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeTeamMenu()">
       <span class="icon"><i class="fa-solid fa-gauge"></i></span>
       Tableau de bord
     </button>
-    <button class="nav-item" routerLink="/user/available-players" routerLinkActive="is-active">
+
+    <button class="nav-item" routerLink="/user/available-players" routerLinkActive="is-active" (click)="closeTeamMenu()">
       <span class="icon"><i class="fa-solid fa-futbol"></i></span>
       Joueurs dispos
     </button>
-    <button class="nav-item">
+
+    <button class="nav-item" type="button" (click)="toggleTeamMenu()" [class.is-expanded]="isTeamMenuOpen" [class.is-active]="isTeamRouteActive">
+      <span class="icon"><i class="fa-solid fa-users"></i></span>
+      Mon équipe
+      <span class="chevron"><i class="fa-solid" [class.fa-chevron-down]="!isTeamMenuOpen" [class.fa-chevron-up]="isTeamMenuOpen"></i></span>
+    </button>
+
+    <div class="submenu" *ngIf="isTeamMenuOpen">
+      <button class="submenu__item" type="button" routerLink="/user/team/create" routerLinkActive="is-active">
+        <span class="icon"><i class="fa-solid fa-plus"></i></span>
+        Créer l'équipe
+      </button>
+      <button class="submenu__item" type="button" routerLink="/user/team" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+        <span class="icon"><i class="fa-solid fa-eye"></i></span>
+        Voir l'équipe
+      </button>
+    </div>
+
+    <button class="nav-item" routerLink="/user/matches" routerLinkActive="is-active" (click)="closeTeamMenu()">
       <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
       Trouver un match
     </button>
-    <button class="nav-item">
-      <span class="icon"><i class="fa-solid fa-users"></i></span>
-      Mon équipe
-    </button>
-    <button class="nav-item">
+
+    <button class="nav-item" (click)="closeTeamMenu()">
       <span class="icon"><i class="fa-solid fa-trophy"></i></span>
       Ligues
     </button>
-    <button class="nav-item">
+    <button class="nav-item" (click)="closeTeamMenu()">
       <span class="icon"><i class="fa-solid fa-map"></i></span>
       Terrains
     </button>
@@ -45,7 +61,7 @@
         <i class="fa-solid fa-user"></i>
         Profil
       </button>
-      <button class="dropdown-item" type="button">
+      <button class="dropdown-item" type="button" (click)="logout()">
         <i class="fa-solid fa-right-from-bracket"></i>
         Déconnexion
       </button>

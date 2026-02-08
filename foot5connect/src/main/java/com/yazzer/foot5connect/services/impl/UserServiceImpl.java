@@ -9,12 +9,16 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.yazzer.foot5connect.config.JwtUtils;
 import com.yazzer.foot5connect.dto.AuthenticationRequest;
 import com.yazzer.foot5connect.dto.AuthenticationResponse;
+import com.yazzer.foot5connect.dto.AvailablePlayerDto;
 import com.yazzer.foot5connect.dto.DisponibilityDetailDto;
 import com.yazzer.foot5connect.dto.PasswordResetDto;
 import com.yazzer.foot5connect.dto.PasswordResetRequest;
@@ -289,6 +293,70 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         return UserDto.fromEntity(user);
+    }
+
+    @Override
+    @Transactional
+    public List<AvailablePlayerDto> findAvailablePlayers() {
+        return disponibilityDetailRepository.findLatestDisponibilityForAvailableUsers()
+                .stream()
+                .map(d -> AvailablePlayerDto.builder()
+                        .userId(d.getUser().getId())
+                        .firstName(d.getUser().getFirstName())
+                        .lastName(d.getUser().getLastName())
+                        .country(d.getUser().getCountry())
+                        .city(d.getUser().getCity())
+                        .level(d.getUser().getLevel())
+                        .totalMatches(d.getUser().getTotalMatches())
+                        .totalGoals(d.getUser().getTotalGoals())
+                        .availableDate(d.getAvailableDate())
+                        .startTime(d.getStartTime())
+                        .endTime(d.getEndTime())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public List<AvailablePlayerDto> findAvailablePlayersInMyLocation() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new IllegalStateException("User not authenticated");
+        }
+
+        User currentUser;
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof User user) {
+            currentUser = user;
+        } else if (principal instanceof UserDetails userDetails) {
+            currentUser = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new EntityNotFoundException("No user was found with the provided email"));
+        } else {
+            throw new IllegalStateException("Unsupported authentication principal");
+        }
+
+        String country = currentUser.getCountry();
+        String city = currentUser.getCity();
+        if (country == null || city == null) {
+            throw new IllegalStateException("User country and city are required");
+        }
+
+        return disponibilityDetailRepository.findLatestDisponibilityForAvailableUsersInLocation(country, city)
+                .stream()
+                .map(d -> AvailablePlayerDto.builder()
+                        .userId(d.getUser().getId())
+                        .firstName(d.getUser().getFirstName())
+                        .lastName(d.getUser().getLastName())
+                        .country(d.getUser().getCountry())
+                        .city(d.getUser().getCity())
+                        .level(d.getUser().getLevel())
+                        .totalMatches(d.getUser().getTotalMatches())
+                        .totalGoals(d.getUser().getTotalGoals())
+                        .availableDate(d.getAvailableDate())
+                        .startTime(d.getStartTime())
+                        .endTime(d.getEndTime())
+                        .build())
+                .collect(Collectors.toList());
     }
     
 

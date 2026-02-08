@@ -1,0 +1,112 @@
+<div class="team-conditions-page">
+  <div class="conditions-card">
+    <h1 class="conditions-title">Conditions de création d'une équipe</h1>
+
+    <div class="conditions-text">
+      <p>
+        Avant de créer ton équipe et de devenir capitaine, merci de prendre quelques instants pour <span class="conditions-highlight">lire</span> et <span class="conditions-highlight">accepter</span> les conditions suivantes.
+        Elles garantissent une expérience <span class="conditions-highlight">équitable</span>, organisée et agréable pour tous les joueurs.
+      </p>
+
+      <h2>1. Rôle du capitaine</h2>
+      <p>
+        En créant une équipe, tu deviens automatiquement capitaine.
+        À ce titre, tu t'engages à :
+      </p>
+      <ul>
+        <li>Gérer ton équipe de manière responsable</li>
+        <li>Inviter uniquement des joueurs réels et disponibles</li>
+        <li>Communiquer de façon respectueuse avec les autres joueurs et capitaines</li>
+        <li>Être le représentant officiel de ton équipe lors des matchs</li>
+      </ul>
+      <p>
+        Le capitaine est le point de contact principal pour l'organisation des rencontres.
+      </p>
+
+      <h2>2. Composition de l'équipe</h2>
+      <p>Pour garantir des matchs équilibrés :</p>
+      <ul>
+        <li><span class="conditions-tag conditions-tag--success">Minimum</span> 5 joueurs (titulaires)</li>
+        <li><span class="conditions-tag conditions-tag--info">Maximum</span> 8 joueurs (5 titulaires + jusqu'à 3 remplaçants)</li>
+      </ul>
+      <p>Chaque joueur de l'équipe doit avoir :</p>
+      <ul>
+        <li>Un numéro de maillot</li>
+        <li>Un poste de jeu (gardien, défenseur, milieu, attaquant ou remplaçant)</li>
+      </ul>
+      <p>
+        <span class="conditions-warning">Une équipe incomplète ne pourra pas lancer de demande de match.</span>
+      </p>
+
+      <h2>3. Informations de l'équipe</h2>
+      <p>Lors de la création, tu t'engages à fournir des informations exactes :</p>
+      <ul>
+        <li>Nom de l'équipe (obligatoire)</li>
+        <li>Ville et pays</li>
+        <li>Logo (facultatif mais recommandé)</li>
+      </ul>
+      <p>
+        Ces informations seront visibles par les autres équipes lors des recherches de matchs.
+      </p>
+
+      <h2>4. Demandes de match</h2>
+      <p>
+        Une fois ton équipe prête, tu peux lancer une demande de match en choisissant :
+      </p>
+      <ul>
+        <li>Une date</li>
+        <li>Un créneau horaire</li>
+      </ul>
+      <p>Les statuts possibles d'un match sont :</p>
+      <ul>
+        <li><span class="conditions-status conditions-status--pending">DEMANDE</span> en attente d'un adversaire</li>
+        <li><span class="conditions-status conditions-status--dual">DUAL</span> match accepté par une autre équipe</li>
+        <li><span class="conditions-status conditions-status--done">TERMINÉ</span> match joué et clôturé</li>
+      </ul>
+      <p>
+        <span class="conditions-warning">Une demande doit être sérieuse : évite les annulations de dernière minute.</span>
+      </p>
+
+      <h2>5. Communication &amp; fair-play</h2>
+      <p>L'application met à disposition un chat privé pour :</p>
+      <ul>
+        <li>Échanger entre capitaines</li>
+        <li>Confirmer les détails du match (heure, terrain, lieu)</li>
+        <li>Faciliter l'organisation</li>
+      </ul>
+      <p>
+        <span class="conditions-warning">Tout comportement abusif, insultant ou non respectueux pourra entraîner des sanctions (avertissement, suspension ou suppression de l'équipe).</span>
+      </p>
+
+      <h2>6. Fin du match &amp; résultats</h2>
+      <p>À la fin du match :</p>
+      <ul>
+        <li>Seuls les deux capitaines peuvent clôturer le match</li>
+        <li>Le score peut être renseigné (facultatif)</li>
+        <li>Le match passe au statut TERMINÉ</li>
+      </ul>
+      <p>
+        Le match sera alors ajouté à l'historique des équipes concernées.
+      </p>
+
+      <h2>7. Engagement de l'utilisateur</h2>
+      <p>En créant une équipe, tu confirmes que :</p>
+      <ul>
+        <li>Tu as lu et compris ces conditions</li>
+        <li>Tu acceptes de les respecter</li>
+        <li>Tu participes dans un esprit sportif, respectueux et collaboratif</li>
+      </ul>
+    </div>
+
+    <div class="conditions-footer">
+      <label class="conditions-consent">
+        <input type="checkbox" [checked]="accepted" (change)="onAcceptedChange($event)" />
+        <span>J'ai lu et j'accepte les conditions de création d'une équipe</span>
+      </label>
+
+      <button class="conditions-cta" type="button" [disabled]="!accepted" (click)="onCreateTeam()">
+        Créer mon équipe
+      </button>
+    </div>
+  </div>
+</div>

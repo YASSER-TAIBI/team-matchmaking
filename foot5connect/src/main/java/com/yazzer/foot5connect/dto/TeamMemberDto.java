@@ -27,6 +27,14 @@ public class TeamMemberDto {
 
     private Long teamId;
 
+    private String firstName;
+
+    private String lastName;
+
+    private Integer totalMatches;
+
+    private String level;
+
     public static TeamMemberDto fromEntity(TeamMember teamMember) {
         if (teamMember == null) {
             return null;
@@ -39,6 +47,10 @@ public class TeamMemberDto {
                 .isCaptain(teamMember.isCaptain())
                 .userId(teamMember.getUser().getId())
                 .teamId(teamMember.getTeam().getId())
+                .firstName(teamMember.getUser().getFirstName())
+                .lastName(teamMember.getUser().getLastName())
+                .totalMatches(teamMember.getUser().getTotalMatches())
+                .level(teamMember.getUser().getLevel() != null ? teamMember.getUser().getLevel().name() : null)
                 .build();
     }
 

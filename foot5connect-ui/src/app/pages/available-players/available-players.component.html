@@ -12,10 +12,7 @@
       <div class="filter-control">
         <i class="fa-solid fa-location-dot"></i>
         <select id="location">
-          <option>London, Royaume-Uni</option>
-          <option>Manchester, Royaume-Uni</option>
-          <option>Bristol, Royaume-Uni</option>
-          <option>Birmingham, Royaume-Uni</option>
+          <option>{{ (userCountry || '-') + ', ' + (userCity || '-') }}</option>
         </select>
       </div>
     </div>
@@ -24,12 +21,12 @@
       <label for="level">Niveau</label>
       <div class="filter-control">
         <i class="fa-solid fa-signal"></i>
-        <select id="level">
-          <option>Tous niveaux</option>
-          <option>Débutant</option>
-          <option>Intermédiaire</option>
-          <option>Confirmé</option>
-          <option>Avancé</option>
+        <select id="level" (change)="onLevelChange($event)">
+          <option value="">Tous niveaux</option>
+          <option value="DEBUTANT">Débutant</option>
+          <option value="INTERMEDIAIRE">Intermédiaire</option>
+          <option value="CONFIRMER">Confirmé</option>
+          <option value="AVANCE">Avancé</option>
         </select>
       </div>
     </div>
@@ -38,32 +35,40 @@
       <label for="availability">Disponibilité</label>
       <div class="filter-control">
         <i class="fa-solid fa-calendar-day"></i>
-        <select id="availability">
-          <option>N'importe quel jour</option>
-          <option>Aujourd'hui</option>
-          <option>Demain</option>
-          <option>Ce week-end</option>
-        </select>
+        <input
+          id="availability"
+          matInput
+          [matDatepicker]="availabilityPicker"
+          (dateChange)="onDateSelected($event.value)"
+          (click)="availabilityPicker.open()"
+          (input)="onAvailabilityInput($event)"
+          placeholder="N'importe quel jour"
+        />
+        <mat-datepicker #availabilityPicker></mat-datepicker>
       </div>
     </div>
 
-    <button class="filter-button" type="button" aria-label="Filtrer">
+    <button class="filter-button" type="button" aria-label="Filtrer" (click)="applyFilters()">
       <i class="fa-solid fa-search"></i>
     </button>
   </div>
 
   <div class="players__grid">
-    <article class="player-card">
+    <div *ngIf="loading">Chargement...</div>
+    <div *ngIf="error">{{ error }}</div>
+    <div *ngIf="!loading && !error && players.length === 0">Aucun joueur disponible pour le moment.</div>
+
+    <article class="player-card" *ngFor="let player of players">
       <div class="player-card__header">
         <div class="player-card__identity">
           <div class="player-card__avatar player-card__avatar--primary">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAw0DcNrsE7QJawUonrUKynewBvZj2zFIUraY12GLwCv-jXb2mr0pAxoL6NY-bqY-5AQQudIIF96k3IXclqFY12xvvRluFsZNPQ-lKuqbQHggMRe-9i-2eiftMoEK9TSxExNwV6mJleJfxcT5KDsXW46I08ToiVIVEhPPEVgHC_is8eJCHEMeA5qyqzFXuwQ9rTYzADwUr8anHWm_WFaBc-mEHPv1TTPVn-eKrw-fZPAxOvS66gz-z3Jk5DeF5G7vmeh_unnYFmlQ" alt="Joueur" />
+            <span>{{ initials(player) }}</span>
           </div>
           <div>
-            <h3>James Wilson</h3>
+            <h3>{{ (player.firstName ?? '') + ' ' + (player.lastName ?? '') }}</h3>
             <span class="player-card__meta">
               <i class="fa-solid fa-location-dot"></i>
-              East London
+              {{ player.city || '-' }}
             </span>
           </div>
         </div>
@@ -72,262 +77,28 @@
       <div class="player-card__level">
         <div class="stat">
           <span>Matchs joués</span>
-          <strong>124</strong>
+          <strong>{{ player.totalMatches ?? 0 }}</strong>
         </div>
-        <span class="badge badge--yellow">Confirmé</span>
+        <span class="badge" [ngClass]="levelBadgeClass(player.level)">{{ levelLabel(player.level) }}</span>
       </div>
 
       <div class="player-card__details">
         <div class="detail">
           <span>Disponible</span>
-          <strong>Mar, 24 Oct</strong>
+          <strong>{{ formatDate(player.availableDate) }}</strong>
         </div>
         <div class="detail">
           <span>Horaires</span>
-          <strong>18:00 - 20:00</strong>
+          <strong>{{ formatTime(player.startTime) }} - {{ formatTime(player.endTime) }}</strong>
         </div>
       </div>
 
       <div class="player-card__footer">
-        <button class="btn btn--primary" type="button">
+        <button class="btn btn--primary" type="button" [disabled]="isCurrentUser(player)" (click)="onMessageClick()">
           Message
           <i class="fa-solid fa-envelope"></i>
         </button>
-        <button class="btn btn--primary" type="button">
-          Inviter
-          <i class="fa-solid fa-paper-plane"></i>
-        </button>
-      </div>
-    </article>
-
-    <article class="player-card">
-      <div class="player-card__header">
-        <div class="player-card__identity">
-          <div class="player-card__avatar player-card__avatar--primary">
-            <span>MK</span>
-          </div>
-          <div>
-            <h3>Marcus Kane</h3>
-            <span class="player-card__meta">
-              <i class="fa-solid fa-location-dot"></i>
-              Hackney
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="player-card__level">
-        <div class="stat">
-          <span>Matchs joués</span>
-          <strong>312</strong>
-        </div>
-        <span class="badge badge--red">Avancé</span>
-      </div>
-
-      <div class="player-card__details">
-        <div class="detail">
-          <span>Disponible</span>
-          <strong>Ven, 25 Oct</strong>
-        </div>
-        <div class="detail">
-          <span>Horaires</span>
-          <strong>19:30 - 22:00</strong>
-        </div>
-      </div>
-
-      <div class="player-card__footer">
-        <button class="btn btn--primary" type="button">
-          Message
-          <i class="fa-solid fa-envelope"></i>
-        </button>
-        <button class="btn btn--primary" type="button">
-          Inviter
-          <i class="fa-solid fa-paper-plane"></i>
-        </button>
-      </div>
-    </article>
-
-    <article class="player-card">
-      <div class="player-card__header">
-        <div class="player-card__identity">
-          <div class="player-card__avatar player-card__avatar--primary">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWuRi5n4VqeU7UZeRQ4S95RCB6m705dUlu7rlMszk7uYZ8jvZz9954ebnf6_B5sk_4UkYXsl0-nkY67vspMOF-zv9mEgWBLgHlHcD_8oh43AVnVLy1p_piw0zzA7WbPCvWL2H_Bx9bYuBciqt6abNt34_p3sbXG3sPLzehRQ5okjgRCr5JtsaldFYAa1ka6tciSuohmB2xaOuh0aFLh9Z-hnmvyIlzckcumjYGLbkzoE8Tf8o7vRBIAC3Ca7QEx7Xt2vo201dXZA" alt="Joueur" />
-          </div>
-          <div>
-            <h3>Sarah Chen</h3>
-            <span class="player-card__meta">
-              <i class="fa-solid fa-location-dot"></i>
-              Stratford
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="player-card__level">
-        <div class="stat">
-          <span>Matchs joués</span>
-          <strong>18</strong>
-        </div>
-        <span class="badge badge--green">Débutant</span>
-      </div>
-
-      <div class="player-card__details">
-        <div class="detail">
-          <span>Disponible</span>
-          <strong>Sam, 26 Oct</strong>
-        </div>
-        <div class="detail">
-          <span>Horaires</span>
-          <strong>10:00 - 14:00</strong>
-        </div>
-      </div>
-
-      <div class="player-card__footer">
-        <button class="btn btn--primary" type="button">
-          Message
-          <i class="fa-solid fa-envelope"></i>
-        </button>
-        <button class="btn btn--primary" type="button">
-          Inviter
-          <i class="fa-solid fa-paper-plane"></i>
-        </button>
-      </div>
-    </article>
-    <article class="player-card">
-      <div class="player-card__header">
-        <div class="player-card__identity">
-          <div class="player-card__avatar player-card__avatar--primary">
-            <span>DL</span>
-          </div>
-          <div>
-            <h3>David Luiz</h3>
-            <span class="player-card__meta">
-              <i class="fa-solid fa-location-dot"></i>
-              Greenwich
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="player-card__level">
-        <div class="stat">
-          <span>Matchs joués</span>
-          <strong>89</strong>
-        </div>
-        <span class="badge badge--yellow">Confirmé</span>
-      </div>
-
-      <div class="player-card__details">
-        <div class="detail">
-          <span>Disponible</span>
-          <strong>Mer, 24 Oct</strong>
-        </div>
-        <div class="detail">
-          <span>Horaires</span>
-          <strong>20:00 - 22:00</strong>
-        </div>
-      </div>
-
-      <div class="player-card__footer">
-        <button class="btn btn--primary" type="button">
-          Message
-          <i class="fa-solid fa-envelope"></i>
-        </button>
-        <button class="btn btn--primary" type="button">
-          Inviter
-          <i class="fa-solid fa-paper-plane"></i>
-        </button>
-      </div>
-    </article>
-
-    <article class="player-card">
-      <div class="player-card__header">
-        <div class="player-card__identity">
-          <div class="player-card__avatar player-card__avatar--primary">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx4tySxZ4Stwuq9azzK9eG01NaxJo2iUpVWyoO6W6oDxz2urW0ZV2_ZPWIADm7tcurphoJgahTtY--XIeZoUzdWhHb2a6ipIO1RSfE1AhHOam-5vESJsjg7mxguHRKIfWTwmqxMKYXPNJGup5lpK15x_-q3a4wzrHDmbkcKVigqk_nzXMvZPe9fy-iGT4joZMJUj3RrKXTYpTo9NGiL1QZAA4rb_ThsNVOEAIeBc0vPSTjIvv-rYlopXNK_9PITtmFfswsXXqpIg" alt="Joueur" />
-          </div>
-          <div>
-            <h3>Aaron Judge</h3>
-            <span class="player-card__meta">
-              <i class="fa-solid fa-location-dot"></i>
-              Camden
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="player-card__level">
-        <div class="stat">
-          <span>Matchs joués</span>
-          <strong>245</strong>
-        </div>
-        <span class="badge badge--red">Avancé</span>
-      </div>
-
-      <div class="player-card__details">
-        <div class="detail">
-          <span>Disponible</span>
-          <strong>Dim, 27 Oct</strong>
-        </div>
-        <div class="detail">
-          <span>Horaires</span>
-          <strong>16:00 - 19:00</strong>
-        </div>
-      </div>
-
-      <div class="player-card__footer">
-        <button class="btn btn--primary" type="button">
-          Message
-          <i class="fa-solid fa-envelope"></i>
-        </button>
-        <button class="btn btn--primary" type="button">
-          Inviter
-          <i class="fa-solid fa-paper-plane"></i>
-        </button>
-      </div>
-    </article>
-
-    <article class="player-card">
-      <div class="player-card__header">
-        <div class="player-card__identity">
-          <div class="player-card__avatar player-card__avatar--primary">
-            <span>ST</span>
-          </div>
-          <div>
-            <h3>Sophie Taylor</h3>
-            <span class="player-card__meta">
-              <i class="fa-solid fa-location-dot"></i>
-              Wimbledon
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="player-card__level">
-        <div class="stat">
-          <span>Matchs joués</span>
-          <strong>56</strong>
-        </div>
-        <span class="badge badge--blue">Intermédiaire</span>
-      </div>
-
-      <div class="player-card__details">
-        <div class="detail">
-          <span>Disponible</span>
-          <strong>Lun, 28 Oct</strong>
-        </div>
-        <div class="detail">
-          <span>Horaires</span>
-          <strong>18:00 - 21:00</strong>
-        </div>
-      </div>
-
-      <div class="player-card__footer">
-        <button class="btn btn--primary" type="button">
-          Message
-          <i class="fa-solid fa-envelope"></i>
-        </button>
-        <button class="btn btn--primary" type="button">
+        <button class="btn btn--primary" type="button" [disabled]="isCurrentUser(player)" (click)="onInviteClick()">
           Inviter
           <i class="fa-solid fa-paper-plane"></i>
         </button>
