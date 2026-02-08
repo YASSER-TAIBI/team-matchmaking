@@ -1,5 +1,11 @@
 package com.yazzer.foot5connect.dto;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamStatus;
 import com.yazzer.foot5connect.models.User;
@@ -24,9 +30,13 @@ public class TeamDto {
 
     private String city;
 
+    private LocalDateTime createdDate;
+
     private TeamStatus status;
 
     private Long captainId;
+
+    private List<TeamMemberDto> members;
 
     public static TeamDto fromEntity(Team team) {
         if (team == null){
@@ -39,8 +49,14 @@ public class TeamDto {
                 .logoUrl(team.getLogoUrl())
                 .country(team.getCountry())
                 .city(team.getCity())
+                .createdDate(team.getCreatedDate())
                 .status(team.getStatus())
                 .captainId(team.getCaptain().getId())
+                .members(
+                        team.getTeamMembers() != null
+                                ? team.getTeamMembers().stream().map(TeamMemberDto::fromEntity).collect(Collectors.toList())
+                                : Collections.emptyList()
+                )
                 .build();
     }
 

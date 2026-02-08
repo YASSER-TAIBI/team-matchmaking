@@ -7,6 +7,9 @@ import { ResetPasswordComponent } from './pages/reset-password/reset-password.co
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import { UserDashboardComponent } from './pages/user-dashboard/user-dashboard.component';
 import { AvailablePlayersComponent } from './pages/available-players/available-players.component';
+import { TeamComponent } from './pages/team/team.component';
+import { TeamCreateComponent } from './pages/team-create/team-create.component';
+import { TeamConditionsComponent } from './pages/team-conditions/team-conditions.component';
 
 export const routes: Routes = [
   {
@@ -44,6 +47,18 @@ export const routes: Routes = [
       {
         path: 'available-players',
         component: AvailablePlayersComponent
+      },
+      {
+        path: 'team',
+        component: TeamComponent
+      },
+      {
+        path: 'team/create',
+        component: TeamCreateComponent
+      },
+      {
+        path: 'team/conditions',
+        component: TeamConditionsComponent
       },
       {
         path: '',

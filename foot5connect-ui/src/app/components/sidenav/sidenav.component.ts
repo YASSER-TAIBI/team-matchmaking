@@ -1,17 +1,41 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-import { Router } from '@angular/router';
+ import { CommonModule } from '@angular/common';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { HelperService } from '../../services/helper/helper.service';
+import { filter } from 'rxjs/operators';
+import { Api } from '../../services/api';
+import { findMyTeam } from '../../services/functions';
 
 @Component({
   selector: 'app-sidenav',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.scss'
 })
 export class SidenavComponent {
   private helperService = inject(HelperService);
   private router = inject(Router);
+  private api = inject(Api);
+
+  isTeamMenuOpen = false;
+
+  private currentUrl = '';
+
+  constructor() {
+    this.currentUrl = this.router.url;
+    this.syncTeamMenuWithUrl();
+
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        this.currentUrl = (event as NavigationEnd).urlAfterRedirects;
+        this.syncTeamMenuWithUrl();
+      });
+  }
+
+  get isTeamRouteActive(): boolean {
+    return this.currentUrl.startsWith('/user/team');
+  }
 
   get fullName(): string {
     const value = this.helperService.userFullName ?? '';
@@ -42,5 +66,29 @@ export class SidenavComponent {
   logout(): void {
     localStorage.removeItem('token');
     this.router.navigate(['/login']);
+  }
+
+  closeTeamMenu(): void {
+    this.isTeamMenuOpen = false;
+  }
+
+  async toggleTeamMenu(): Promise<void> {
+    try {
+      const team = await this.api.invoke(findMyTeam, {});
+      if (team) {
+        this.isTeamMenuOpen = !this.isTeamMenuOpen;
+      } else {
+        this.isTeamMenuOpen = false;
+        await this.router.navigate(['/user/team/conditions']);
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
+  }
+
+  private syncTeamMenuWithUrl(): void {
+    if (this.isTeamRouteActive && !this.currentUrl.startsWith('/user/team/conditions')) {
+      this.isTeamMenuOpen = true;
+    }
   }
 }

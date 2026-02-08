@@ -16,6 +16,36 @@
     }
   ],
   "paths": {
+    "/teams/update": {
+      "put": {
+        "tags": [
+          "team-controller"
+        ],
+        "operationId": "updateTeam",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeamDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/{id}/availability": {
       "post": {
         "tags": [
@@ -81,6 +111,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/create": {
+      "post": {
+        "tags": [
+          "team-controller"
+        ],
+        "operationId": "createTeam",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamDto"
                 }
               }
             }
@@ -285,6 +335,26 @@
         }
       }
     },
+    "/teams/me": {
+      "get": {
+        "tags": [
+          "team-controller"
+        ],
+        "operationId": "findMyTeam",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/password-reset/validate": {
       "get": {
         "tags": [
@@ -348,6 +418,96 @@
   },
   "components": {
     "schemas": {
+      "TeamDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "INCOMPLETE",
+              "COMPLETE",
+              "IN_MATCH"
+            ]
+          },
+          "captainId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamMemberDto"
+            }
+          }
+        }
+      },
+      "TeamMemberDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "jerseyNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "position": {
+            "type": "string",
+            "enum": [
+              "GOALKEEPER",
+              "DEFENDER",
+              "MIDFIELDER",
+              "ATTACKER",
+              "SUBSTITUTE"
+            ]
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "teamId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "totalMatches": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "level": {
+            "type": "string"
+          },
+          "captain": {
+            "type": "boolean"
+          }
+        }
+      },
       "DisponibilityDetailDto": {
         "type": "object",
         "properties": {

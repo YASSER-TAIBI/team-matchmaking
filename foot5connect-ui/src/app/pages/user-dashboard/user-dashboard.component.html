@@ -107,3 +107,10 @@
 
   </aside>
 </section>
+
+<app-confirm-dialog
+  [visible]="showConfirmUnavailable"
+  message="Êtes-vous sûr(e) de vouloir passer votre profil en indisponible ?"
+  (confirmed)="confirmUnavailable()"
+  (cancelled)="cancelUnavailable()"
+></app-confirm-dialog>
