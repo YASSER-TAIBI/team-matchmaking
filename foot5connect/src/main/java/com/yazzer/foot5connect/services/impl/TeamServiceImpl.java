@@ -11,6 +11,7 @@ import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamMember;
 import com.yazzer.foot5connect.models.TeamStatus;
 import com.yazzer.foot5connect.models.User;
+import com.yazzer.foot5connect.models.AvailabilityStatus;
 import com.yazzer.foot5connect.repositories.TeamMemberRepository;
 import com.yazzer.foot5connect.repositories.TeamRepository;
 import com.yazzer.foot5connect.repositories.UserRepository;
@@ -54,6 +55,10 @@ public class TeamServiceImpl implements TeamService {
                 .isCaptain(true)
                 .build();
         teamMemberRepository.save(captain);
+
+        // Mettre à jour le statut de l'utilisateur
+        currentUser.setAvailabilityStatus(AvailabilityStatus.EN_EQUIPE);
+        userRepository.save(currentUser);
 
         return TeamDto.fromEntity(team);
     }

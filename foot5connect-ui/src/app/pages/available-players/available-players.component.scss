@@ -27,6 +27,12 @@
   color: var(--text-muted);
 }
 
+.invite-success {
+  margin-top: 10px !important;
+  color: #8fffc5 !important;
+  font-weight: 700;
+}
+
 .players__filters {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
@@ -342,6 +348,70 @@
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #f4fdf8;
+}
+
+.invite-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.invite-modal {
+  width: min(520px, 100%);
+  background: rgba(20, 28, 23, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.35);
+}
+
+.invite-modal h3 {
+  margin: 0 0 8px;
+}
+
+.invite-modal p {
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 14px;
+}
+
+.invite-modal label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+.invite-modal input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 15, 12, 0.95);
+  color: #f4fdf8;
+  padding: 10px 12px;
+  box-sizing: border-box;
+}
+
+.invite-modal__times {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.invite-modal__error {
+  margin-top: 12px !important;
+  color: #ff8f8f !important;
+  font-weight: 700;
+}
+
+.invite-modal__actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 @media (max-width: 900px) {

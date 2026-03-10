@@ -10,6 +10,7 @@ import { AvailablePlayersComponent } from './pages/available-players/available-p
 import { TeamComponent } from './pages/team/team.component';
 import { TeamCreateComponent } from './pages/team-create/team-create.component';
 import { TeamConditionsComponent } from './pages/team-conditions/team-conditions.component';
+import { TeamInvitationsComponent } from './pages/team-invitations/team-invitations.component';
 
 export const routes: Routes = [
   {
@@ -47,6 +48,10 @@ export const routes: Routes = [
       {
         path: 'available-players',
         component: AvailablePlayersComponent
+      },
+      {
+        path: 'invitations',
+        component: TeamInvitationsComponent
       },
       {
         path: 'team',
