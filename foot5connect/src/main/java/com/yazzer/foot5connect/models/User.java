@@ -56,7 +56,6 @@ public class User extends AbstractEntity implements UserDetails{
 
     private boolean active;
 
-
     /* ================= RELATIONS ================= */
 
     @OneToMany(mappedBy = "user")
@@ -72,6 +71,9 @@ public class User extends AbstractEntity implements UserDetails{
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DisponibilityDetail> disponibilityDetails;
 
+    @OneToMany(mappedBy = "invitedUser")
+    private List<TeamInvitation> teamInvitations;
+    
     /* =============================================== */
 
     @Override

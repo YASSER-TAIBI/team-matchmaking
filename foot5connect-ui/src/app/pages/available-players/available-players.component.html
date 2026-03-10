@@ -3,6 +3,7 @@
     <div>
       <h1>Liste des joueurs <span>disponibles</span></h1>
       <p>Trouvez des talents locaux prêts à rejoindre votre prochain match.</p>
+      <p class="invite-success" *ngIf="inviteSuccess">{{ inviteSuccess }}</p>
     </div>
   </header>
 
@@ -98,7 +99,7 @@
           Message
           <i class="fa-solid fa-envelope"></i>
         </button>
-        <button class="btn btn--primary" type="button" [disabled]="isCurrentUser(player)" (click)="onInviteClick()">
+        <button class="btn btn--primary" type="button" [disabled]="isCurrentUser(player)" (click)="onInviteClick(player)">
           Inviter
           <i class="fa-solid fa-paper-plane"></i>
         </button>
@@ -108,5 +109,38 @@
 
   <div class="players__footer">
     <button class="btn btn--ghost" type="button">Charger plus de joueurs</button>
+  </div>
+
+  <div class="invite-modal-overlay" *ngIf="inviteModalVisible" (click)="closeInviteModal()">
+    <div class="invite-modal" (click)="$event.stopPropagation()">
+      <h3>Proposer un créneau</h3>
+      <p>
+        Invitation pour
+        <strong>{{ (invitedPlayer?.firstName ?? '') + ' ' + (invitedPlayer?.lastName ?? '') }}</strong>
+      </p>
+
+      <label>Date du match</label>
+      <input type="date" [(ngModel)]="proposedDate" />
+
+      <div class="invite-modal__times">
+        <div>
+          <label>Début</label>
+          <input type="time" [(ngModel)]="proposedStartTime" />
+        </div>
+        <div>
+          <label>Fin</label>
+          <input type="time" [(ngModel)]="proposedEndTime" />
+        </div>
+      </div>
+
+      <p class="invite-modal__error" *ngIf="inviteError">{{ inviteError }}</p>
+
+      <div class="invite-modal__actions">
+        <button type="button" class="btn btn--ghost" [disabled]="inviteSubmitting" (click)="closeInviteModal()">Annuler</button>
+        <button type="button" class="btn btn--primary" [disabled]="inviteSubmitting" (click)="submitInvitation()">
+          {{ inviteSubmitting ? 'Envoi...' : 'Envoyer invitation' }}
+        </button>
+      </div>
+    </div>
   </div>
 </section>

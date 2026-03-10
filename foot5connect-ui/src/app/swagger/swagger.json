@@ -46,6 +46,68 @@
         }
       }
     },
+    "/team-invitations/{id}/rejet": {
+      "put": {
+        "tags": [
+          "team-invitation-controller"
+        ],
+        "operationId": "rejectInvitation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamInvitationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/team-invitations/{id}/accept": {
+      "put": {
+        "tags": [
+          "team-invitation-controller"
+        ],
+        "operationId": "acceptInvitation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamInvitationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/{id}/availability": {
       "post": {
         "tags": [
@@ -131,6 +193,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TeamDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/team-invitations": {
+      "post": {
+        "tags": [
+          "team-invitation-controller"
+        ],
+        "operationId": "createInvitation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeamInvitationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamInvitationDto"
                 }
               }
             }
@@ -355,6 +447,29 @@
         }
       }
     },
+    "/team-invitations/me": {
+      "get": {
+        "tags": [
+          "team-invitation-controller"
+        ],
+        "operationId": "findMyInvitations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamInvitationDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/password-reset/validate": {
       "get": {
         "tags": [
@@ -508,6 +623,54 @@
           }
         }
       },
+      "TeamInvitationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "EN_ATTENTE",
+              "ACCEPTEE",
+              "REFUSEE"
+            ]
+          },
+          "availableDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "teamId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "teamName": {
+            "type": "string"
+          },
+          "invitedUserId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "invitedUserFirstName": {
+            "type": "string"
+          },
+          "invitedUserLastName": {
+            "type": "string"
+          }
+        }
+      },
       "DisponibilityDetailDto": {
         "type": "object",
         "properties": {
@@ -611,6 +774,25 @@
           "password",
           "username"
         ]
+      },
+      "CreateTeamInvitationRequest": {
+        "type": "object",
+        "properties": {
+          "invitedUserId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "availableDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          }
+        }
       },
       "AuthenticationResponse": {
         "type": "object",

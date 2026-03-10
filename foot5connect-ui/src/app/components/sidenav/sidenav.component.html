@@ -15,6 +15,11 @@
       Joueurs dispos
     </button>
 
+    <button class="nav-item" routerLink="/user/invitations" routerLinkActive="is-active" (click)="closeTeamMenu()">
+        <span class="icon"><i class="fa-solid fa-envelope-open-text"></i></span>
+        Invitations
+    </button>
+
     <button class="nav-item" type="button" (click)="toggleTeamMenu()" [class.is-expanded]="isTeamMenuOpen" [class.is-active]="isTeamRouteActive">
       <span class="icon"><i class="fa-solid fa-users"></i></span>
       Mon équipe
@@ -22,7 +27,7 @@
     </button>
 
     <div class="submenu" *ngIf="isTeamMenuOpen">
-      <button class="submenu__item" type="button" routerLink="/user/team/create" routerLinkActive="is-active">
+      <button class="submenu__item" type="button" (click)="onCreateTeamNav()" routerLinkActive="is-active">
         <span class="icon"><i class="fa-solid fa-plus"></i></span>
         Créer l'équipe
       </button>

@@ -45,4 +45,7 @@ public class Team extends AbstractEntity {
 
     @ManyToMany(mappedBy = "teams")
     private Set<Match> matches;
+
+    @OneToMany(mappedBy = "team")
+    private List<TeamInvitation> invitations;
 }

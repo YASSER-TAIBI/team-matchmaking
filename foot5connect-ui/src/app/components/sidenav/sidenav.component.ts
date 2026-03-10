@@ -72,13 +72,16 @@ export class SidenavComponent {
     this.isTeamMenuOpen = false;
   }
 
-  async toggleTeamMenu(): Promise<void> {
+  toggleTeamMenu(): void {
+    this.isTeamMenuOpen = !this.isTeamMenuOpen;
+  }
+
+  async onCreateTeamNav(): Promise<void> {
     try {
       const team = await this.api.invoke(findMyTeam, {});
       if (team) {
-        this.isTeamMenuOpen = !this.isTeamMenuOpen;
+        await this.router.navigate(['/user/team/create']);
       } else {
-        this.isTeamMenuOpen = false;
         await this.router.navigate(['/user/team/conditions']);
       }
     } catch (err: any) {

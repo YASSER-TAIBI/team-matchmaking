@@ -1,17 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { AvailablePlayerDto } from '../../services/models/available-player-dto';
+import { CreateTeamInvitationRequest } from '../../services/models/create-team-invitation-request';
 import { UserDto } from '../../services/models/user-dto';
 import { HelperService } from '../../services/helper/helper.service';
+import { InvitationService } from '../../services/invitations/invitation.service';
 import { UserService } from '../../services/users/user.service';
 
 @Component({
   selector: 'app-available-players',
   standalone: true,
-  imports: [CommonModule, MatDatepickerModule, MatNativeDateModule, MatInputModule],
+  imports: [CommonModule, FormsModule, MatDatepickerModule, MatNativeDateModule, MatInputModule],
   templateUrl: './available-players.component.html',
   styleUrl: './available-players.component.scss'
 })
@@ -19,6 +22,7 @@ export class AvailablePlayersComponent implements OnInit {
 
   private helperService = inject(HelperService);
   private userService = inject(UserService);
+  private invitationService = inject(InvitationService);
 
   allPlayers: AvailablePlayerDto[] = [];
   players: AvailablePlayerDto[] = [];
@@ -31,6 +35,15 @@ export class AvailablePlayersComponent implements OnInit {
   userCountry: string | null = null;
   userCity: string | null = null;
   currentUserId: number | null = null;
+
+  inviteModalVisible = false;
+  inviteSubmitting = false;
+  inviteError: string | null = null;
+  inviteSuccess: string | null = null;
+  invitedPlayer: AvailablePlayerDto | null = null;
+  proposedDate = '';
+  proposedStartTime = '';
+  proposedEndTime = '';
 
   ngOnInit(): void {
     this.currentUserId = this.helperService.userId;
@@ -127,8 +140,67 @@ export class AvailablePlayersComponent implements OnInit {
     console.log('message ecrit');
   }
 
-  onInviteClick(): void {
-    console.log('inviter ecrit');
+  onInviteClick(player: AvailablePlayerDto): void {
+    if (this.isCurrentUser(player) || !player.userId) {
+      return;
+    }
+
+    this.inviteError = null;
+    this.invitedPlayer = player;
+    this.proposedDate = (player.availableDate ?? '').slice(0, 10);
+    this.proposedStartTime = this.formatInputTime(player.startTime);
+    this.proposedEndTime = this.formatInputTime(player.endTime);
+    this.inviteModalVisible = true;
+  }
+
+  closeInviteModal(): void {
+    if (this.inviteSubmitting) {
+      return;
+    }
+    this.inviteModalVisible = false;
+    this.invitedPlayer = null;
+    this.inviteError = null;
+  }
+
+  submitInvitation(): void {
+    if (!this.invitedPlayer?.userId) {
+      this.inviteError = 'Joueur invalide.';
+      return;
+    }
+
+    if (!this.proposedDate || !this.proposedStartTime || !this.proposedEndTime) {
+      this.inviteError = 'Veuillez compléter la date et les horaires proposés.';
+      return;
+    }
+
+    this.inviteSubmitting = true;
+    this.inviteError = null;
+
+    const payload: CreateTeamInvitationRequest = {
+      invitedUserId: this.invitedPlayer.userId,
+      availableDate: this.proposedDate,
+      startTime: `${this.proposedStartTime}:00`,
+      endTime: `${this.proposedEndTime}:00`
+    };
+
+    this.invitationService.createInvitation(payload).subscribe({
+      next: () => {
+        this.inviteSubmitting = false;
+        this.inviteSuccess = `Invitation envoyée à ${(this.invitedPlayer?.firstName ?? '')} ${(this.invitedPlayer?.lastName ?? '')}`.trim();
+        this.closeInviteModal();
+      },
+      error: (err: any) => {
+        this.inviteSubmitting = false;
+        this.inviteError = err?.error?.message ?? "Impossible d'envoyer l'invitation.";
+      }
+    });
+  }
+
+  private formatInputTime(time?: string): string {
+    if (!time) {
+      return '';
+    }
+    return time.length >= 5 ? time.slice(0, 5) : time;
   }
 
   initials(player: AvailablePlayerDto): string {

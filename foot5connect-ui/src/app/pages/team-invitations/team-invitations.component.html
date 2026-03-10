@@ -1,0 +1,83 @@
+<section class="invites">
+  <header class="invites__header">
+    <h1>Mes invitations</h1>
+    <p>Acceptez ou refusez les invitations envoyées par les capitaines.</p>
+
+    <nav class="tabs" aria-label="Filtres des invitations">
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeTab === 'EN_ATTENTE'"
+        (click)="setTab('EN_ATTENTE', $event)">
+        En attente
+        <span class="tabs__count">{{ countByStatus('EN_ATTENTE') }}</span>
+      </a>
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeTab === 'ACCEPTEE'"
+        (click)="setTab('ACCEPTEE', $event)">
+        Acceptée
+        <span class="tabs__count">{{ countByStatus('ACCEPTEE') }}</span>
+      </a>
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeTab === 'REFUSEE'"
+        (click)="setTab('REFUSEE', $event)">
+        Refusée
+        <span class="tabs__count">{{ countByStatus('REFUSEE') }}</span>
+      </a>
+    </nav>
+  </header>
+
+  <div *ngIf="loading">Chargement...</div>
+  <div *ngIf="error" class="invites__error">{{ error }}</div>
+  <div *ngIf="!loading && !error && filteredInvitations.length === 0" class="invites__empty">
+    Aucune invitation {{ tabLabel(activeTab).toLowerCase() }}.
+  </div>
+
+  <div class="invites__grid" *ngIf="!loading && filteredInvitations.length > 0">
+    <article class="invite-card" *ngFor="let invitation of filteredInvitations">
+      <div class="invite-card__header">
+        <div>
+          <h3>{{ invitation.teamName || 'Équipe' }}</h3>
+          <p class="invite-card__subtitle">Invitation d'équipe</p>
+        </div>
+        <span [class]="invitationBadgeClass(invitation.status)">{{ invitationLabel(invitation.status) }}</span>
+      </div>
+
+      <div class="invite-card__details">
+        <div class="invite-card__row">
+          <span class="invite-card__label">Joueur invité</span>
+          <strong>{{ fullName(invitation) }}</strong>
+        </div>
+        <div class="invite-card__row">
+          <span class="invite-card__label">Date</span>
+          <strong>{{ formatDate(invitation.availableDate) }}</strong>
+        </div>
+        <div class="invite-card__row">
+          <span class="invite-card__label">Horaire</span>
+          <strong>{{ formatTime(invitation.startTime) }} - {{ formatTime(invitation.endTime) }}</strong>
+        </div>
+      </div>
+
+      <div class="invite-card__footer" *ngIf="canRespond(invitation)">
+        <button
+          type="button"
+          class="btn btn--accept"
+          [disabled]="actionLoadingId === invitation.id"
+          (click)="acceptInvitation(invitation)">
+          Accepter
+        </button>
+        <button
+          type="button"
+          class="btn btn--reject"
+          [disabled]="actionLoadingId === invitation.id"
+          (click)="rejectInvitation(invitation)">
+          Refuser
+        </button>
+      </div>
+    </article>
+  </div>
+</section>
