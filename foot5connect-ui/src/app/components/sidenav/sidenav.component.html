@@ -26,16 +26,18 @@
       <span class="chevron"><i class="fa-solid" [class.fa-chevron-down]="!isTeamMenuOpen" [class.fa-chevron-up]="isTeamMenuOpen"></i></span>
     </button>
 
-    <div class="submenu" *ngIf="isTeamMenuOpen">
-      <button class="submenu__item" type="button" (click)="onCreateTeamNav()" routerLinkActive="is-active">
-        <span class="icon"><i class="fa-solid fa-plus"></i></span>
-        Créer l'équipe
-      </button>
-      <button class="submenu__item" type="button" routerLink="/user/team" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
-        <span class="icon"><i class="fa-solid fa-eye"></i></span>
-        Voir l'équipe
-      </button>
-    </div>
+    @if (isTeamMenuOpen) {
+      <div class="submenu">
+        <button class="submenu__item" type="button" (click)="onCreateTeamNav()" routerLinkActive="is-active">
+          <span class="icon"><i class="fa-solid fa-plus"></i></span>
+          Créer l'équipe
+        </button>
+        <button class="submenu__item" type="button" routerLink="/user/team" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+          <span class="icon"><i class="fa-solid fa-eye"></i></span>
+          Voir l'équipe
+        </button>
+      </div>
+    }
 
     <button class="nav-item" routerLink="/user/matches" routerLinkActive="is-active" (click)="closeTeamMenu()">
       <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>

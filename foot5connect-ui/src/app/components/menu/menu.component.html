@@ -46,14 +46,16 @@
       Mon équipe
       <span class="chevron"><i class="fa-solid" [class.fa-chevron-down]="!isTeamMenuOpen" [class.fa-chevron-up]="isTeamMenuOpen"></i></span>
     </button>
-    <div class="mobile-submenu" *ngIf="isTeamMenuOpen">
-      <button class="mobile-submenu__item" type="button" routerLink="/user/team/create" routerLinkActive="is-active">
-        Créer une équipe
-      </button>
-      <button class="mobile-submenu__item" type="button" routerLink="/user/team" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
-        Voir l’équipe
-      </button>
-    </div>
+    @if (isTeamMenuOpen) {
+      <div class="mobile-submenu">
+        <button class="mobile-submenu__item" type="button" routerLink="/user/team/create" routerLinkActive="is-active">
+          Créer une équipe
+        </button>
+        <button class="mobile-submenu__item" type="button" routerLink="/user/team" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+          Voir l’équipe
+        </button>
+      </div>
+    }
     <button class="mobile-nav__item">
       <span class="icon"><i class="fa-solid fa-trophy"></i></span>
       Ligues

@@ -1,7 +1,6 @@
 package com.yazzer.foot5connect.dto;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import com.yazzer.foot5connect.models.InvitationStatus;
@@ -23,30 +22,30 @@ public class TeamInvitationDto {
     private LocalDate availableDate;
     private LocalTime startTime;
     private LocalTime endTime;
-    private LocalDateTime createdDate;
     private Long teamId;
     private String teamName;
     private Long invitedUserId;
     private String invitedUserFirstName;
     private String invitedUserLastName;
+    private String invitedUserLevel;
 
-    public static TeamInvitationDto fromEntity(TeamInvitation invitation) {
-        if (invitation == null) {
+    public static TeamInvitationDto fromEntity(TeamInvitation teamInvitation) {
+        if (teamInvitation == null) {
             return null;
+            // TODO throw an exception
         }
-
         return TeamInvitationDto.builder()
-                .id(invitation.getId())
-                .status(invitation.getStatus())
-                .availableDate(invitation.getAvailableDate())
-                .startTime(invitation.getStartTime())
-                .endTime(invitation.getEndTime())
-                .createdDate(invitation.getCreatedDate())
-                .teamId(invitation.getTeam() != null ? invitation.getTeam().getId() : null)
-                .teamName(invitation.getTeam() != null ? invitation.getTeam().getName() : null)
-                .invitedUserId(invitation.getInvitedUser() != null ? invitation.getInvitedUser().getId() : null)
-                .invitedUserFirstName(invitation.getInvitedUser() != null ? invitation.getInvitedUser().getFirstName() : null)
-                .invitedUserLastName(invitation.getInvitedUser() != null ? invitation.getInvitedUser().getLastName() : null)
+                .id(teamInvitation.getId())
+                .status(teamInvitation.getStatus())
+                .availableDate(teamInvitation.getAvailableDate())
+                .startTime(teamInvitation.getStartTime())
+                .endTime(teamInvitation.getEndTime())
+                .teamId(teamInvitation.getTeam() != null ? teamInvitation.getTeam().getId() : null)
+                .teamName(teamInvitation.getTeam() != null ? teamInvitation.getTeam().getName() : null)
+                .invitedUserId(teamInvitation.getInvitedUser() != null ? teamInvitation.getInvitedUser().getId() : null)
+                .invitedUserFirstName(teamInvitation.getInvitedUser() != null ? teamInvitation.getInvitedUser().getFirstName() : null)
+                .invitedUserLastName(teamInvitation.getInvitedUser() != null ? teamInvitation.getInvitedUser().getLastName() : null)
+                .invitedUserLevel(teamInvitation.getInvitedUser() != null && teamInvitation.getInvitedUser().getLevel() != null ? teamInvitation.getInvitedUser().getLevel().name() : null)
                 .build();
     }
 }

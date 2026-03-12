@@ -31,4 +31,9 @@ export class InvitationService {
     return this.http.put<TeamInvitationDto>(`${this.apiConfig.rootUrl}/team-invitations/${invitationId}/rejet`, {})
       .pipe(map(res => res ?? {} as TeamInvitationDto));
   }
+
+  findMemberInvitations(): Observable<TeamInvitationDto[]> {
+    return this.http.get<TeamInvitationDto[]>(`${this.apiConfig.rootUrl}/team-invitations/memberInvite`)
+      .pipe(map(res => res ?? []));
+  }
 }

@@ -1,6 +1,7 @@
 package com.yazzer.foot5connect.services.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -154,6 +155,21 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
         teamInvitationRepository.saveAll(otherInvitations);
 
         return TeamInvitationDto.fromEntity(saved);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TeamInvitationDto> findMemberInvitations() {
+        User currentUser = getAuthenticatedUser();
+
+        Team team = teamRepository.findByCaptain_Id(currentUser.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Équipe non trouvée"));
+
+        List<TeamInvitation> teamInvitations = teamInvitationRepository.findByTeam_Id(team.getId());
+
+        return teamInvitations.stream()
+                .map(TeamInvitationDto::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Override

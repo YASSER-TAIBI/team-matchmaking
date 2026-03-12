@@ -45,6 +45,14 @@
         <a
           class="tabs__item"
           href="#"
+          [class.tabs__item--active]="activeTab === 'invitation'"
+          (click)="setTab('invitation', $event)"
+        >
+          Invitation
+        </a>
+        <a
+          class="tabs__item"
+          href="#"
           [class.tabs__item--active]="activeTab === 'historique'"
           (click)="setTab('historique', $event)"
         >
@@ -54,29 +62,39 @@
     </div>
   </header>
 
+  <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
+  <!-- --------------------------------------------------------- Création Left ---------------------------------------------------- -->
+  <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
   <div class="team-create-content">
     <div class="team-create-grid">
       <div class="team-create-left">
-        <section class="card" *ngIf="activeTab === 'creation'">
+        @if (activeTab === 'creation') {
+        <section class="card">
           <div class="card__header">
             <h2 class="card__title">
               <span class="material-symbols-outlined card__title-icon">badge</span>
-              Identité de l'équipe
+              Identité de l'Équipe
             </h2>
-            <span class="update-item__action update-item__action--edit" *ngIf="!isEditingIdentity" (click)="startEditIdentity()">
-                <span class="material-symbols-outlined">edit</span>
-            </span>
+            @if (!isEditingIdentity) {
+              <span class="update-item__action update-item__action--edit" (click)="startEditIdentity()">
+                  <span class="material-symbols-outlined">edit</span>
+              </span>
+            }
           </div>
 
           <div class="identity">
             <button class="logo-upload" type="button" [disabled]="!isEditingIdentity" [class.logo-upload--disabled]="!isEditingIdentity">
               <span class="logo-upload__circle" aria-hidden="true">
                 <span class="logo-upload__image"></span>
-                <span class="logo-upload__overlay" *ngIf="isEditingIdentity">
-                  <span class="material-symbols-outlined">upload</span>
-                </span>
+                @if (isEditingIdentity) {
+                  <span class="logo-upload__overlay">
+                    <span class="material-symbols-outlined">upload</span>
+                  </span>
+                }
               </span>
-              <span class="logo-upload__label" *ngIf="isEditingIdentity">Changer le logo</span>
+              @if (isEditingIdentity) {
+                <span class="logo-upload__label">Changer le logo</span>
+              }
             </button>
 
             <form class="identity-form" autocomplete="off">
@@ -111,13 +129,81 @@
             </form>
           </div>
 
-          <div class="card__footer" *ngIf="isEditingIdentity">
-            <button class="action-btn action-btn--cancel" type="button" (click)="cancelEditIdentity()">Annuler</button>
-            <button class="action-btn action-btn--save" type="button" (click)="saveIdentity()">Modifier</button>
+          @if (isEditingIdentity) {
+            <div class="card__footer">
+              <button class="action-btn action-btn--cancel" type="button" (click)="cancelEditIdentity()">Annuler</button>
+              <button class="action-btn action-btn--save" type="button" (click)="saveIdentity()">Modifier</button>
+            </div>
+          }
+        </section>
+        }
+
+        @if (activeTab === 'creation') {
+        <section class="card">
+          <div class="card__header">
+            <h2 class="card__title card__title--no-margin">
+              <span class="material-symbols-outlined card__title-icon">groups_2</span>
+              Sélection Équipe
+            </h2>
+            <button class="pill-btn" type="button">
+              <span class="material-symbols-outlined pill-btn__icon">person_add</span>
+              Ajouter un joueur
+            </button>
+          </div>
+
+          <div class="table">
+            <div class="table__head">
+              <div class="table__col table__col--details">Détails du joueur</div>
+              <div class="table__col table__col--match">Match</div>
+              <div class="table__col table__col--level">Niveau</div>
+              <div class="table__col table__col--actions">Actions</div>
+            </div>
+
+            <div class="table__body">
+              @for (member of members; track member.userId ?? member.id ?? $index) {
+              <article class="player-row">
+                <div class="player-row__details">
+                  <div class="avatar">
+                    <span class="avatar__initials">{{ getMemberInitials(member) }}</span>
+                    @if (member.captain) {
+                      <span class="avatar__status" aria-hidden="true"></span>
+                    }
+                  </div>
+                  <div class="player-row__meta">
+                    <div class="player-row__name">{{ getMemberFullName(member) }}</div>
+                    <div class="player-row__role">{{ member.captain ? 'Capitaine' : (member.position ?? 'Membre') }}</div>
+                  </div>
+                </div>
+
+                <div class="player-row__match">{{ member.totalMatches ?? 0 }}</div>
+
+                <div class="player-row__level">
+                  <span class="badge" [ngClass]="levelBadgeClass(member.level)">{{ levelLabel(member.level) }}</span>
+                </div>
+
+                <div class="player-row__actions">
+                  <button class="icon-btn icon-btn--danger" type="button" aria-label="Supprimer le joueur">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </article>
+              }
+
+              @if (members.length === 0) {
+                <div class="table__empty">
+                  Aucun membre dans l'équipe
+                </div>
+              }
+            </div>
           </div>
         </section>
+        }
 
-        <section class="card" *ngIf="activeTab === 'formation'">
+  <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
+  <!-- --------------------------------------------------------- formation Left --------------------------------------------------- -->
+  <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
+        @if (activeTab === 'formation') {
+        <section class="card">
           <div class="card__header">
             <h2 class="card__title card__title--no-margin">
               <span class="material-symbols-outlined card__title-icon">groups_2</span>
@@ -237,63 +323,58 @@
             </div>
           </div>
         </section>
+        }
 
-        <section class="card" *ngIf="activeTab === 'creation'">
-          <div class="card__header">
-            <h2 class="card__title card__title--no-margin">
-              <span class="material-symbols-outlined card__title-icon">groups_2</span>
-              Effectif actif
-            </h2>
-            <button class="pill-btn" type="button">
-              <span class="material-symbols-outlined pill-btn__icon">person_add</span>
-              Ajouter un joueur
-            </button>
-          </div>
-
-          <div class="table">
-            <div class="table__head">
-              <div class="table__col table__col--details">Détails du joueur</div>
-              <div class="table__col table__col--match">Match</div>
-              <div class="table__col table__col--level">Niveau</div>
-              <div class="table__col table__col--actions">Actions</div>
-            </div>
-
-            <div class="table__body">
-              <article class="player-row" *ngFor="let member of members">
-                <div class="player-row__details">
-                  <div class="avatar">
-                    <span class="avatar__initials">{{ getMemberInitials(member) }}</span>
-                    <span class="avatar__status" *ngIf="member.captain" aria-hidden="true"></span>
-                  </div>
-                  <div class="player-row__meta">
-                    <div class="player-row__name">{{ getMemberFullName(member) }}</div>
-                    <div class="player-row__role">{{ member.captain ? 'Capitaine' : (member.position ?? '-') }}</div>
-                  </div>
-                </div>
-
-                <div class="player-row__match">{{ member.totalMatches ?? 0 }}</div>
-
-                <div class="player-row__level">
-                  <span class="badge" [ngClass]="levelBadgeClass(member.level)">{{ levelLabel(member.level) }}</span>
-                </div>
-
-                <div class="player-row__actions">
-                  <button class="icon-btn icon-btn--danger" type="button" aria-label="Supprimer le joueur">
-                    <span class="material-symbols-outlined">delete</span>
-                  </button>
-                </div>
-              </article>
-
-              <div *ngIf="members.length === 0" class="table__empty">
-                Aucun membre dans l'équipe
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
 
       <aside class="team-create-right">
-        <section class="pitch-card" *ngIf="activeTab === 'formation'">
+  <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
+  <!-- --------------------------------------------------------- Création right --------------------------------------------------- -->
+  <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
+        @if (activeTab === 'creation') {
+        <section class="card">
+          <h3 class="card__kicker">Les joueurs invités</h3>
+
+          <div class="recruit-list">
+            @if (invitationsLoading) {
+              <div class="recruit-list__state">Chargement...</div>
+            }
+            @if (!invitationsLoading && invitationsError) {
+              <div class="recruit-list__state recruit-list__state--error">{{ invitationsError }}</div>
+            }
+
+            @for (invitation of visibleInvitations; track invitation.id ?? $index) {
+              <button class="recruit-item" type="button">
+                <span class="recruit-item__avatar recruit-item__avatar--initials">{{ getInvitationInitials(invitation) }}</span>
+                <span class="recruit-item__text">
+                  <span class="recruit-item__name">{{ getInvitationFullName(invitation) }}</span>
+                  <span class="recruit-item__meta">{{ levelLabel(invitation.invitedUserLevel) }}</span>
+                </span>
+                <span [class]="invitationStatusClass(invitation.status)">{{ invitationStatusLabel(invitation.status) }}</span>
+              </button>
+            }
+
+            @if (!invitationsLoading && !invitationsError && invitations.length === 0) {
+              <div class="recruit-list__state">
+                Aucun joueur invité pour le moment.
+              </div>
+            }
+          </div>
+
+          @if (hasMoreThanFourInvitations) {
+            <button class="link-btn" type="button" (click)="goToInvitations()">
+              Voir toutes les suggestions
+              <span class="material-symbols-outlined link-btn__icon">arrow_forward</span>
+            </button>
+          }
+        </section>
+        }
+
+    <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
+    <!-- --------------------------------------------------------- formation right --------------------------------------------------- -->
+    <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
+        @if (activeTab === 'formation') {
+        <section class="pitch-card">
           <div class="pitch-card__head">
             <h2 class="pitch-card__title">Formation 2-1-2</h2>
             <button class="pitch-card__edit" type="button">Modifier</button>
@@ -332,44 +413,68 @@
             </div>
           </div>
         </section>
+        }
 
-        <section class="card" *ngIf="activeTab === 'creation'">
-          <h3 class="card__kicker">Recruter des joueurs</h3>
-
-          <div class="search">
-            <span class="material-symbols-outlined search__icon">search</span>
-            <input class="search__input" type="text" placeholder="Rechercher par nom ou ville..." />
-          </div>
-
-          <div class="recruit-list">
-            <button class="recruit-item" type="button">
-              <span class="recruit-item__avatar recruit-item__avatar--james"></span>
-              <span class="recruit-item__text">
-                <span class="recruit-item__name">James K.</span>
-                <span class="recruit-item__meta">Attaquant • Libre</span>
-              </span>
-              <span class="recruit-item__action recruit-item__action--add">
-                <span class="material-symbols-outlined">add</span>
-              </span>
-            </button>
-
-            <button class="recruit-item" type="button">
-              <span class="recruit-item__avatar recruit-item__avatar--lisa"></span>
-              <span class="recruit-item__text">
-                <span class="recruit-item__name">Lisa M.</span>
-                <span class="recruit-item__meta">Gardien • Londres</span>
-              </span>
-              <span class="recruit-item__action recruit-item__action--pending">En attente</span>
-            </button>
-          </div>
-
-          <button class="link-btn" type="button">
-            Voir toutes les suggestions
-            <span class="material-symbols-outlined link-btn__icon">arrow_forward</span>
-          </button>
-        </section>
       </aside>
     </div>
+    @if (activeTab === 'invitation') {
+      <section class="card">
+        <div class="card__header">
+          <h2 class="card__title card__title--no-margin">
+            <span class="material-symbols-outlined card__title-icon">mail</span>
+            Invitations de l'équipe
+          </h2>
+        </div>
+
+        <div class="table">
+          <div class="table__head">
+            <div class="table__col table__col--details">Joueur invité</div>
+            <div class="table__col table__col--match">Date</div>
+            <div class="table__col table__col--level">Niveau</div>
+            <div class="table__col table__col--actions">Statut</div>
+          </div>
+
+          <div class="table__body">
+            @if (invitationsLoading) {
+              <div class="recruit-list__state">Chargement...</div>
+            }
+            @if (!invitationsLoading && invitationsError) {
+              <div class="recruit-list__state recruit-list__state--error">{{ invitationsError }}</div>
+            }
+
+            @for (invitation of invitations; track invitation.id ?? $index) {
+              <article class="player-row">
+                <div class="player-row__details">
+                  <div class="avatar">
+                    <span class="avatar__initials">{{ getInvitationInitials(invitation) }}</span>
+                  </div>
+                  <div class="player-row__meta">
+                    <div class="player-row__name">{{ getInvitationFullName(invitation) }}</div>
+                    <div class="player-row__role">{{ team?.name ?? 'Équipe' }}</div>
+                  </div>
+                </div>
+
+                <div class="player-row__match">{{ invitation.availableDate ?? '-' }}</div>
+
+                <div class="player-row__level">
+                  <span class="badge" [ngClass]="levelBadgeClass(invitation.invitedUserLevel)">{{ levelLabel(invitation.invitedUserLevel) }}</span>
+                </div>
+
+                <div class="player-row__actions">
+                  <span [class]="invitationStatusClass(invitation.status)">{{ invitationStatusLabel(invitation.status) }}</span>
+                </div>
+              </article>
+            }
+
+            @if (!invitationsLoading && !invitationsError && invitations.length === 0) {
+              <div class="recruit-list__state">
+                Aucune invitation pour cette équipe.
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    }
   </div>
 </div>
 

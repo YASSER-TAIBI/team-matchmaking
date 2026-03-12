@@ -14,4 +14,6 @@ public interface TeamInvitationService {
     TeamInvitationDto acceptInvitation(Long invitationId);
 
     TeamInvitationDto rejectInvitation(Long invitationId);
+
+    List<TeamInvitationDto> findMemberInvitations();
 }

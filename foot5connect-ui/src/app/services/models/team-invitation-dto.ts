@@ -3,12 +3,12 @@
 
 export interface TeamInvitationDto {
   availableDate?: string;
-  createdDate?: string;
   endTime?: string;
   id?: number;
   invitedUserFirstName?: string;
   invitedUserId?: number;
   invitedUserLastName?: string;
+  invitedUserLevel?: string;
   startTime?: string;
   status?: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE';
   teamId?: number;

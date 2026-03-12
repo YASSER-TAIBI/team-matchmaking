@@ -17,4 +17,6 @@ public interface TeamInvitationRepository extends JpaRepository<TeamInvitation, 
     List<TeamInvitation> findByInvitedUser_IdAndIdNot(Long invitedUserId, Long invitationId);
 
     boolean existsByTeam_IdAndInvitedUser_IdAndStatus(Long teamId, Long invitedUserId, InvitationStatus status);
+
+    List<TeamInvitation> findByTeam_Id(Long teamId);
 }
