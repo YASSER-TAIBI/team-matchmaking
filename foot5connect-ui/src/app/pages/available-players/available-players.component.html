@@ -3,7 +3,9 @@
     <div>
       <h1>Liste des joueurs <span>disponibles</span></h1>
       <p>Trouvez des talents locaux prêts à rejoindre votre prochain match.</p>
-      <p class="invite-success" *ngIf="inviteSuccess">{{ inviteSuccess }}</p>
+      @if (inviteSuccess) {
+        <p class="invite-success">{{ inviteSuccess }}</p>
+      }
     </div>
   </header>
 
@@ -55,92 +57,104 @@
   </div>
 
   <div class="players__grid">
-    <div *ngIf="loading">Chargement...</div>
-    <div *ngIf="error">{{ error }}</div>
-    <div *ngIf="!loading && !error && players.length === 0">Aucun joueur disponible pour le moment.</div>
+    @if (loading) {
+      <div>Chargement...</div>
+    }
+    @if (error) {
+      <div>{{ error }}</div>
+    }
+    @if (!loading && !error && players.length === 0) {
+      <div>Aucun joueur disponible pour le moment.</div>
+    }
 
-    <article class="player-card" *ngFor="let player of players">
-      <div class="player-card__header">
-        <div class="player-card__identity">
-          <div class="player-card__avatar player-card__avatar--primary">
-            <span>{{ initials(player) }}</span>
+    @for (player of players; track player.userId ?? $index) {
+      <article class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__identity">
+            <div class="player-card__avatar player-card__avatar--primary">
+              <span>{{ initials(player) }}</span>
+            </div>
+            <div>
+              <h3>{{ (player.firstName ?? '') + ' ' + (player.lastName ?? '') }}</h3>
+              <span class="player-card__meta">
+                <i class="fa-solid fa-location-dot"></i>
+                {{ player.city || '-' }}
+              </span>
+            </div>
           </div>
-          <div>
-            <h3>{{ (player.firstName ?? '') + ' ' + (player.lastName ?? '') }}</h3>
-            <span class="player-card__meta">
-              <i class="fa-solid fa-location-dot"></i>
-              {{ player.city || '-' }}
-            </span>
+        </div>
+
+        <div class="player-card__level">
+          <div class="stat">
+            <span>Matchs joués</span>
+            <strong>{{ player.totalMatches ?? 0 }}</strong>
+          </div>
+          <span class="badge" [ngClass]="levelBadgeClass(player.level)">{{ levelLabel(player.level) }}</span>
+        </div>
+
+        <div class="player-card__details">
+          <div class="detail">
+            <span>Disponible</span>
+            <strong>{{ formatDate(player.availableDate) }}</strong>
+          </div>
+          <div class="detail">
+            <span>Horaires</span>
+            <strong>{{ formatTime(player.startTime) }} - {{ formatTime(player.endTime) }}</strong>
           </div>
         </div>
-      </div>
 
-      <div class="player-card__level">
-        <div class="stat">
-          <span>Matchs joués</span>
-          <strong>{{ player.totalMatches ?? 0 }}</strong>
+        <div class="player-card__footer">
+          <button class="btn btn--primary" type="button" [disabled]="isCurrentUser(player)" (click)="onMessageClick()">
+            Message
+            <i class="fa-solid fa-envelope"></i>
+          </button>
+          <button class="btn btn--primary" type="button" [disabled]="isCurrentUser(player)" (click)="onInviteClick(player)">
+            Inviter
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
         </div>
-        <span class="badge" [ngClass]="levelBadgeClass(player.level)">{{ levelLabel(player.level) }}</span>
-      </div>
-
-      <div class="player-card__details">
-        <div class="detail">
-          <span>Disponible</span>
-          <strong>{{ formatDate(player.availableDate) }}</strong>
-        </div>
-        <div class="detail">
-          <span>Horaires</span>
-          <strong>{{ formatTime(player.startTime) }} - {{ formatTime(player.endTime) }}</strong>
-        </div>
-      </div>
-
-      <div class="player-card__footer">
-        <button class="btn btn--primary" type="button" [disabled]="isCurrentUser(player)" (click)="onMessageClick()">
-          Message
-          <i class="fa-solid fa-envelope"></i>
-        </button>
-        <button class="btn btn--primary" type="button" [disabled]="isCurrentUser(player)" (click)="onInviteClick(player)">
-          Inviter
-          <i class="fa-solid fa-paper-plane"></i>
-        </button>
-      </div>
-    </article>
+      </article>
+    }
   </div>
 
   <div class="players__footer">
     <button class="btn btn--ghost" type="button">Charger plus de joueurs</button>
   </div>
 
-  <div class="invite-modal-overlay" *ngIf="inviteModalVisible" (click)="closeInviteModal()">
-    <div class="invite-modal" (click)="$event.stopPropagation()">
-      <h3>Proposer un créneau</h3>
-      <p>
-        Invitation pour
-        <strong>{{ (invitedPlayer?.firstName ?? '') + ' ' + (invitedPlayer?.lastName ?? '') }}</strong>
-      </p>
+  @if (inviteModalVisible) {
+    <div class="invite-modal-overlay" (click)="closeInviteModal()">
+      <div class="invite-modal" (click)="$event.stopPropagation()">
+        <h3>Proposer un créneau</h3>
+        <p>
+          Invitation pour
+          <strong>{{ (invitedPlayer?.firstName ?? '') + ' ' + (invitedPlayer?.lastName ?? '') }}</strong>
+        </p>
 
-      <label>Date du match</label>
-      <input type="date" [(ngModel)]="proposedDate" />
+        <label>Date du match</label>
+        <input type="date" [(ngModel)]="proposedDate" />
 
-      <div class="invite-modal__times">
-        <div>
-          <label>Début</label>
-          <input type="time" [(ngModel)]="proposedStartTime" />
+        <div class="invite-modal__times">
+          <div>
+            <label>Début</label>
+            <input type="time" [(ngModel)]="proposedStartTime" />
+          </div>
+          <div>
+            <label>Fin</label>
+            <input type="time" [(ngModel)]="proposedEndTime" />
+          </div>
         </div>
-        <div>
-          <label>Fin</label>
-          <input type="time" [(ngModel)]="proposedEndTime" />
+
+        @if (inviteError) {
+          <p class="invite-modal__error">{{ inviteError }}</p>
+        }
+
+        <div class="invite-modal__actions">
+          <button type="button" class="btn btn--ghost" [disabled]="inviteSubmitting" (click)="closeInviteModal()">Annuler</button>
+          <button type="button" class="btn btn--primary" [disabled]="inviteSubmitting" (click)="submitInvitation()">
+            {{ inviteSubmitting ? 'Envoi...' : 'Envoyer invitation' }}
+          </button>
         </div>
-      </div>
-
-      <p class="invite-modal__error" *ngIf="inviteError">{{ inviteError }}</p>
-
-      <div class="invite-modal__actions">
-        <button type="button" class="btn btn--ghost" [disabled]="inviteSubmitting" (click)="closeInviteModal()">Annuler</button>
-        <button type="button" class="btn btn--primary" [disabled]="inviteSubmitting" (click)="submitInvitation()">
-          {{ inviteSubmitting ? 'Envoi...' : 'Envoyer invitation' }}
-        </button>
       </div>
     </div>
-  </div>
+  }
 </section>

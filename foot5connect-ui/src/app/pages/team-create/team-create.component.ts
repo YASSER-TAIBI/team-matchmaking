@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { TeamInvitationDto } from '../../services/models/team-invitation-dto';
+import { InvitationService } from '../../services/invitations/invitation.service';
 import { TeamService } from '../../services/teams/team.service';
 import { TeamDto } from '../../services/models/team-dto';
 import { TeamMemberDto } from '../../services/models/team-member-dto';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
-type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'historique';
+type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation' | 'historique';
 
 @Component({
   selector: 'app-team-create',
@@ -15,11 +17,15 @@ type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'historique';
   styleUrl: './team-create.component.scss'
 })
 export class TeamCreateComponent implements OnInit {
+  private invitationService = inject(InvitationService);
   private teamService = inject(TeamService);
 
   activeTab: TeamCreateTab = 'creation';
   team: TeamDto | null = null;
   members: TeamMemberDto[] = [];
+  invitations: TeamInvitationDto[] = [];
+  invitationsLoading = false;
+  invitationsError: string | null = null;
 
   isEditingIdentity = false;
   editName = '';
@@ -34,6 +40,38 @@ export class TeamCreateComponent implements OnInit {
       },
       error: (err) => console.error('Erreur chargement équipe', err)
     });
+
+    this.loadMemberInvitations();
+  }
+
+  loadMemberInvitations(): void {
+    this.invitationsLoading = true;
+    this.invitationsError = null;
+
+    this.invitationService.findMemberInvitations().subscribe({
+      next: (invitations) => {
+        this.invitations = invitations;
+        this.invitationsLoading = false;
+      },
+      error: (err) => {
+        console.error('Erreur chargement invitations équipe', err);
+        this.invitations = [];
+        this.invitationsError = 'Impossible de charger les joueurs invités.';
+        this.invitationsLoading = false;
+      }
+    });
+  }
+
+  get visibleInvitations(): TeamInvitationDto[] {
+    return this.invitations.slice(0, 4);
+  }
+
+  get hasMoreThanFourInvitations(): boolean {
+    return this.invitations.length > 4;
+  }
+
+  goToInvitations(): void {
+    this.activeTab = 'invitation';
   }
 
   startEditIdentity(): void {
@@ -110,6 +148,49 @@ export class TeamCreateComponent implements OnInit {
         return 'badge--red';
       default:
         return 'badge--green';
+    }
+  }
+
+  capitalize(value?: string): string {
+    if (!value) return '';
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  }
+  
+  getInvitationFullName(invitation: TeamInvitationDto): string {
+    const first = this.capitalize(invitation.invitedUserFirstName);
+    const last = this.capitalize(invitation.invitedUserLastName);
+    return `${first} ${last}`.trim() || 'Joueur';
+  }
+
+  getInvitationInitials(invitation: TeamInvitationDto): string {
+    const first = invitation.invitedUserFirstName?.[0] ?? '';
+    const last = invitation.invitedUserLastName?.[0] ?? '';
+    return `${first}${last}`.toUpperCase() || 'J';
+  }
+
+  invitationStatusLabel(status?: TeamInvitationDto['status']): string {
+    switch (status) {
+      case 'EN_ATTENTE':
+        return 'En Attente';
+      case 'ACCEPTEE':
+        return 'Acceptée';
+      case 'REFUSEE':
+        return 'Refusée';
+      default:
+        return '-';
+    }
+  }
+
+  invitationStatusClass(status?: TeamInvitationDto['status']): string {
+    switch (status) {
+      case 'EN_ATTENTE':
+        return 'recruit-item__action recruit-item__action--pending';
+      case 'ACCEPTEE':
+        return 'recruit-item__action recruit-item__action--accepted';
+      case 'REFUSEE':
+        return 'recruit-item__action recruit-item__action--rejected';
+      default:
+        return 'recruit-item__action recruit-item__action--pending';
     }
   }
 }

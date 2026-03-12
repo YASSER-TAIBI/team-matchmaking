@@ -28,7 +28,7 @@
           </mat-button-toggle-group>
 
           <form class="auth-form">
-            <ng-container *ngIf="selectedAuthTab === 'login'">
+            @if (selectedAuthTab === 'login') {
 
               <!-- Login / EMAIL-->
               <div class="field-block">
@@ -50,9 +50,9 @@
                   <input matInput type="password" placeholder="••••••••" [(ngModel)]="authRequest.password" name="password" required/>
                 </mat-form-field>
               </div>
-            </ng-container>
+            }
 
-            <ng-container *ngIf="selectedAuthTab === 'register'">
+            @if (selectedAuthTab === 'register') {
               <div class="form-row form-row--2">
 
                 <!-- Register / PRENOM -->
@@ -123,7 +123,9 @@
                       placeholder="ex: France"
                       (selectionChange)="onCountrySelected($event.value)"
                     >
-                      <mat-option *ngFor="let c of countries" [value]="c.name">{{ c.name }}</mat-option>
+                      @for (c of countries; track c.isoCode ?? c.name) {
+                        <mat-option [value]="c.name">{{ c.name }}</mat-option>
+                      }
                     </mat-select>
                   </mat-form-field>
                 </div>
@@ -134,12 +136,14 @@
                   <mat-form-field class="field" appearance="outline">
                     <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-city"></i></span>
                     <mat-select [(ngModel)]="userDto.city" name="city" placeholder="ex: Paris">
-                      <mat-option *ngFor="let c of cities" [value]="c.name">{{ c.name }}</mat-option>
+                      @for (c of cities; track c.name) {
+                        <mat-option [value]="c.name">{{ c.name }}</mat-option>
+                      }
                     </mat-select>
                   </mat-form-field>
                 </div>
               </div>
-            </ng-container>
+            }
 
             <!-- BOUTON -->
             <button mat-flat-button class="primary" type="button" (click)="onKickOff()">

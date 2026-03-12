@@ -777,6 +777,16 @@
   gap: 10px;
 }
 
+.recruit-list__state {
+  padding: 8px 4px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 13px;
+}
+
+.recruit-list__state--error {
+  color: #ff9f9f;
+}
+
 .recruit-item {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -801,6 +811,17 @@
   border-radius: 999px;
   background-size: cover;
   background-position: center;
+}
+
+.recruit-item__avatar--initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(19, 236, 91, 0.16);
+  color: var(--neon-green);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 }
 
 .recruit-item__avatar--james {
@@ -872,8 +893,29 @@
 .recruit-item__action--pending {
   padding: 6px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgb(241, 238, 36);
+  background: rgba(247, 231, 8, 0.247);
+  color: rgba(243, 239, 30, 0.664);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.recruit-item__action--accepted {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(19, 236, 91, 0.2);
+  background: rgba(19, 236, 91, 0.16);
+  color: var(--neon-green);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.recruit-item__action--rejected {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 93, 93, 0.2);
+  background: rgba(255, 93, 93, 0.16);
+  color: #ff8b8b;
   font-size: 10px;
   font-weight: 900;
 }

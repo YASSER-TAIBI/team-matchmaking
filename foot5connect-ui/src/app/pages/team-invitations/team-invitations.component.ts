@@ -57,9 +57,8 @@ export class TeamInvitationsComponent implements OnInit {
 
     this.actionLoadingId = id;
     this.invitationService.acceptInvitation(id).subscribe({
-      next: (updated) => {
-        this.replaceInvitation(updated);
-        this.actionLoadingId = null;
+      next: () => {
+        this.reloadInvitationsAfterAction();
       },
       error: () => {
         this.error = "Impossible d'accepter l'invitation.";
@@ -76,9 +75,8 @@ export class TeamInvitationsComponent implements OnInit {
 
     this.actionLoadingId = id;
     this.invitationService.rejectInvitation(id).subscribe({
-      next: (updated) => {
-        this.replaceInvitation(updated);
-        this.actionLoadingId = null;
+      next: () => {
+        this.reloadInvitationsAfterAction();
       },
       error: () => {
         this.error = "Impossible de refuser l'invitation.";
@@ -162,5 +160,19 @@ export class TeamInvitationsComponent implements OnInit {
       return;
     }
     this.invitations = this.invitations.map(item => item.id === id ? updated : item);
+  }
+
+  private reloadInvitationsAfterAction(): void {
+    this.error = null;
+    this.invitationService.findMyInvitations().subscribe({
+      next: (data) => {
+        this.invitations = data ?? [];
+        this.actionLoadingId = null;
+      },
+      error: () => {
+        this.error = 'Impossible de rafraîchir les invitations.';
+        this.actionLoadingId = null;
+      }
+    });
   }
 }

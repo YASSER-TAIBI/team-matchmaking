@@ -43,4 +43,9 @@ public class TeamInvitationController {
     public ResponseEntity<TeamInvitationDto> rejectInvitation(@PathVariable("id") Long id) {
         return ResponseEntity.ok(teamInvitationService.rejectInvitation(id));
     }
+
+    @GetMapping("/memberInvite")
+    public ResponseEntity<List<TeamInvitationDto>> findMemberInvitations() {
+        return ResponseEntity.ok(teamInvitationService.findMemberInvitations());
+    }
 }

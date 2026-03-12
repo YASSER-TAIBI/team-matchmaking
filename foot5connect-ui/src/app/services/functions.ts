@@ -13,6 +13,8 @@ export type { AcceptInvitation$Params } from './fn/team-invitation-controller/ac
 export { acceptInvitation } from './fn/team-invitation-controller/accept-invitation';
 export type { CreateInvitation$Params } from './fn/team-invitation-controller/create-invitation';
 export { createInvitation } from './fn/team-invitation-controller/create-invitation';
+export type { FindMemberInvitations$Params } from './fn/team-invitation-controller/find-member-invitations';
+export { findMemberInvitations } from './fn/team-invitation-controller/find-member-invitations';
 export type { FindMyInvitations$Params } from './fn/team-invitation-controller/find-my-invitations';
 export { findMyInvitations } from './fn/team-invitation-controller/find-my-invitations';
 export type { SaveAvailability$Params } from './fn/user-controller/save-availability';

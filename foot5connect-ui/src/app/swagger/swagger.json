@@ -447,6 +447,29 @@
         }
       }
     },
+    "/team-invitations/memberInvite": {
+      "get": {
+        "tags": [
+          "team-invitation-controller"
+        ],
+        "operationId": "findMemberInvitations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamInvitationDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/team-invitations/me": {
       "get": {
         "tags": [
@@ -648,10 +671,6 @@
           "endTime": {
             "type": "string"
           },
-          "createdDate": {
-            "type": "string",
-            "format": "date-time"
-          },
           "teamId": {
             "type": "integer",
             "format": "int64"
@@ -667,6 +686,9 @@
             "type": "string"
           },
           "invitedUserLastName": {
+            "type": "string"
+          },
+          "invitedUserLevel": {
             "type": "string"
           }
         }
