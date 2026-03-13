@@ -10,7 +10,7 @@ export interface TeamInvitationDto {
   invitedUserLastName?: string;
   invitedUserLevel?: string;
   startTime?: string;
-  status?: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE';
+  status?: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE';
   teamId?: number;
   teamName?: string;
 }

@@ -8,13 +8,12 @@
           <p class="team-create-header__subtitle">Créez votre identité et construisez votre équipe de rêve à 5.</p>
         </div>
 
-        <!-- <div class="team-create-header__actions">
-          <button class="action-btn action-btn--secondary" type="button">Annuler</button>
-          <button class="action-btn action-btn--primary" type="button">
-            <span class="material-symbols-outlined action-btn__icon">save</span>
-            Enregistrer les modifications
+        <div class="team-create-header__actions">
+          <button class="action-btn action-btn--primary" type="button" (click)="onTeamActionClick()">
+            <span class="material-symbols-outlined action-btn__icon">{{ teamActionIcon }}</span>
+            {{ teamActionLabel }}
           </button>
-        </div> -->
+        </div>
       </div>
 
       <nav class="tabs" aria-label="Sections de gestion d'équipe">
@@ -370,9 +369,9 @@
         </section>
         }
 
-    <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
-    <!-- --------------------------------------------------------- formation right --------------------------------------------------- -->
-    <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
+  <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
+  <!-- --------------------------------------------------------- formation right --------------------------------------------------- -->
+  <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
         @if (activeTab === 'formation') {
         <section class="pitch-card">
           <div class="pitch-card__head">
@@ -426,10 +425,12 @@
           </h2>
         </div>
 
-        <div class="table">
+        <div class="table table--invitation">
           <div class="table__head">
             <div class="table__col table__col--details">Joueur invité</div>
-            <div class="table__col table__col--match">Date</div>
+            <div class="table__col table__col--match">Date du match</div>
+            <div class="table__col table__col--timestart">Heure de début</div>
+            <div class="table__col table__col--timeend">Heure de fin</div>
             <div class="table__col table__col--level">Niveau</div>
             <div class="table__col table__col--actions">Statut</div>
           </div>
@@ -443,7 +444,7 @@
             }
 
             @for (invitation of invitations; track invitation.id ?? $index) {
-              <article class="player-row">
+              <article class="player-row player-row--invitation">
                 <div class="player-row__details">
                   <div class="avatar">
                     <span class="avatar__initials">{{ getInvitationInitials(invitation) }}</span>
@@ -455,6 +456,10 @@
                 </div>
 
                 <div class="player-row__match">{{ invitation.availableDate ?? '-' }}</div>
+
+                <div class="player-row__timestart">{{ invitation.startTime ?? '-' }}</div>
+
+                <div class="player-row__timeend">{{ invitation.endTime ?? '-' }}</div>
 
                 <div class="player-row__level">
                   <span class="badge" [ngClass]="levelBadgeClass(invitation.invitedUserLevel)">{{ levelLabel(invitation.invitedUserLevel) }}</span>
@@ -480,7 +485,20 @@
 
 <app-confirm-dialog
   [visible]="showConfirmDialog"
-  message="Vous voulez vraiment modifier les données saisies ?"
+  title="Confirmer la modification"
+  message="Voulez-vous vraiment enregistrer les modifications ?"
   (confirmed)="confirmSave()"
-  (cancelled)="cancelConfirm()"
-></app-confirm-dialog>
+  (cancelled)="cancelConfirm()">
+</app-confirm-dialog>
+
+<app-confirm-dialog
+  [visible]="showLeaveTeamDialog"
+  title="Confirmation"
+  [message]="teamActionDialogMessage"
+  [details]="teamActionDialogDetails"
+  confirmText="Confirmer"
+  cancelText="Annuler"
+  [icon]="teamActionDialogIcon"
+  (confirmed)="confirmLeaveTeam()"
+  (cancelled)="cancelLeaveTeam()">
+</app-confirm-dialog>

@@ -31,12 +31,19 @@ export class TeamCreateComponent implements OnInit {
   editName = '';
   editLogoUrl = '';
   showConfirmDialog = false;
+  showLeaveTeamDialog = false;
+  hasLeftTeam = false;
+  teamActionPending = false;
+  teamActionDialogMessage = "";
+  teamActionDialogDetails: string[] = [];
+  teamActionDialogIcon = '';
 
   ngOnInit(): void {
     this.teamService.findMyTeam().subscribe({
       next: (data) => {
         this.team = data;
         this.members = data?.members ?? [];
+        this.hasLeftTeam = this.members.length === 0;
       },
       error: (err) => console.error('Erreur chargement équipe', err)
     });
@@ -86,6 +93,93 @@ export class TeamCreateComponent implements OnInit {
 
   saveIdentity(): void {
     this.showConfirmDialog = true;
+  }
+
+  onTeamActionClick(): void {
+    if (this.hasLeftTeam) {
+      this.teamActionDialogMessage = "Êtes-vous sûr de vouloir rejoindre votre équipe à nouveau ? \n Si vous confirmez, vous réintégrerez immédiatement votre équipe avec les effets suivants :";
+      this.teamActionDialogDetails = [
+        "Votre profil sera ajouté directement à la liste de sélection comme capitaine de l'équipe.",
+        "Votre statut repassera à en équipe."
+      ];
+      this.teamActionDialogIcon = 'login';
+      this.showLeaveTeamDialog = true;
+      return;
+    }
+
+    this.teamActionDialogMessage = "Êtes-vous sûr de vouloir quitter l'équipe pour le moment ? \n Si vous confirmez, cette action aura les conséquences suivantes :";
+    this.teamActionDialogDetails = [
+      "Tous les membres de l'équipe seront retirés de la liste de sélection.",
+      "Le statut de chaque membre passera à Indisponible.",
+      "Toutes les invitations de cette équipe encore En Attente seront passées à Annulée."
+    ];
+    this.teamActionDialogIcon = 'logout';
+    this.showLeaveTeamDialog = true;
+  }
+
+  confirmLeaveTeam(): void {
+    if (this.teamActionPending) {
+      return;
+    }
+
+    if (this.hasLeftTeam) {
+      this.teamActionPending = true;
+      this.teamService.rejoinMyTeam().subscribe({
+        next: () => {
+          this.teamService.findMyTeam().subscribe({
+            next: (data) => {
+              this.team = data;
+              this.members = data?.members ?? [];
+              this.hasLeftTeam = this.members.length === 0;
+              this.showLeaveTeamDialog = false;
+              this.loadMemberInvitations();
+              this.teamActionPending = false;
+            },
+            error: (err: any) => {
+              console.error("Erreur lors du rechargement de l'équipe", err);
+              this.teamActionPending = false;
+            }
+          });
+        },
+        error: (err: any) => {
+          console.error("Erreur lors de la réintégration de l'équipe", err);
+          this.teamActionPending = false;
+        }
+      });
+      return;
+    }
+
+    this.teamActionPending = true;
+    this.teamService.leaveMyTeam().subscribe({
+      next: () => {
+        this.showLeaveTeamDialog = false;
+        this.hasLeftTeam = true;
+        this.team = null;
+        this.members = [];
+        this.loadMemberInvitations();
+        this.teamActionPending = false;
+      },
+      error: (err: any) => {
+        console.error("Erreur lors de la sortie de l'équipe", err);
+        this.teamActionPending = false;
+      }
+    });
+  }
+
+  cancelLeaveTeam(): void {
+    if (this.teamActionPending) {
+      return;
+    }
+
+    this.showLeaveTeamDialog = false;
+  }
+
+  get teamActionLabel(): string {
+    return this.hasLeftTeam ? "Rejoindre l'Équipe" : "Quitter l'Équipe";
+  }
+
+  get teamActionIcon(): string {
+    return this.hasLeftTeam ? 'login' : 'logout';
   }
 
   confirmSave(): void {
@@ -176,6 +270,8 @@ export class TeamCreateComponent implements OnInit {
         return 'Acceptée';
       case 'REFUSEE':
         return 'Refusée';
+      case 'ANNULLEE':
+        return 'Annulée';
       default:
         return '-';
     }
@@ -189,6 +285,8 @@ export class TeamCreateComponent implements OnInit {
         return 'recruit-item__action recruit-item__action--accepted';
       case 'REFUSEE':
         return 'recruit-item__action recruit-item__action--rejected';
+      case 'ANNULLEE':
+        return 'recruit-item__action recruit-item__action--cancelled';
       default:
         return 'recruit-item__action recruit-item__action--pending';
     }

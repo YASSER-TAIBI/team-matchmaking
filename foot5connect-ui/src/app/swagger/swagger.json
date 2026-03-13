@@ -180,6 +180,19 @@
         }
       }
     },
+    "/teams/me/rejoin": {
+      "post": {
+        "tags": [
+          "team-controller"
+        ],
+        "operationId": "rejoinMyTeam",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/teams/create": {
       "post": {
         "tags": [
@@ -552,6 +565,19 @@
           }
         }
       }
+    },
+    "/teams/me/leave": {
+      "delete": {
+        "tags": [
+          "team-controller"
+        ],
+        "operationId": "leaveMyTeam",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -658,7 +684,8 @@
             "enum": [
               "EN_ATTENTE",
               "ACCEPTEE",
-              "REFUSEE"
+              "REFUSEE",
+              "ANNULLEE"
             ]
           },
           "availableDate": {

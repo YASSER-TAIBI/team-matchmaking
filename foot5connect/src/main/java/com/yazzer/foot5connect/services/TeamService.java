@@ -9,4 +9,8 @@ public interface TeamService {
     TeamDto findMyTeam();
 
     TeamDto updateTeam(TeamDto teamDto);
+
+    void leaveMyTeam();
+
+    void rejoinMyTeam();
 }

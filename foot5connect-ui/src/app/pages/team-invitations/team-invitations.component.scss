@@ -193,6 +193,11 @@
   color: #ff6b6b;
 }
 
+.badge--cancelled {
+  background: rgba(93, 123, 255, 0.2);
+  color: #6b93ff;
+}
+
 .invite-card__footer {
   display: flex;
   align-items: center;
