@@ -13,7 +13,7 @@ import { TeamInvitationDto } from '../../services/models/team-invitation-dto';
 export class TeamInvitationsComponent implements OnInit {
   private invitationService = inject(InvitationService);
 
-  activeTab: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' = 'EN_ATTENTE';
+  activeTab: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE' = 'EN_ATTENTE';
   invitations: TeamInvitationDto[] = [];
   loading = false;
   error: string | null = null;
@@ -40,7 +40,7 @@ export class TeamInvitationsComponent implements OnInit {
     });
   }
 
-  setTab(tab: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE', event: Event): void {
+  setTab(tab: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE', event: Event): void {
     event.preventDefault();
     this.activeTab = tab;
   }
@@ -97,12 +97,14 @@ export class TeamInvitationsComponent implements OnInit {
         return 'Acceptée';
       case 'REFUSEE':
         return 'Refusée';
+      case 'ANNULLEE':
+        return 'Annulée';
       default:
         return '-';
     }
   }
 
-  tabLabel(status: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE'): string {
+  tabLabel(status: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE'): string {
     switch (status) {
       case 'EN_ATTENTE':
         return 'En attente';
@@ -110,10 +112,12 @@ export class TeamInvitationsComponent implements OnInit {
         return 'Acceptée';
       case 'REFUSEE':
         return 'Refusée';
+      case 'ANNULLEE':
+        return 'Annulée';
     }
   }
 
-  countByStatus(status: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE'): number {
+  countByStatus(status: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE'): number {
     return this.invitations.filter(invitation => invitation.status === status).length;
   }
 
@@ -125,6 +129,8 @@ export class TeamInvitationsComponent implements OnInit {
         return 'badge badge--accepted';
       case 'REFUSEE':
         return 'badge badge--rejected';
+      case 'ANNULLEE':
+        return 'badge badge--cancelled';
       default:
         return 'badge';
     }

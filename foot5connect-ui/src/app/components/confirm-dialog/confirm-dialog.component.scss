@@ -38,6 +38,33 @@
   color: rgba(255, 255, 255, 0.85);
   margin: 0 0 24px;
   line-height: 1.5;
+  white-space: pre-line;
+}
+
+.dialog__details {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 24px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  text-align: left;
+}
+
+.dialog__detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.dialog__detail-icon {
+  font-size: 18px;
+  color: #f5c15c;
+  margin-top: 1px;
 }
 
 .dialog__actions {

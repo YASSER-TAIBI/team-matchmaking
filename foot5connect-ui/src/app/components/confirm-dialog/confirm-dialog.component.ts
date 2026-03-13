@@ -12,6 +12,7 @@ export class ConfirmDialogComponent {
   @Input() visible = false;
   @Input() title = 'Confirmation';
   @Input() message = '';
+  @Input() details: string[] = [];
   @Input() confirmText = 'Confirmer';
   @Input() cancelText = 'Annuler';
   @Input() icon = 'help';

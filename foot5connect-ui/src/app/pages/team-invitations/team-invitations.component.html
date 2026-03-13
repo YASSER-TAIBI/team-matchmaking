@@ -28,6 +28,14 @@
         Refusée
         <span class="tabs__count">{{ countByStatus('REFUSEE') }}</span>
       </a>
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeTab === 'ANNULLEE'"
+        (click)="setTab('ANNULLEE', $event)">
+        Annulée
+        <span class="tabs__count">{{ countByStatus('ANNULLEE') }}</span>
+      </a>
     </nav>
   </header>
 

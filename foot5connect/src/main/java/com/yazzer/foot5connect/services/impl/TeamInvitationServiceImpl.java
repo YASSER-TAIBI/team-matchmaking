@@ -165,7 +165,7 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
         Team team = teamRepository.findByCaptain_Id(currentUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Équipe non trouvée"));
 
-        List<TeamInvitation> teamInvitations = teamInvitationRepository.findByTeam_Id(team.getId());
+        List<TeamInvitation> teamInvitations = teamInvitationRepository.findByTeam_IdOrderByLastModifiedDateDesc(team.getId());
 
         return teamInvitations.stream()
                 .map(TeamInvitationDto::fromEntity)

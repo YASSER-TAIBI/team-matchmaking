@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { ApiConfiguration } from '../api-configuration';
 import { createTeam } from '../functions';
 import { findMyTeam } from '../functions';
+import { rejoinMyTeam } from '../fn/team-controller/rejoin-my-team';
+import { leaveMyTeam } from '../fn/team-controller/leave-my-team';
 import { updateTeam } from '../fn/team-controller/update-team';
 import { map } from 'rxjs';
 import { TeamDto } from '../models/team-dto';
@@ -29,5 +31,15 @@ export class TeamService {
   updateTeam(data: { name?: string; logoUrl?: string }): Observable<TeamDto> {
     return updateTeam(this.http, this.apiConfig.rootUrl, { body: data as TeamDto })
       .pipe(map(res => res.body ?? ({} as TeamDto)));
+  }
+
+  leaveMyTeam(): Observable<void> {
+    return leaveMyTeam(this.http, this.apiConfig.rootUrl)
+      .pipe(map(() => void 0));
+  }
+
+  rejoinMyTeam(): Observable<void> {
+    return rejoinMyTeam(this.http, this.apiConfig.rootUrl)
+      .pipe(map(() => void 0));
   }
 }

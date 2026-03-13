@@ -1,5 +1,7 @@
 package com.yazzer.foot5connect.services.impl;
 
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -7,11 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yazzer.foot5connect.dto.TeamDto;
+import com.yazzer.foot5connect.models.AvailabilityStatus;
+import com.yazzer.foot5connect.models.InvitationStatus;
 import com.yazzer.foot5connect.models.Team;
+import com.yazzer.foot5connect.models.TeamInvitation;
 import com.yazzer.foot5connect.models.TeamMember;
 import com.yazzer.foot5connect.models.TeamStatus;
 import com.yazzer.foot5connect.models.User;
-import com.yazzer.foot5connect.models.AvailabilityStatus;
+import com.yazzer.foot5connect.repositories.TeamInvitationRepository;
 import com.yazzer.foot5connect.repositories.TeamMemberRepository;
 import com.yazzer.foot5connect.repositories.TeamRepository;
 import com.yazzer.foot5connect.repositories.UserRepository;
@@ -25,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class TeamServiceImpl implements TeamService {
 
     private final TeamRepository teamRepository;
+    private final TeamInvitationRepository teamInvitationRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
 
@@ -91,6 +97,64 @@ public class TeamServiceImpl implements TeamService {
         return TeamDto.fromEntity(
                 teamRepository.findByCaptainIdWithMembers(currentUser.getId()).orElse(team)
         );
+    }
+
+    @Override
+    @Transactional
+    public void leaveMyTeam() {
+        User currentUser = getAuthenticatedUser();
+
+        TeamMember teamMember = teamMemberRepository.findByUser_Id(currentUser.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Aucun membre d'équipe trouvé pour cet utilisateur"));
+
+        Long teamId = teamMember.getTeam().getId();
+
+        List<TeamMember> teamMembers = teamMemberRepository.findByTeam_Id(teamId);
+        if (teamMembers.isEmpty()) {
+            throw new EntityNotFoundException("Aucun membre trouvé pour cette équipe");
+        }
+
+        List<User> usersToUpdate = teamMembers.stream()
+                .map(TeamMember::getUser)
+                .toList();
+
+        teamMemberRepository.deleteAll(teamMembers);
+
+        for (User user : usersToUpdate) {
+            user.setAvailabilityStatus(AvailabilityStatus.INDISPONIBLE);
+        }
+        userRepository.saveAll(usersToUpdate);
+
+        List<TeamInvitation> pendingInvitations = teamInvitationRepository.findByTeam_IdAndStatus(teamId, InvitationStatus.EN_ATTENTE);
+        for (TeamInvitation invitation : pendingInvitations) {
+            invitation.setStatus(InvitationStatus.ANNULLEE);
+        }
+        teamInvitationRepository.saveAll(pendingInvitations);
+    }
+
+    @Override
+    @Transactional
+    public void rejoinMyTeam() {
+        User currentUser = getAuthenticatedUser();
+
+        if (teamMemberRepository.existsByUser_Id(currentUser.getId())) {
+            throw new IllegalStateException("Cet utilisateur appartient déjà à une équipe");
+        }
+
+        Team team = teamRepository.findByCaptain_Id(currentUser.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Aucune équipe trouvée"));
+
+        // Ajouter le capitaine comme membre
+        TeamMember captain = TeamMember.builder()
+                .team(team)
+                .user(currentUser)
+                .isCaptain(true)
+                .build();
+        teamMemberRepository.save(captain);
+
+        // Mettre à jour le statut de l'utilisateur
+        currentUser.setAvailabilityStatus(AvailabilityStatus.EN_EQUIPE);
+        userRepository.save(currentUser);
     }
 
     private User getAuthenticatedUser() {
