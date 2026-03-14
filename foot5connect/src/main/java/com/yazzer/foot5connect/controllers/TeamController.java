@@ -3,6 +3,7 @@ package com.yazzer.foot5connect.controllers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,5 +47,11 @@ public class TeamController {
     public ResponseEntity<Void> rejoinMyTeam() {
         teamService.rejoinMyTeam();
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/me/members/{userId}")
+    public ResponseEntity<Void> removeMemberFromMyTeam(@PathVariable Long userId) {
+        teamService.removeMemberFromMyTeam(userId);
+        return ResponseEntity.noContent().build();
     }
 }

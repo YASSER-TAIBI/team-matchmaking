@@ -1,6 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
 import { TeamInvitationDto } from '../../services/models/team-invitation-dto';
+import { HelperService } from '../../services/helper/helper.service';
 import { InvitationService } from '../../services/invitations/invitation.service';
 import { TeamService } from '../../services/teams/team.service';
 import { TeamDto } from '../../services/models/team-dto';
@@ -12,33 +17,44 @@ type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation' |
 @Component({
   selector: 'app-team-create',
   standalone: true,
-  imports: [CommonModule, ConfirmDialogComponent],
+  imports: [CommonModule, FormsModule, MatDatepickerModule, MatNativeDateModule, MatInputModule, ConfirmDialogComponent],
   templateUrl: './team-create.component.html',
   styleUrl: './team-create.component.scss'
 })
 export class TeamCreateComponent implements OnInit {
+  private helperService = inject(HelperService);
   private invitationService = inject(InvitationService);
   private teamService = inject(TeamService);
 
   activeTab: TeamCreateTab = 'creation';
   team: TeamDto | null = null;
   members: TeamMemberDto[] = [];
+  currentUserId: number | null = null;
   invitations: TeamInvitationDto[] = [];
+  filteredInvitations: TeamInvitationDto[] = [];
   invitationsLoading = false;
   invitationsError: string | null = null;
+  selectedInvitationLevel: TeamInvitationDto['invitedUserLevel'] | null = null;
+  selectedInvitationStatus: TeamInvitationDto['status'] | null = null;
+  selectedInvitationDate: Date | null = null;
 
   isEditingIdentity = false;
   editName = '';
   editLogoUrl = '';
   showConfirmDialog = false;
   showLeaveTeamDialog = false;
+  showRemoveMemberDialog = false;
   hasLeftTeam = false;
   teamActionPending = false;
   teamActionDialogMessage = "";
   teamActionDialogDetails: string[] = [];
   teamActionDialogIcon = '';
+  memberActionPending = false;
+  memberToRemove: TeamMemberDto | null = null;
 
   ngOnInit(): void {
+    this.currentUserId = this.helperService.userId;
+
     this.teamService.findMyTeam().subscribe({
       next: (data) => {
         this.team = data;
@@ -58,11 +74,13 @@ export class TeamCreateComponent implements OnInit {
     this.invitationService.findMemberInvitations().subscribe({
       next: (invitations) => {
         this.invitations = invitations;
+        this.applyInvitationFilters();
         this.invitationsLoading = false;
       },
       error: (err) => {
         console.error('Erreur chargement invitations équipe', err);
         this.invitations = [];
+        this.filteredInvitations = [];
         this.invitationsError = 'Impossible de charger les joueurs invités.';
         this.invitationsLoading = false;
       }
@@ -70,11 +88,58 @@ export class TeamCreateComponent implements OnInit {
   }
 
   get visibleInvitations(): TeamInvitationDto[] {
-    return this.invitations.slice(0, 4);
+    return this.filteredInvitations.slice(0, 4);
   }
 
   get hasMoreThanFourInvitations(): boolean {
-    return this.invitations.length > 4;
+    return this.filteredInvitations.length > 4;
+  }
+
+  onInvitationLevelChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement | null)?.value ?? '';
+    this.selectedInvitationLevel = value ? (value as TeamInvitationDto['invitedUserLevel']) : null;
+  }
+
+  onInvitationStatusChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement | null)?.value ?? '';
+    this.selectedInvitationStatus = value ? (value as TeamInvitationDto['status']) : null;
+  }
+
+  onInvitationDateSelected(date: Date | null): void {
+    this.selectedInvitationDate = date;
+  }
+
+  onInvitationDateInput(event: Event): void {
+    const value = (event.target as HTMLInputElement | null)?.value ?? '';
+    if (!value) {
+      this.selectedInvitationDate = null;
+    }
+  }
+
+  applyInvitationFilters(): void {
+    const selectedDate = this.selectedInvitationDate;
+    const selectedDateOnly = selectedDate
+      ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
+      : null;
+
+    this.filteredInvitations = this.invitations.filter(invitation => {
+      if (this.selectedInvitationLevel && invitation.invitedUserLevel !== this.selectedInvitationLevel) {
+        return false;
+      }
+
+      if (this.selectedInvitationStatus && invitation.status !== this.selectedInvitationStatus) {
+        return false;
+      }
+
+      if (selectedDateOnly) {
+        const invitationDateOnly = (invitation.availableDate ?? '').slice(0, 10);
+        if (invitationDateOnly !== selectedDateOnly) {
+          return false;
+        }
+      }
+
+      return true;
+    });
   }
 
   goToInvitations(): void {
@@ -215,6 +280,75 @@ export class TeamCreateComponent implements OnInit {
     return `${first}${last}`.toUpperCase();
   }
 
+  isCurrentMember(member: TeamMemberDto): boolean {
+    const me = this.currentUserId;
+    const other = member.userId ?? null;
+    return me != null && other != null && me === other;
+  }
+
+  openRemoveMemberDialog(member: TeamMemberDto): void {
+    if (!member.userId || this.isCurrentMember(member)) {
+      return;
+    }
+
+    this.memberToRemove = member;
+    this.showRemoveMemberDialog = true;
+  }
+
+  confirmRemoveMember(): void {
+    if (this.memberActionPending || !this.memberToRemove?.userId) {
+      return;
+    }
+
+    this.memberActionPending = true;
+    this.teamService.removeMemberFromMyTeam(this.memberToRemove.userId).subscribe({
+      next: () => {
+        this.teamService.findMyTeam().subscribe({
+          next: (data) => {
+            this.team = data;
+            this.members = data?.members ?? [];
+            this.hasLeftTeam = this.members.length === 0;
+            this.memberToRemove = null;
+            this.showRemoveMemberDialog = false;
+            this.memberActionPending = false;
+          },
+          error: (err: any) => {
+            console.error("Erreur lors du rechargement de l'équipe", err);
+            this.memberActionPending = false;
+          }
+        });
+      },
+      error: (err: any) => {
+        console.error("Erreur lors de la sortie du joueur de l'équipe", err);
+        this.memberActionPending = false;
+      }
+    });
+  }
+
+  cancelRemoveMember(): void {
+    if (this.memberActionPending) {
+      return;
+    }
+
+    this.memberToRemove = null;
+    this.showRemoveMemberDialog = false;
+  }
+
+  get removeMemberDialogMessage(): string {
+    if (!this.memberToRemove) {
+      return '';
+    }
+
+    return `Voulez-vous vraiment sortir ${this.getMemberFullName(this.memberToRemove)} de l'équipe ?`;
+  }
+
+  get removeMemberDialogDetails(): string[] {
+    return [
+      "Le joueur sera retiré de la liste de sélection.",
+      "Son statut passera immédiatement à Indisponible."
+    ];
+  }
+
   levelLabel(level?: string): string {
     switch (level) {
       case 'DEBUTANT':
@@ -260,6 +394,26 @@ export class TeamCreateComponent implements OnInit {
     const first = invitation.invitedUserFirstName?.[0] ?? '';
     const last = invitation.invitedUserLastName?.[0] ?? '';
     return `${first}${last}`.toUpperCase() || 'J';
+  }
+
+  formatInvitationDate(date?: string): string {
+    if (!date) {
+      return '-';
+    }
+
+    return new Intl.DateTimeFormat('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(new Date(date));
+  }
+
+  formatInvitationTime(time?: string): string {
+    if (!time) {
+      return '-';
+    }
+
+    return time.slice(0, 5);
   }
 
   invitationStatusLabel(status?: TeamInvitationDto['status']): string {

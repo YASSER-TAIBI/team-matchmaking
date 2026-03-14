@@ -6,6 +6,7 @@ import { createTeam } from '../functions';
 import { findMyTeam } from '../functions';
 import { rejoinMyTeam } from '../fn/team-controller/rejoin-my-team';
 import { leaveMyTeam } from '../fn/team-controller/leave-my-team';
+import { removeMemberFromMyTeam } from '../fn/team-controller/remove-member-from-my-team';
 import { updateTeam } from '../fn/team-controller/update-team';
 import { map } from 'rxjs';
 import { TeamDto } from '../models/team-dto';
@@ -40,6 +41,11 @@ export class TeamService {
 
   rejoinMyTeam(): Observable<void> {
     return rejoinMyTeam(this.http, this.apiConfig.rootUrl)
+      .pipe(map(() => void 0));
+  }
+
+  removeMemberFromMyTeam(userId: number): Observable<void> {
+    return removeMemberFromMyTeam(this.http, this.apiConfig.rootUrl, { userId })
       .pipe(map(() => void 0));
   }
 }

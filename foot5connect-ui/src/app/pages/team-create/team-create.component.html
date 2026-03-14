@@ -181,9 +181,11 @@
                 </div>
 
                 <div class="player-row__actions">
-                  <button class="icon-btn icon-btn--danger" type="button" aria-label="Supprimer le joueur">
-                    <span class="material-symbols-outlined">delete</span>
-                  </button>
+                  @if (!isCurrentMember(member)) {
+                    <button class="icon-btn icon-btn--danger" type="button" aria-label="Sortir de l'équipe" (click)="openRemoveMemberDialog(member)">
+                      <span class="material-symbols-outlined">logout</span>
+                    </button>
+                  }
                 </div>
               </article>
               }
@@ -425,6 +427,54 @@
           </h2>
         </div>
 
+        <div class="players__filters invitation-filters">
+          <div class="filter-group">
+            <div class="filter-control">
+              <i class="fa-solid fa-calendar-day"></i>
+              <input
+                id="invitation-date"
+                matInput
+                [matDatepicker]="invitationDatePicker"
+                (dateChange)="onInvitationDateSelected($event.value)"
+                (click)="invitationDatePicker.open()"
+                (input)="onInvitationDateInput($event)"
+                placeholder="N'importe quel jour"
+              />
+              <mat-datepicker #invitationDatePicker></mat-datepicker>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-control">
+              <i class="fa-solid fa-circle-info"></i>
+              <select id="invitation-status" (change)="onInvitationStatusChange($event)">
+                <option value="">Tous statuts</option>
+                <option value="EN_ATTENTE">En Attente</option>
+                <option value="ACCEPTEE">Acceptée</option>
+                <option value="REFUSEE">Refusée</option>
+                <option value="ANNULLEE">Annulée</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-control">
+              <i class="fa-solid fa-signal"></i>
+              <select id="invitation-level" (change)="onInvitationLevelChange($event)">
+                <option value="">Tous niveaux</option>
+                <option value="DEBUTANT">Débutant</option>
+                <option value="INTERMEDIAIRE">Intermédiaire</option>
+                <option value="CONFIRMER">Confirmé</option>
+                <option value="AVANCE">Avancé</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="filter-button" type="button" aria-label="Filtrer" (click)="applyInvitationFilters()">
+            <i class="fa-solid fa-search"></i>
+          </button>
+        </div>
+
         <div class="table table--invitation">
           <div class="table__head">
             <div class="table__col table__col--details">Joueur invité</div>
@@ -443,7 +493,7 @@
               <div class="recruit-list__state recruit-list__state--error">{{ invitationsError }}</div>
             }
 
-            @for (invitation of invitations; track invitation.id ?? $index) {
+            @for (invitation of filteredInvitations; track invitation.id ?? $index) {
               <article class="player-row player-row--invitation">
                 <div class="player-row__details">
                   <div class="avatar">
@@ -455,23 +505,23 @@
                   </div>
                 </div>
 
-                <div class="player-row__match">{{ invitation.availableDate ?? '-' }}</div>
+                <div class="player-row__match">{{ formatInvitationDate(invitation.availableDate) }}</div>
 
-                <div class="player-row__timestart">{{ invitation.startTime ?? '-' }}</div>
+                <div class="player-row__timestart">{{ formatInvitationTime(invitation.startTime) }}</div>
 
-                <div class="player-row__timeend">{{ invitation.endTime ?? '-' }}</div>
+                <div class="player-row__timeend">{{ formatInvitationTime(invitation.endTime) }}</div>
 
                 <div class="player-row__level">
                   <span class="badge" [ngClass]="levelBadgeClass(invitation.invitedUserLevel)">{{ levelLabel(invitation.invitedUserLevel) }}</span>
                 </div>
 
                 <div class="player-row__actions">
-                  <span [class]="invitationStatusClass(invitation.status)">{{ invitationStatusLabel(invitation.status) }}</span>
+                  <span [class]="invitationStatusClass(invitation.status)">{{ invitationStatusLabel(invitation.status) | uppercase }}</span>
                 </div>
               </article>
             }
 
-            @if (!invitationsLoading && !invitationsError && invitations.length === 0) {
+            @if (!invitationsLoading && !invitationsError && filteredInvitations.length === 0) {
               <div class="recruit-list__state">
                 Aucune invitation pour cette équipe.
               </div>
@@ -501,4 +551,16 @@
   [icon]="teamActionDialogIcon"
   (confirmed)="confirmLeaveTeam()"
   (cancelled)="cancelLeaveTeam()">
+</app-confirm-dialog>
+
+<app-confirm-dialog
+  [visible]="showRemoveMemberDialog"
+  title="Confirmer la sortie du joueur"
+  [message]="removeMemberDialogMessage"
+  [details]="removeMemberDialogDetails"
+  confirmText="Confirmer"
+  cancelText="Annuler"
+  icon="logout"
+  (confirmed)="confirmRemoveMember()"
+  (cancelled)="cancelRemoveMember()">
 </app-confirm-dialog>

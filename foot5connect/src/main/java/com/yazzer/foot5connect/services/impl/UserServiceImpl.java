@@ -25,13 +25,16 @@ import com.yazzer.foot5connect.dto.PasswordResetRequest;
 import com.yazzer.foot5connect.dto.UserDto;
 import com.yazzer.foot5connect.models.AvailabilityStatus;
 import com.yazzer.foot5connect.models.DisponibilityDetail;
+import com.yazzer.foot5connect.models.InvitationStatus;
 import com.yazzer.foot5connect.models.PlayerLevel;
 import com.yazzer.foot5connect.models.Role;
+import com.yazzer.foot5connect.models.TeamInvitation;
 import com.yazzer.foot5connect.models.Token;
 import com.yazzer.foot5connect.models.TokenType;
 import com.yazzer.foot5connect.models.User;
 import com.yazzer.foot5connect.repositories.DisponibilityDetailRepository;
 import com.yazzer.foot5connect.repositories.RoleRepository;
+import com.yazzer.foot5connect.repositories.TeamInvitationRepository;
 import com.yazzer.foot5connect.repositories.UserRepository;
 import com.yazzer.foot5connect.services.TokenService;
 import com.yazzer.foot5connect.services.UserService;
@@ -48,6 +51,7 @@ public class UserServiceImpl implements UserService {
     
     private final UserRepository userRepository;
     private final DisponibilityDetailRepository disponibilityDetailRepository;
+    private final TeamInvitationRepository teamInvitationRepository;
     private static final String ROLE_USER = "ROLE_USER";
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
@@ -288,6 +292,15 @@ public class UserServiceImpl implements UserService {
     public UserDto setUnavailable(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("No user was found with the provided ID :" + userId));
+
+        List<TeamInvitation> pendingInvitations = teamInvitationRepository.findByInvitedUser_IdAndStatus(
+                userId,
+                InvitationStatus.EN_ATTENTE
+        );
+        for (TeamInvitation invitation : pendingInvitations) {
+            invitation.setStatus(InvitationStatus.ANNULLEE);
+        }
+        teamInvitationRepository.saveAll(pendingInvitations);
 
         user.setAvailabilityStatus(AvailabilityStatus.INDISPONIBLE);
         userRepository.save(user);
