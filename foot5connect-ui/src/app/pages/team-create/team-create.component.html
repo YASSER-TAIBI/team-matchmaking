@@ -15,51 +15,56 @@
           </button>
         </div>
       </div>
-
-      <nav class="tabs" aria-label="Sections de gestion d'équipe">
-        <a
-          class="tabs__item"
-          href="#"
-          [class.tabs__item--active]="activeTab === 'creation'"
-          (click)="setTab('creation', $event)"
-        >
-          Création
-        </a>
-        <a
-          class="tabs__item"
-          href="#"
-          [class.tabs__item--active]="activeTab === 'formation'"
-          (click)="setTab('formation', $event)"
-        >
-          Formation
-        </a>
-        <a
-          class="tabs__item"
-          href="#"
-          [class.tabs__item--active]="activeTab === 'disponibilite'"
-          (click)="setTab('disponibilite', $event)"
-        >
-          Disponibilité
-        </a>
-        <a
-          class="tabs__item"
-          href="#"
-          [class.tabs__item--active]="activeTab === 'invitation'"
-          (click)="setTab('invitation', $event)"
-        >
-          Invitation
-        </a>
-        <a
-          class="tabs__item"
-          href="#"
-          [class.tabs__item--active]="activeTab === 'historique'"
-          (click)="setTab('historique', $event)"
-        >
-          Historique
-        </a>
-      </nav>
     </div>
   </header>
+
+  <nav class="tabs" aria-label="Sections de gestion d'équipe">
+    <a
+      class="tabs__item"
+      href="#"
+      [class.tabs__item--active]="activeTab === 'creation'"
+      (click)="setTab('creation', $event)"
+    >
+      <span class="material-symbols-outlined tabs__icon" aria-hidden="true">shield</span>
+      <span class="tabs__label">Création</span>
+    </a>
+    <a
+      class="tabs__item"
+      href="#"
+      [class.tabs__item--active]="activeTab === 'formation'"
+      (click)="setTab('formation', $event)"
+    >
+      <span class="material-symbols-outlined tabs__icon" aria-hidden="true">sports_soccer</span>
+      <span class="tabs__label">Formation</span>
+    </a>
+    <a
+      class="tabs__item"
+      href="#"
+      [class.tabs__item--active]="activeTab === 'disponibilite'"
+      (click)="setTab('disponibilite', $event)"
+    >
+      <span class="material-symbols-outlined tabs__icon" aria-hidden="true">event_available</span>
+      <span class="tabs__label">Disponibilité</span>
+    </a>
+    <a
+      class="tabs__item"
+      href="#"
+      [class.tabs__item--active]="activeTab === 'invitation'"
+      (click)="setTab('invitation', $event)"
+    >
+      <span class="material-symbols-outlined tabs__icon" aria-hidden="true">mail</span>
+      <span class="tabs__label">Invitation</span>
+    </a>
+    <a
+      class="tabs__item"
+      href="#"
+      [class.tabs__item--active]="activeTab === 'historique'"
+      (click)="setTab('historique', $event)"
+    >
+      <span class="material-symbols-outlined tabs__icon" aria-hidden="true">history</span>
+      <span class="tabs__label">Historique</span>
+    </a>
+  </nav>
 
   <!-- ---------------------------------------------------------------------------------------------------------------------------- -->
   <!-- --------------------------------------------------------- Création Left ---------------------------------------------------- -->

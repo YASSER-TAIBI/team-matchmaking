@@ -1,4 +1,7 @@
 .team-create-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   color: #f4fdf8;
   min-height: 100%;
 }
@@ -14,6 +17,11 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px 28px;
+}
+
+.team-create-header__titles {
+  display: flex;
+  flex-direction: column;
 }
 
 .team-create-header__top {
@@ -81,9 +89,12 @@
 }
 
 .tabs {
+  width: 100%;
+  max-width: 1200px;
+  margin: -6px auto 0;
+  box-sizing: border-box;
   display: flex;
   gap: 22px;
-  margin-top: 22px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.10);
   overflow-x: auto;
   scrollbar-width: none;
@@ -95,6 +106,9 @@
 }
 
 .tabs__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 12px 0;
   color: rgba(255, 255, 255, 0.55);
   font-weight: 700;
@@ -102,6 +116,17 @@
   text-decoration: none;
   border-bottom: 3px solid transparent;
   white-space: nowrap;
+}
+
+.tabs__icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.tabs__label {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .tabs__item:hover {
@@ -1114,7 +1139,7 @@
 @media (max-width: 720px) {
   .team-create-header__inner,
   .team-create-content {
-    padding: 16px;
+    padding: 10px 0 20px;
   }
 
   .players__filters {
@@ -1124,9 +1149,68 @@
   .team-create-header__top {
     flex-direction: column;
     align-items: flex-start;
+    gap: 14px;
   }
 
   .team-create-header__title {
-    font-size: 32px;
+    font-size: 28px;
+    line-height: 1.08;
+  }
+
+  .team-create-header__subtitle {
+    max-width: 320px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .team-create-header__actions {
+    width: 100%;
+  }
+
+  .team-create-header__actions .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tabs {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 0;
+    border-bottom: none;
+    overflow: visible;
+  }
+
+  .tabs__item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 64px;
+    padding: 0;
+    gap: 0;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    white-space: nowrap;
+  }
+
+  .tabs__icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .tabs__label {
+    display: none;
+  }
+
+  .tabs__item--active {
+    color: #102216;
+    background: var(--neon-green);
+    border-bottom-color: transparent;
+    border-color: transparent;
+    box-shadow: 0 0 24px rgba(19, 236, 91, 0.22);
   }
 }
