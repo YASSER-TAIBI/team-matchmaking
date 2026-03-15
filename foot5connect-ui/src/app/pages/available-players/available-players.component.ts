@@ -9,6 +9,7 @@ import { CreateTeamInvitationRequest } from '../../services/models/create-team-i
 import { UserDto } from '../../services/models/user-dto';
 import { HelperService } from '../../services/helper/helper.service';
 import { InvitationService } from '../../services/invitations/invitation.service';
+import { TeamService } from '../../services/teams/team.service';
 import { UserService } from '../../services/users/user.service';
 
 @Component({
@@ -20,14 +21,19 @@ import { UserService } from '../../services/users/user.service';
 })
 export class AvailablePlayersComponent implements OnInit {
 
+  private readonly playersBatchSize = 8;
+
   private helperService = inject(HelperService);
   private userService = inject(UserService);
   private invitationService = inject(InvitationService);
+  private teamService = inject(TeamService);
 
   allPlayers: AvailablePlayerDto[] = [];
   players: AvailablePlayerDto[] = [];
   loading = false;
   error: string | null = null;
+  currentUserHasTeam = false;
+  currentUserIsInTeamSelection = false;
 
   selectedLevel: AvailablePlayerDto['level'] | null = null;
   selectedDate: Date | null = null;
@@ -35,6 +41,7 @@ export class AvailablePlayersComponent implements OnInit {
   userCountry: string | null = null;
   userCity: string | null = null;
   currentUserId: number | null = null;
+  visiblePlayersCount = this.playersBatchSize;
 
   inviteModalVisible = false;
   inviteSubmitting = false;
@@ -48,7 +55,21 @@ export class AvailablePlayersComponent implements OnInit {
   ngOnInit(): void {
     this.currentUserId = this.helperService.userId;
     this.loadUserLocation();
+    this.loadCurrentUserTeam();
     this.loadPlayers();
+  }
+
+  private loadCurrentUserTeam(): void {
+    this.teamService.findMyTeam().subscribe({
+      next: (team) => {
+        this.currentUserHasTeam = !!team;
+        this.currentUserIsInTeamSelection = !!team?.members?.some(member => member.userId === this.currentUserId);
+      },
+      error: () => {
+        this.currentUserHasTeam = false;
+        this.currentUserIsInTeamSelection = false;
+      }
+    });
   }
 
   private loadUserLocation(): void {
@@ -128,6 +149,20 @@ export class AvailablePlayersComponent implements OnInit {
 
       return true;
     });
+
+    this.visiblePlayersCount = this.playersBatchSize;
+  }
+
+  get visiblePlayers(): AvailablePlayerDto[] {
+    return this.players.slice(0, this.visiblePlayersCount);
+  }
+
+  get canLoadMorePlayers(): boolean {
+    return this.visiblePlayersCount < this.players.length;
+  }
+
+  loadMorePlayers(): void {
+    this.visiblePlayersCount += this.playersBatchSize;
   }
 
   isCurrentUser(player: AvailablePlayerDto): boolean {
@@ -136,12 +171,20 @@ export class AvailablePlayersComponent implements OnInit {
     return me != null && other != null && me === other;
   }
 
+  canMessage(player: AvailablePlayerDto): boolean {
+    return !this.isCurrentUser(player) && this.currentUserHasTeam && this.currentUserIsInTeamSelection;
+  }
+
+  canInvite(player: AvailablePlayerDto): boolean {
+    return !this.isCurrentUser(player) && this.currentUserHasTeam && this.currentUserIsInTeamSelection;
+  }
+
   onMessageClick(): void {
     console.log('message ecrit');
   }
 
   onInviteClick(player: AvailablePlayerDto): void {
-    if (this.isCurrentUser(player) || !player.userId) {
+    if (!this.canInvite(player) || !player.userId) {
       return;
     }
 

@@ -8,13 +8,17 @@
 .invites__header {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  margin: 0 0 25px 0px;
 }
 
 .invites__header h1 {
   margin: 0 0 6px;
   font-size: 34px;
   font-weight: 800;
+}
+
+.invites__header h1 span {
+  color: var(--neon-green);
 }
 
 .invites__header p {
@@ -25,6 +29,7 @@
 .tabs {
   display: flex;
   gap: 22px;
+  margin-top: -6px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.10);
   overflow-x: auto;
   scrollbar-width: none;
@@ -75,6 +80,47 @@
 
 .invites__empty {
   color: rgba(255, 255, 255, 0.68);
+}
+
+.invites__empty-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(28, 39, 31, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.2);
+}
+
+.invites__empty-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 18px;
+  background: rgba(19, 236, 91, 0.14);
+  color: var(--neon-green);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.invites__empty-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.invites__empty-content strong {
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.invites__empty-content p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .invites__grid {
@@ -249,18 +295,58 @@
 }
 
 @media (max-width: 900px) {
-  .invite-card__row {
+  .invites {
+    padding: 10px 0 20px;
+  }
+
+  .tabs {
     flex-direction: column;
+    gap: 10px;
+    margin-top: 0;
+    border-bottom: none;
+    overflow: visible;
+  }
+
+  .tabs__item {
+    width: 100%;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-radius: 16px;
+    border-bottom: none;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .tabs__item--active {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .tabs__count {
+    min-width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .invites__grid {
+    gap: 16px;
+  }
+
+  .invites__empty-card {
     align-items: flex-start;
+    padding: 18px;
+    border-radius: 22px;
   }
 
-  .invite-card__footer {
-    flex-direction: column;
-    align-items: stretch;
+  .invites__empty-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
   }
 
-  .invite-card__row strong {
-    text-align: left;
+  .invites__empty-content strong {
+    font-size: 15px;
+    line-height: 1.35;
   }
 
   .btn {

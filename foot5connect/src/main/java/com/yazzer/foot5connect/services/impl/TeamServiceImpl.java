@@ -157,6 +157,28 @@ public class TeamServiceImpl implements TeamService {
         userRepository.save(currentUser);
     }
 
+    @Override
+    @Transactional
+    public void removeMemberFromMyTeam(Long userId) {
+        User currentUser = getAuthenticatedUser();
+
+        Team team = teamRepository.findByCaptain_Id(currentUser.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Aucune équipe trouvée"));
+
+        TeamMember memberToRemove = teamMemberRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Aucun membre trouvé pour cet utilisateur"));
+
+        if (!memberToRemove.getTeam().getId().equals(team.getId())) {
+            throw new IllegalStateException("Ce joueur n'appartient pas à votre équipe");
+        }
+
+        teamMemberRepository.delete(memberToRemove);
+
+        User userToUpdate = memberToRemove.getUser();
+        userToUpdate.setAvailabilityStatus(AvailabilityStatus.INDISPONIBLE);
+        userRepository.save(userToUpdate);
+    }
+
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getPrincipal() == null) {

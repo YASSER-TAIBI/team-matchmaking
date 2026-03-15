@@ -9,6 +9,8 @@ export type { CreateTeam$Params } from './fn/team-controller/create-team';
 export { createTeam } from './fn/team-controller/create-team';
 export type { FindMyTeam$Params } from './fn/team-controller/find-my-team';
 export { findMyTeam } from './fn/team-controller/find-my-team';
+export type { RemoveMemberFromMyTeam$Params } from './fn/team-controller/remove-member-from-my-team';
+export { removeMemberFromMyTeam } from './fn/team-controller/remove-member-from-my-team';
 export type { LeaveMyTeam$Params } from './fn/team-controller/leave-my-team';
 export { leaveMyTeam } from './fn/team-controller/leave-my-team';
 export type { RejectInvitation$Params } from './fn/team-invitation-controller/reject-invitation';

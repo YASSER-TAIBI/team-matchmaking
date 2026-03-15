@@ -13,4 +13,6 @@ public interface TeamService {
     void leaveMyTeam();
 
     void rejoinMyTeam();
+
+    void removeMemberFromMyTeam(Long userId);
 }

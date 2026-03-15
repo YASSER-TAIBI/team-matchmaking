@@ -1,10 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 
  import { CommonModule } from '@angular/common';
 
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { HelperService } from '../../services/helper/helper.service';
+import { Api } from '../../services/api';
+import { findMyTeam } from '../../services/functions';
 import { filter } from 'rxjs/operators';
 
 
@@ -26,6 +28,10 @@ export class MenuComponent {
 private helperService = inject(HelperService);
 
 private router = inject(Router);
+
+private api = inject(Api);
+
+  @ViewChild('mobileNavToggle') mobileNavToggle?: ElementRef<HTMLInputElement>;
 
   isTeamMenuOpen = false;
 
@@ -105,8 +111,33 @@ private router = inject(Router);
 
     localStorage.removeItem('token');
 
+    this.closeMobileMenu();
+
     this.router.navigate(['/login']);
 
+  }
+
+  async onCreateTeamNav(): Promise<void> {
+    try {
+      const team = await this.api.invoke(findMyTeam, {});
+      if (team) {
+        await this.router.navigate(['/user/team/create']);
+      } else {
+        await this.router.navigate(['/user/team/conditions']);
+      }
+      this.closeMobileMenu();
+    } catch (err: any) {
+      console.error(err);
+    }
+  }
+
+  closeTeamMenu(): void {
+    this.isTeamMenuOpen = false;
+  }
+
+  closeMobileMenu(): void {
+    this.closeTeamMenu();
+    this.mobileNavToggle?.nativeElement && (this.mobileNavToggle.nativeElement.checked = false);
   }
 
   toggleTeamMenu(): void {

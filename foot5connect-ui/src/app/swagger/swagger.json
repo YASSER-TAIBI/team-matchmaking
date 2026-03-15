@@ -566,6 +566,30 @@
         }
       }
     },
+    "/teams/me/members/{userId}": {
+      "delete": {
+        "tags": [
+          "team-controller"
+        ],
+        "operationId": "removeMemberFromMyTeam",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/teams/me/leave": {
       "delete": {
         "tags": [

@@ -67,7 +67,7 @@
       <div>Aucun joueur disponible pour le moment.</div>
     }
 
-    @for (player of players; track player.userId ?? $index) {
+    @for (player of visiblePlayers; track player.userId ?? $index) {
       <article class="player-card">
         <div class="player-card__header">
           <div class="player-card__identity">
@@ -104,11 +104,11 @@
         </div>
 
         <div class="player-card__footer">
-          <button class="btn btn--primary" type="button" [disabled]="isCurrentUser(player)" (click)="onMessageClick()">
+          <button class="btn btn--primary" type="button" [disabled]="!canMessage(player)" (click)="onMessageClick()">
             Message
             <i class="fa-solid fa-envelope"></i>
           </button>
-          <button class="btn btn--primary" type="button" [disabled]="isCurrentUser(player)" (click)="onInviteClick(player)">
+          <button class="btn btn--primary" type="button" [disabled]="!canInvite(player)" (click)="onInviteClick(player)">
             Inviter
             <i class="fa-solid fa-paper-plane"></i>
           </button>
@@ -117,30 +117,43 @@
     }
   </div>
 
-  <div class="players__footer">
-    <button class="btn btn--ghost" type="button">Charger plus de joueurs</button>
-  </div>
+  @if (!loading && !error && canLoadMorePlayers) {
+    <div class="players__footer">
+      <button class="btn btn--ghost" type="button" (click)="loadMorePlayers()">Charger plus de joueurs</button>
+    </div>
+  }
 
   @if (inviteModalVisible) {
     <div class="invite-modal-overlay" (click)="closeInviteModal()">
       <div class="invite-modal" (click)="$event.stopPropagation()">
-        <h3>Proposer un créneau</h3>
-        <p>
-          Invitation pour
-          <strong>{{ (invitedPlayer?.firstName ?? '') + ' ' + (invitedPlayer?.lastName ?? '') }}</strong>
-        </p>
-
-        <label>Date du match</label>
-        <input type="date" [(ngModel)]="proposedDate" />
-
-        <div class="invite-modal__times">
+        <div class="invite-modal__header">
           <div>
-            <label>Début</label>
-            <input type="time" [(ngModel)]="proposedStartTime" />
+            <h3>Proposer un créneau</h3>
+            <p>
+              Invitation pour
+              <strong>{{ (invitedPlayer?.firstName ?? '') + ' ' + (invitedPlayer?.lastName ?? '') }}</strong>
+            </p>
           </div>
-          <div>
-            <label>Fin</label>
-            <input type="time" [(ngModel)]="proposedEndTime" />
+          <button type="button" class="invite-modal__close" aria-label="Fermer" [disabled]="inviteSubmitting" (click)="closeInviteModal()">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="invite-modal__body">
+          <div class="invite-modal__field invite-modal__field--full">
+            <label>Date du match</label>
+            <input type="date" [(ngModel)]="proposedDate" readonly />
+          </div>
+
+          <div class="invite-modal__times">
+            <div class="invite-modal__field">
+              <label>Début</label>
+              <input type="time" [(ngModel)]="proposedStartTime" />
+            </div>
+            <div class="invite-modal__field">
+              <label>Fin</label>
+              <input type="time" [(ngModel)]="proposedEndTime" />
+            </div>
           </div>
         </div>
 
@@ -151,7 +164,7 @@
         <div class="invite-modal__actions">
           <button type="button" class="btn btn--ghost" [disabled]="inviteSubmitting" (click)="closeInviteModal()">Annuler</button>
           <button type="button" class="btn btn--primary" [disabled]="inviteSubmitting" (click)="submitInvitation()">
-            {{ inviteSubmitting ? 'Envoi...' : 'Envoyer invitation' }}
+            {{ inviteSubmitting ? 'Envoi...' : 'Envoyer' }}
           </button>
         </div>
       </div>

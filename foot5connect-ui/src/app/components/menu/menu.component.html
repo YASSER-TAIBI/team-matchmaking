@@ -1,4 +1,4 @@
-<input id="mobile-nav-toggle" class="mobile-nav-toggle" type="checkbox" />
+<input #mobileNavToggle id="mobile-nav-toggle" class="mobile-nav-toggle" type="checkbox" />
 <header class="topbar">
   <div class="topbar-left">
     <label class="icon-btn icon-btn--ghost" for="mobile-nav-toggle" aria-label="Ouvrir la navigation">
@@ -29,42 +29,57 @@
 </header>
 <div class="mobile-drawer">
   <nav class="mobile-nav">
-    <button class="mobile-nav__item" routerLink="/user/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+    
+    <button class="mobile-nav__item" routerLink="/user/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeTeamMenu(); closeMobileMenu()">
       <span class="icon"><i class="fa-solid fa-gauge"></i></span>
       Tableau de bord
     </button>
-    <button class="mobile-nav__item" routerLink="/user/available-players" routerLinkActive="is-active">
+    
+    <button class="mobile-nav__item" routerLink="/user/available-players" routerLinkActive="is-active" (click)="closeTeamMenu(); closeMobileMenu()">
       <span class="icon"><i class="fa-solid fa-futbol"></i></span>
-      Joueurs disponibles
+      Joueurs dispos
     </button>
-    <button class="mobile-nav__item">
+    
+    <button class="mobile-nav__item" routerLink="/user/invitations" routerLinkActive="is-active" (click)="closeTeamMenu(); closeMobileMenu()">
+      <span class="icon"><i class="fa-solid fa-envelope-open-text"></i></span>
+      Invitations
+    </button>
+    
+    <button class="mobile-nav__item" routerLink="/user/matches" routerLinkActive="is-active" (click)="closeTeamMenu(); closeMobileMenu()">
       <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
       Trouver un match
     </button>
+    
     <button class="mobile-nav__item" type="button" (click)="toggleTeamMenu()" [class.is-expanded]="isTeamMenuOpen" [class.is-active]="isTeamRouteActive">
       <span class="icon"><i class="fa-solid fa-users"></i></span>
       Mon équipe
       <span class="chevron"><i class="fa-solid" [class.fa-chevron-down]="!isTeamMenuOpen" [class.fa-chevron-up]="isTeamMenuOpen"></i></span>
     </button>
+    
     @if (isTeamMenuOpen) {
       <div class="mobile-submenu">
-        <button class="mobile-submenu__item" type="button" routerLink="/user/team/create" routerLinkActive="is-active">
-          Créer une équipe
+        <button class="mobile-submenu__item" type="button" (click)="onCreateTeamNav()" routerLinkActive="is-active">
+          <span class="icon"><i class="fa-solid fa-plus"></i></span>
+          Créer l'équipe
         </button>
-        <button class="mobile-submenu__item" type="button" routerLink="/user/team" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
-          Voir l’équipe
+        <button class="mobile-submenu__item" type="button" routerLink="/user/team" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
+          <span class="icon"><i class="fa-solid fa-eye"></i></span>
+          Voir l'équipe
         </button>
       </div>
     }
-    <button class="mobile-nav__item">
+    
+    <button class="mobile-nav__item" (click)="closeTeamMenu(); closeMobileMenu()">
       <span class="icon"><i class="fa-solid fa-trophy"></i></span>
       Ligues
     </button>
-    <button class="mobile-nav__item">
-      <span class="icon"><i class="fa-solid fa-futbol"></i></span>
+    
+    <button class="mobile-nav__item" (click)="closeTeamMenu(); closeMobileMenu()">
+      <span class="icon"><i class="fa-solid fa-map"></i></span>
       Terrains
     </button>
   </nav>
+  
   <div class="sidebar__profile mobile-profile">
     <input id="mobile-profile-toggle" class="profile-toggle" type="checkbox" />
     <label class="profile__details mobile-profile__details" for="mobile-profile-toggle">
