@@ -439,6 +439,10 @@
 }
 
 @media (max-width: 720px) {
+  .dashboard {
+    padding: 10px 0 20px;
+  }
+
   .card--hero {
     grid-template-columns: 1fr;
   }

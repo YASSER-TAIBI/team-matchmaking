@@ -562,6 +562,10 @@
 }
 
 @media (max-width: 900px) {
+  .players {
+    padding: 10px 0 20px;
+  }
+
   .players__filters {
     grid-template-columns: 1fr;
   }

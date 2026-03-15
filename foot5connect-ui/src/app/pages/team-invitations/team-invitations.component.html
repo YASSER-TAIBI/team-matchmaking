@@ -1,43 +1,43 @@
 <section class="invites">
   <header class="invites__header">
-    <h1>Mes invitations</h1>
+    <h1>Les invitations d'<span>équipe</span></h1>
     <p>Acceptez ou refusez les invitations envoyées par les capitaines.</p>
-
-    <nav class="tabs" aria-label="Filtres des invitations">
-      <a
-        class="tabs__item"
-        href="#"
-        [class.tabs__item--active]="activeTab === 'EN_ATTENTE'"
-        (click)="setTab('EN_ATTENTE', $event)">
-        En Attente
-        <span class="tabs__count">{{ countByStatus('EN_ATTENTE') }}</span>
-      </a>
-      <a
-        class="tabs__item"
-        href="#"
-        [class.tabs__item--active]="activeTab === 'ACCEPTEE'"
-        (click)="setTab('ACCEPTEE', $event)">
-        Acceptée
-        <span class="tabs__count">{{ countByStatus('ACCEPTEE') }}</span>
-      </a>
-      <a
-        class="tabs__item"
-        href="#"
-        [class.tabs__item--active]="activeTab === 'REFUSEE'"
-        (click)="setTab('REFUSEE', $event)">
-        Refusée
-        <span class="tabs__count">{{ countByStatus('REFUSEE') }}</span>
-      </a>
-      <a
-        class="tabs__item"
-        href="#"
-        [class.tabs__item--active]="activeTab === 'ANNULLEE'"
-        (click)="setTab('ANNULLEE', $event)">
-        Annulée
-        <span class="tabs__count">{{ countByStatus('ANNULLEE') }}</span>
-      </a>
-    </nav>
   </header>
+
+  <nav class="tabs" aria-label="Filtres des invitations">
+    <a
+      class="tabs__item"
+      href="#"
+      [class.tabs__item--active]="activeTab === 'EN_ATTENTE'"
+      (click)="setTab('EN_ATTENTE', $event)">
+      En Attente
+      <span class="tabs__count">{{ countByStatus('EN_ATTENTE') }}</span>
+    </a>
+    <a
+      class="tabs__item"
+      href="#"
+      [class.tabs__item--active]="activeTab === 'ACCEPTEE'"
+      (click)="setTab('ACCEPTEE', $event)">
+      Acceptée
+      <span class="tabs__count">{{ countByStatus('ACCEPTEE') }}</span>
+    </a>
+    <a
+      class="tabs__item"
+      href="#"
+      [class.tabs__item--active]="activeTab === 'REFUSEE'"
+      (click)="setTab('REFUSEE', $event)">
+      Refusée
+      <span class="tabs__count">{{ countByStatus('REFUSEE') }}</span>
+    </a>
+    <a
+      class="tabs__item"
+      href="#"
+      [class.tabs__item--active]="activeTab === 'ANNULLEE'"
+      (click)="setTab('ANNULLEE', $event)">
+      Annulée
+      <span class="tabs__count">{{ countByStatus('ANNULLEE') }}</span>
+    </a>
+  </nav>
 
   @if (loading) {
     <div>Chargement...</div>
@@ -47,7 +47,13 @@
   }
   @if (!loading && !error && filteredInvitations.length === 0) {
     <div class="invites__empty">
-      Aucune invitation {{ tabLabel(activeTab).toLowerCase() }}.
+      <div class="invites__empty-card">
+        <div class="invites__empty-icon">{{ countByStatus(activeTab) }}</div>
+        <div class="invites__empty-content">
+          <strong>Aucune invitation {{ tabLabel(activeTab).toLowerCase() }}.</strong>
+          <p>Les invitations de cette catégorie apparaîtront ici.</p>
+        </div>
+      </div>
     </div>
   }
 
