@@ -4,7 +4,7 @@
 
       <div class="team-create-header__top">
         <div class="team-create-header__titles">
-          <h1 class="team-create-header__title">Gestion d'équipe</h1>
+          <h1 class="team-create-header__title">Gestion de mon <span>équipe</span></h1>
           <p class="team-create-header__subtitle">Créez votre identité et construisez votre équipe de rêve à 5.</p>
         </div>
 
@@ -82,6 +82,7 @@
             @if (!isEditingIdentity) {
               <span class="update-item__action update-item__action--edit" (click)="startEditIdentity()">
                   <span class="material-symbols-outlined">edit</span>
+                  <span class="update-item__label">Modifier les informations</span>
               </span>
             }
           </div>
@@ -155,51 +156,55 @@
             </button>
           </div>
 
-          <div class="table">
-            <div class="table__head">
-              <div class="table__col table__col--details">Détails du joueur</div>
-              <div class="table__col table__col--match">Match</div>
-              <div class="table__col table__col--level">Niveau</div>
-              <div class="table__col table__col--actions">Actions</div>
-            </div>
-
-            <div class="table__body">
-              @for (member of members; track member.userId ?? member.id ?? $index) {
-              <article class="player-row">
-                <div class="player-row__details">
-                  <div class="avatar">
-                    <span class="avatar__initials">{{ getMemberInitials(member) }}</span>
-                    @if (member.captain) {
-                      <span class="avatar__status" aria-hidden="true"></span>
-                    }
-                  </div>
-                  <div class="player-row__meta">
-                    <div class="player-row__name">{{ getMemberFullName(member) }}</div>
-                    <div class="player-row__role">{{ member.captain ? 'Capitaine' : (member.position ?? 'Membre') }}</div>
-                  </div>
+          <div class="table table--selection">
+            <div class="table__scroll">
+              <div class="table__content">
+                <div class="table__head">
+                  <div class="table__col table__col--details">Détails du joueur</div>
+                  <div class="table__col table__col--match">Match</div>
+                  <div class="table__col table__col--level">Niveau</div>
+                  <div class="table__col table__col--actions">Actions</div>
                 </div>
 
-                <div class="player-row__match">{{ member.totalMatches ?? 0 }}</div>
+                <div class="table__body">
+                  @for (member of members; track member.userId ?? member.id ?? $index) {
+                  <article class="player-row">
+                    <div class="player-row__details">
+                      <div class="avatar">
+                        <span class="avatar__initials">{{ getMemberInitials(member) }}</span>
+                        @if (member.captain) {
+                          <span class="avatar__status" aria-hidden="true"></span>
+                        }
+                      </div>
+                      <div class="player-row__meta">
+                        <div class="player-row__name">{{ getMemberFullName(member) }}</div>
+                        <div class="player-row__role">{{ member.captain ? 'Capitaine' : (member.position ?? 'Membre') }}</div>
+                      </div>
+                    </div>
 
-                <div class="player-row__level">
-                  <span class="badge" [ngClass]="levelBadgeClass(member.level)">{{ levelLabel(member.level) }}</span>
-                </div>
+                    <div class="player-row__match">{{ member.totalMatches ?? 0 }}</div>
 
-                <div class="player-row__actions">
-                  @if (!isCurrentMember(member)) {
-                    <button class="icon-btn icon-btn--danger" type="button" aria-label="Sortir de l'équipe" (click)="openRemoveMemberDialog(member)">
-                      <span class="material-symbols-outlined">logout</span>
-                    </button>
+                    <div class="player-row__level">
+                      <span class="badge" [ngClass]="levelBadgeClass(member.level)">{{ levelLabel(member.level) }}</span>
+                    </div>
+
+                    <div class="player-row__actions">
+                      @if (!isCurrentMember(member)) {
+                        <button class="icon-btn icon-btn--danger" type="button" aria-label="Sortir de l'équipe" (click)="openRemoveMemberDialog(member)">
+                          <span class="material-symbols-outlined">logout</span>
+                        </button>
+                      }
+                    </div>
+                  </article>
+                  }
+
+                  @if (members.length === 0) {
+                    <div class="table__empty">
+                      Aucun membre dans l'équipe
+                    </div>
                   }
                 </div>
-              </article>
-              }
-
-              @if (members.length === 0) {
-                <div class="table__empty">
-                  Aucun membre dans l'équipe
-                </div>
-              }
+              </div>
             </div>
           </div>
         </section>
@@ -356,7 +361,7 @@
                   <span class="recruit-item__name">{{ getInvitationFullName(invitation) }}</span>
                   <span class="recruit-item__meta">{{ levelLabel(invitation.invitedUserLevel) }}</span>
                 </span>
-                <span [class]="invitationStatusClass(invitation.status)">{{ invitationStatusLabel(invitation.status) }}</span>
+                <span [class]="invitationStatusClass(invitation.status)">{{ invitationStatusLabel(invitation.status) | uppercase }}</span>
               </button>
             }
 
@@ -422,7 +427,9 @@
         }
 
       </aside>
-    </div>
+    
+
+    <div class="team-create-center">
     @if (activeTab === 'invitation') {
       <section class="card">
         <div class="card__header">
@@ -481,60 +488,66 @@
         </div>
 
         <div class="table table--invitation">
-          <div class="table__head">
-            <div class="table__col table__col--details">Joueur invité</div>
-            <div class="table__col table__col--match">Date du match</div>
-            <div class="table__col table__col--timestart">Heure de début</div>
-            <div class="table__col table__col--timeend">Heure de fin</div>
-            <div class="table__col table__col--level">Niveau</div>
-            <div class="table__col table__col--actions">Statut</div>
-          </div>
-
-          <div class="table__body">
-            @if (invitationsLoading) {
-              <div class="recruit-list__state">Chargement...</div>
-            }
-            @if (!invitationsLoading && invitationsError) {
-              <div class="recruit-list__state recruit-list__state--error">{{ invitationsError }}</div>
-            }
-
-            @for (invitation of filteredInvitations; track invitation.id ?? $index) {
-              <article class="player-row player-row--invitation">
-                <div class="player-row__details">
-                  <div class="avatar">
-                    <span class="avatar__initials">{{ getInvitationInitials(invitation) }}</span>
-                  </div>
-                  <div class="player-row__meta">
-                    <div class="player-row__name">{{ getInvitationFullName(invitation) }}</div>
-                    <div class="player-row__role">{{ team?.name ?? 'Équipe' }}</div>
-                  </div>
-                </div>
-
-                <div class="player-row__match">{{ formatInvitationDate(invitation.availableDate) }}</div>
-
-                <div class="player-row__timestart">{{ formatInvitationTime(invitation.startTime) }}</div>
-
-                <div class="player-row__timeend">{{ formatInvitationTime(invitation.endTime) }}</div>
-
-                <div class="player-row__level">
-                  <span class="badge" [ngClass]="levelBadgeClass(invitation.invitedUserLevel)">{{ levelLabel(invitation.invitedUserLevel) }}</span>
-                </div>
-
-                <div class="player-row__actions">
-                  <span [class]="invitationStatusClass(invitation.status)">{{ invitationStatusLabel(invitation.status) | uppercase }}</span>
-                </div>
-              </article>
-            }
-
-            @if (!invitationsLoading && !invitationsError && filteredInvitations.length === 0) {
-              <div class="recruit-list__state">
-                Aucune invitation pour cette équipe.
+          <div class="table__scroll">
+            <div class="table__content table__content--invitation">
+              <div class="table__head">
+                <div class="table__col table__col--details">Joueur invité</div>
+                <div class="table__col table__col--match">Date du match</div>
+                <div class="table__col table__col--timestart">Heure de début</div>
+                <div class="table__col table__col--timeend">Heure de fin</div>
+                <div class="table__col table__col--level">Niveau</div>
+                <div class="table__col table__col--actions">Statut</div>
               </div>
-            }
+
+              <div class="table__body">
+                @if (invitationsLoading) {
+                  <div class="recruit-list__state">Chargement...</div>
+                }
+                @if (!invitationsLoading && invitationsError) {
+                  <div class="recruit-list__state recruit-list__state--error">{{ invitationsError }}</div>
+                }
+
+                @for (invitation of filteredInvitations; track invitation.id ?? $index) {
+                  <article class="player-row player-row--invitation">
+                    <div class="player-row__details">
+                      <div class="avatar">
+                        <span class="avatar__initials">{{ getInvitationInitials(invitation) }}</span>
+                      </div>
+                      <div class="player-row__meta">
+                        <div class="player-row__name">{{ getInvitationFullName(invitation) }}</div>
+                        <div class="player-row__role">{{ team?.name ?? 'Équipe' }}</div>
+                      </div>
+                    </div>
+
+                    <div class="player-row__match">{{ formatInvitationDate(invitation.availableDate) }}</div>
+
+                    <div class="player-row__timestart">{{ formatInvitationTime(invitation.startTime) }}</div>
+
+                    <div class="player-row__timeend">{{ formatInvitationTime(invitation.endTime) }}</div>
+
+                    <div class="player-row__level">
+                      <span class="badge" [ngClass]="levelBadgeClass(invitation.invitedUserLevel)">{{ levelLabel(invitation.invitedUserLevel) }}</span>
+                    </div>
+
+                    <div class="player-row__actions">
+                      <span [class]="invitationStatusClass(invitation.status)">{{ invitationStatusLabel(invitation.status) | uppercase }}</span>
+                    </div>
+                  </article>
+                }
+
+                @if (!invitationsLoading && !invitationsError && filteredInvitations.length === 0) {
+                  <div class="recruit-list__state">
+                    Aucune invitation pour cette équipe.
+                  </div>
+                }
+              </div>
+            </div>
           </div>
         </div>
       </section>
     }
+    </div>
+    </div>
   </div>
 </div>
 
