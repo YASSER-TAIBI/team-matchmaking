@@ -1,4 +1,151 @@
 <div class="team-page">
-  <h2>Mon équipe</h2>
-  <p>Page en cours de construction.</p>
+  <header class="team-page__header">
+    <div class="team-page__hero">
+      <div class="team-page__identity">
+        <div class="team-page__logo-wrap">
+          <div class="team-page__logo">
+            <div class="team-page__logo-mark"></div>
+          </div>
+          <span class="team-page__verified">
+            <span class="material-symbols-outlined">check</span>
+          </span>
+        </div>
+
+        <div class="team-page__titles">
+          <h1 class="team-page__title">The Grass Hoppers</h1>
+          <div class="team-page__meta">
+            <span class="team-page__meta-item">
+              <span class="material-symbols-outlined">location_on</span>
+              Londres, Royaume-Uni
+            </span>
+            <span class="team-page__meta-dot"></span>
+            <span class="team-page__meta-item">Fondé en 2023</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="team-page__actions">
+        <button class="action-btn action-btn--primary" type="button">
+          <span class="material-symbols-outlined action-btn__icon">logout</span>
+          Quitter l'Équipe
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="team-page__stats" aria-label="Statistiques de l'équipe">
+    @for (stat of teamStats; track stat.label) {
+      <article class="team-stat-card">
+        <div class="team-stat-card__label">
+          <span class="material-symbols-outlined team-stat-card__icon">{{ stat.icon }}</span>
+          {{ stat.label }}
+        </div>
+        <div class="team-stat-card__value" [class.team-stat-card__value--accent]="stat.accent" [class.team-stat-card__value--red]="stat.red" [class.team-stat-card__value--yellow]="stat.yellow">
+          {{ stat.value }}
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="team-page__content">
+    <div class="team-page__section-header">
+      <div class="team-page__section-title-wrap">
+        <h2 class="team-page__section-title">Les joueurs titulaires</h2>
+        <span class="team-page__section-count">{{ playerCountLabel }}</span>
+      </div>
+    </div>
+
+    <div class="team-page__roster-grid">
+      @for (player of players; track player.name) {
+        <article class="team-member-card">
+          <div class="team-member-card__number">{{ player.number.replace('#', '') }}</div>
+
+          <div class="team-member-card__media">
+            <div class="team-member-card__avatar" [class.team-member-card__avatar--accent]="player.accent">
+              <span class="team-member-card__avatar-photo" [class]="'team-member-card__avatar-photo ' + player.imageClass"></span>
+            </div>
+            <div class="team-member-card__badge team-member-card__badge--floating">{{ player.badge }}</div>
+          </div>
+
+          <div class="team-member-card__body">
+            <h3 class="team-member-card__name">{{ player.name }}</h3>
+            <div class="team-member-card__role">{{ player.number }}</div>
+          </div>
+
+          <div class="team-member-card__stats team-member-card__stats--compact">
+            @for (item of player.stats; track item.label) {
+              <div class="team-member-card__stat">
+                <span class="team-member-card__stat-label">{{ item.label }}</span>
+                <strong class="team-member-card__stat-value">{{ item.value }}</strong>
+              </div>
+            }
+          </div>
+        </article>
+      }
+
+      @for (slot of emptyPlayerSlots; track slot) {
+        <article class="team-member-card team-member-card--empty">
+          <div class="team-member-card__empty-icon">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <div class="team-member-card__empty-badge">Place disponible</div>
+          <h3 class="team-member-card__empty-title">Joueur manquant</h3>
+          <p class="team-member-card__empty-text">
+            Il reste encore {{ emptyPlayerSlots.length }} joueur{{ emptyPlayerSlots.length > 1 ? 's' : '' }} à compléter.
+          </p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="team-page__content">
+    <div class="team-page__section-header">
+      <div class="team-page__section-title-wrap">
+        <h2 class="team-page__section-title">Les remplaçants</h2>
+        <span class="team-page__section-count">{{ substituteCountLabel }}</span>
+      </div>
+    </div>
+
+    <div class="team-page__roster-grid team-page__roster-grid--substitutes">
+      @for (player of substitutes; track player.name) {
+        <article class="team-member-card">
+          <div class="team-member-card__number">{{ player.number.replace('#', '') }}</div>
+
+          <div class="team-member-card__media">
+            <div class="team-member-card__avatar" [class.team-member-card__avatar--accent]="player.accent">
+              <span class="team-member-card__avatar-photo" [class]="'team-member-card__avatar-photo ' + player.imageClass"></span>
+            </div>
+            <div class="team-member-card__badge team-member-card__badge--floating">{{ player.badge }}</div>
+          </div>
+
+          <div class="team-member-card__body">
+            <h3 class="team-member-card__name">{{ player.name }}</h3>
+            <div class="team-member-card__role">{{ player.number }}</div>
+          </div>
+
+          <div class="team-member-card__stats team-member-card__stats--compact">
+            @for (item of player.stats; track item.label) {
+              <div class="team-member-card__stat">
+                <span class="team-member-card__stat-label">{{ item.label }}</span>
+                <strong class="team-member-card__stat-value">{{ item.value }}</strong>
+              </div>
+            }
+          </div>
+        </article>
+      }
+
+      @for (slot of emptySubstituteSlots; track slot) {
+        <article class="team-member-card team-member-card--empty">
+          <div class="team-member-card__empty-icon">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <div class="team-member-card__empty-badge">Place disponible</div>
+          <h3 class="team-member-card__empty-title">Remplaçant manquant</h3>
+          <p class="team-member-card__empty-text">
+            Il reste encore {{ emptySubstituteSlots.length }} remplaçant{{ emptySubstituteSlots.length > 1 ? 's' : '' }} à compléter.
+          </p>
+        </article>
+      }
+    </div>
+  </section>
 </div>
