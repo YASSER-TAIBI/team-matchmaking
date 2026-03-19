@@ -24,6 +24,9 @@ public class TeamMember extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private PlayerPosition position;
 
+    @Enumerated(EnumType.STRING)
+    private PlayerSelection selection;
+
     @Column(nullable = false)
     private boolean isCaptain;
 

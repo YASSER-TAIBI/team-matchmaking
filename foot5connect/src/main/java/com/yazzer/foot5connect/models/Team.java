@@ -31,6 +31,18 @@ public class Team extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private TeamStatus status;
 
+    @Column(nullable = false)
+    private Integer totalMatches;
+
+    @Column(nullable = false)
+    private Integer matchesWon;
+    
+    @Column(nullable = false)
+    private Integer matchesLost;
+
+    @Column(nullable = false)
+    private Integer matchesDrawn;
+
     /* ================= RELATIONS ================= */
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)

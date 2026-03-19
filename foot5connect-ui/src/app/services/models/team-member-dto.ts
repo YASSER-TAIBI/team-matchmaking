@@ -9,6 +9,7 @@ export interface TeamMemberDto {
   lastName?: string;
   level?: string;
   position?: 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'ATTACKER' | 'SUBSTITUTE';
+  selection?: 'STARTER' | 'SUBSTITUTE';
   teamId?: number;
   totalMatches?: number;
   userId?: number;

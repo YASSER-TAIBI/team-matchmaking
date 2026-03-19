@@ -460,6 +460,46 @@
         }
       }
     },
+    "/teams/me/membership": {
+      "get": {
+        "tags": [
+          "team-controller"
+        ],
+        "operationId": "hasMyTeamMembership",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/me/member-team": {
+      "get": {
+        "tags": [
+          "team-controller"
+        ],
+        "operationId": "findMyMemberTeam",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/team-invitations/memberInvite": {
       "get": {
         "tags": [
@@ -646,6 +686,22 @@
             "items": {
               "$ref": "#/components/schemas/TeamMemberDto"
             }
+          },
+          "totalMatches": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "matchesWon": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "matchesLost": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "matchesDrawn": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -687,6 +743,13 @@
           "totalMatches": {
             "type": "integer",
             "format": "int32"
+          },
+          "selection": {
+            "type": "string",
+            "enum": [
+              "STARTER",
+              "SUBSTITUTE"
+            ]
           },
           "level": {
             "type": "string"

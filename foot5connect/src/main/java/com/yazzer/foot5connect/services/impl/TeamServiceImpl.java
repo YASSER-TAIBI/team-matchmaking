@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.yazzer.foot5connect.dto.TeamDto;
 import com.yazzer.foot5connect.models.AvailabilityStatus;
 import com.yazzer.foot5connect.models.InvitationStatus;
+import com.yazzer.foot5connect.models.PlayerSelection;
 import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamInvitation;
 import com.yazzer.foot5connect.models.TeamMember;
@@ -51,6 +52,10 @@ public class TeamServiceImpl implements TeamService {
                 .city(currentUser.getCity())
                 .country(currentUser.getCountry())
                 .status(TeamStatus.INCOMPLETE)
+                .totalMatches(0)
+                .matchesWon(0)
+                .matchesLost(0)
+                .matchesDrawn(0)
                 .build();
         team = teamRepository.save(team);
 
@@ -59,6 +64,7 @@ public class TeamServiceImpl implements TeamService {
                 .team(team)
                 .user(currentUser)
                 .isCaptain(true)
+                .selection(PlayerSelection.STARTER)
                 .build();
         teamMemberRepository.save(captain);
 
@@ -75,6 +81,20 @@ public class TeamServiceImpl implements TeamService {
         return teamRepository.findByCaptainIdWithMembers(currentUser.getId())
                 .map(TeamDto::fromEntity)
                 .orElse(null);
+    }
+
+    @Override
+    public TeamDto findMyMemberTeam() {
+        User currentUser = getAuthenticatedUser();
+        return teamRepository.findByMemberUserIdWithMembers(currentUser.getId())
+                .map(TeamDto::fromEntity)
+                .orElse(null);
+    }
+
+    @Override
+    public boolean hasMyTeamMembership() {
+        User currentUser = getAuthenticatedUser();
+        return teamMemberRepository.existsByUser_Id(currentUser.getId());
     }
 
     @Override
@@ -149,6 +169,7 @@ public class TeamServiceImpl implements TeamService {
                 .team(team)
                 .user(currentUser)
                 .isCaptain(true)
+                .selection(PlayerSelection.STARTER)
                 .build();
         teamMemberRepository.save(captain);
 

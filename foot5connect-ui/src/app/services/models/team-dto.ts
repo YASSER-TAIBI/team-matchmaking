@@ -9,7 +9,11 @@ export interface TeamDto {
   createdDate?: string;
   id?: number;
   logoUrl?: string;
+  matchesDrawn?: number;
+  matchesLost?: number;
+  matchesWon?: number;
   members?: Array<TeamMemberDto>;
   name?: string;
   status?: 'INCOMPLETE' | 'COMPLETE' | 'IN_MATCH';
+  totalMatches?: number;
 }

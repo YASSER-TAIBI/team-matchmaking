@@ -5,6 +5,7 @@ import { HelperService } from '../../services/helper/helper.service';
 import { filter } from 'rxjs/operators';
 import { Api } from '../../services/api';
 import { findMyTeam } from '../../services/functions';
+import { TeamService } from '../../services/teams/team.service';
 
 @Component({
   selector: 'app-sidenav',
@@ -16,13 +17,16 @@ export class SidenavComponent {
   private helperService = inject(HelperService);
   private router = inject(Router);
   private api = inject(Api);
+  private teamService = inject(TeamService);
 
   isTeamMenuOpen = false;
+  hasTeamMembership = false;
 
   private currentUrl = '';
 
   constructor() {
     this.currentUrl = this.router.url;
+    this.loadTeamMembership();
     this.syncTeamMenuWithUrl();
 
     this.router.events
@@ -93,5 +97,17 @@ export class SidenavComponent {
     if (this.isTeamRouteActive && !this.currentUrl.startsWith('/user/team/conditions')) {
       this.isTeamMenuOpen = true;
     }
+  }
+
+  private loadTeamMembership(): void {
+    this.teamService.hasMyTeamMembership().subscribe({
+      next: (hasMembership) => {
+        this.hasTeamMembership = hasMembership;
+      },
+      error: (err) => {
+        this.hasTeamMembership = false;
+        console.error(err);
+      }
+    });
   }
 }

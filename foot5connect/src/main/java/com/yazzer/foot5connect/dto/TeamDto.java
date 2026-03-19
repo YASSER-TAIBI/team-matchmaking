@@ -37,6 +37,14 @@ public class TeamDto {
     private Long captainId;
 
     private List<TeamMemberDto> members;
+    
+    private Integer totalMatches;
+    
+    private Integer matchesWon;
+    
+    private Integer matchesLost;
+    
+    private Integer matchesDrawn;
 
     public static TeamDto fromEntity(Team team) {
         if (team == null){
@@ -57,6 +65,10 @@ public class TeamDto {
                                 ? team.getTeamMembers().stream().map(TeamMemberDto::fromEntity).collect(Collectors.toList())
                                 : Collections.emptyList()
                 )
+                .totalMatches(team.getTotalMatches())
+                .matchesWon(team.getMatchesWon())
+                .matchesLost(team.getMatchesLost())
+                .matchesDrawn(team.getMatchesDrawn())
                 .build();
     }
 
@@ -77,6 +89,10 @@ public class TeamDto {
                                 .id(teamDto.getCaptainId())
                                 .build()
                         )
+                .totalMatches(teamDto.getTotalMatches())
+                .matchesWon(teamDto.getMatchesWon())
+                .matchesLost(teamDto.getMatchesLost())
+                .matchesDrawn(teamDto.getMatchesDrawn())
                 .build();
     }
 

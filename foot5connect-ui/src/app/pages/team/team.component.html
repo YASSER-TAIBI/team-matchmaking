@@ -1,4 +1,25 @@
 <div class="team-page">
+  @if (loading) {
+    <section class="team-page__content">
+      <div class="team-page__section-header">
+        <div class="team-page__section-title-wrap">
+          <h2 class="team-page__section-title">Chargement...</h2>
+        </div>
+      </div>
+    </section>
+  }
+
+  @if (error) {
+    <section class="team-page__content">
+      <div class="team-page__section-header">
+        <div class="team-page__section-title-wrap">
+          <h2 class="team-page__section-title">{{ error }}</h2>
+        </div>
+      </div>
+    </section>
+  }
+
+  @if (!loading && !error) {
   <header class="team-page__header">
     <div class="team-page__hero">
       <div class="team-page__identity">
@@ -12,14 +33,14 @@
         </div>
 
         <div class="team-page__titles">
-          <h1 class="team-page__title">The Grass Hoppers</h1>
+          <h1 class="team-page__title">{{ teamName }}</h1>
           <div class="team-page__meta">
             <span class="team-page__meta-item">
               <span class="material-symbols-outlined">location_on</span>
-              Londres, Royaume-Uni
+              {{ teamLocation }}
             </span>
             <span class="team-page__meta-dot"></span>
-            <span class="team-page__meta-item">Fondé en 2023</span>
+            <span class="team-page__meta-item">Fondé en {{ teamCreatedYear }}</span>
           </div>
         </div>
       </div>
@@ -61,8 +82,11 @@
           <div class="team-member-card__number">{{ player.number.replace('#', '') }}</div>
 
           <div class="team-member-card__media">
-            <div class="team-member-card__avatar" [class.team-member-card__avatar--accent]="player.accent">
-              <span class="team-member-card__avatar-photo" [class]="'team-member-card__avatar-photo ' + player.imageClass"></span>
+            <div class="avatar avatar--card">
+              <span class="avatar__initials avatar__initials--card">{{ getMemberInitials(player) }}</span>
+              @if (player.accent) {
+                <span class="avatar__status" aria-hidden="true"></span>
+              }
             </div>
             <div class="team-member-card__badge team-member-card__badge--floating">{{ player.badge }}</div>
           </div>
@@ -76,7 +100,11 @@
             @for (item of player.stats; track item.label) {
               <div class="team-member-card__stat">
                 <span class="team-member-card__stat-label">{{ item.label }}</span>
-                <strong class="team-member-card__stat-value">{{ item.value }}</strong>
+                @if (item.label === 'Niveau') {
+                  <span class="badge" [ngClass]="player.levelClass">{{ item.value }}</span>
+                } @else {
+                  <strong class="team-member-card__stat-value">{{ item.value }}</strong>
+                }
               </div>
             }
           </div>
@@ -112,8 +140,11 @@
           <div class="team-member-card__number">{{ player.number.replace('#', '') }}</div>
 
           <div class="team-member-card__media">
-            <div class="team-member-card__avatar" [class.team-member-card__avatar--accent]="player.accent">
-              <span class="team-member-card__avatar-photo" [class]="'team-member-card__avatar-photo ' + player.imageClass"></span>
+            <div class="avatar avatar--card" [class.team-member-card__avatar--accent]="player.accent">
+              <span class="avatar__initials avatar__initials--card">{{ getMemberInitials(player) }}</span>
+              @if (player.accent) {
+                <span class="avatar__status" aria-hidden="true"></span>
+              }
             </div>
             <div class="team-member-card__badge team-member-card__badge--floating">{{ player.badge }}</div>
           </div>
@@ -127,7 +158,11 @@
             @for (item of player.stats; track item.label) {
               <div class="team-member-card__stat">
                 <span class="team-member-card__stat-label">{{ item.label }}</span>
-                <strong class="team-member-card__stat-value">{{ item.value }}</strong>
+                @if (item.label === 'Niveau') {
+                  <span class="badge" [ngClass]="player.levelClass">{{ item.value }}</span>
+                } @else {
+                  <strong class="team-member-card__stat-value">{{ item.value }}</strong>
+                }
               </div>
             }
           </div>
@@ -148,4 +183,5 @@
       }
     </div>
   </section>
+  }
 </div>

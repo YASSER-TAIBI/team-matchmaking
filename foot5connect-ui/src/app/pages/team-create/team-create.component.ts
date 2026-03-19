@@ -191,7 +191,7 @@ export class TeamCreateComponent implements OnInit {
       this.teamActionPending = true;
       this.teamService.rejoinMyTeam().subscribe({
         next: () => {
-          this.teamService.findMyTeam().subscribe({
+          this.teamService.findMyMemberTeam().subscribe({
             next: (data) => {
               this.team = data;
               this.members = data?.members ?? [];
@@ -303,7 +303,7 @@ export class TeamCreateComponent implements OnInit {
     this.memberActionPending = true;
     this.teamService.removeMemberFromMyTeam(this.memberToRemove.userId).subscribe({
       next: () => {
-        this.teamService.findMyTeam().subscribe({
+        this.teamService.findMyMemberTeam().subscribe({
           next: (data) => {
             this.team = data;
             this.members = data?.members ?? [];

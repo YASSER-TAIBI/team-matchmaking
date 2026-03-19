@@ -32,6 +32,16 @@ public class TeamController {
         return ResponseEntity.ok(teamService.findMyTeam());
     }
 
+    @GetMapping("/me/member-team")
+    public ResponseEntity<TeamDto> findMyMemberTeam() {
+        return ResponseEntity.ok(teamService.findMyMemberTeam());
+    }
+
+    @GetMapping("/me/membership")
+    public ResponseEntity<Boolean> hasMyTeamMembership() {
+        return ResponseEntity.ok(teamService.hasMyTeamMembership());
+    }
+
     @PutMapping("/update")
     public ResponseEntity<TeamDto> updateTeam(@RequestBody TeamDto teamDto) {
         return ResponseEntity.ok(teamService.updateTeam(teamDto));
