@@ -1,6 +1,7 @@
 package com.yazzer.foot5connect.dto;
 
 import com.yazzer.foot5connect.models.PlayerPosition;
+import com.yazzer.foot5connect.models.PlayerSelection;
 import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamMember;
 import com.yazzer.foot5connect.models.User;
@@ -33,6 +34,8 @@ public class TeamMemberDto {
 
     private Integer totalMatches;
 
+    private PlayerSelection selection;
+
     private String level;
 
     public static TeamMemberDto fromEntity(TeamMember teamMember) {
@@ -44,6 +47,7 @@ public class TeamMemberDto {
                 .id(teamMember.getId())
                 .jerseyNumber(teamMember.getJerseyNumber())
                 .position(teamMember.getPosition())
+                .selection(teamMember.getSelection())
                 .isCaptain(teamMember.isCaptain())
                 .userId(teamMember.getUser().getId())
                 .teamId(teamMember.getTeam().getId())
@@ -63,6 +67,7 @@ public class TeamMemberDto {
                 .id(teamMemberDto.getId())
                 .jerseyNumber(teamMemberDto.getJerseyNumber())
                 .position(teamMemberDto.getPosition())
+                .selection(teamMemberDto.getSelection())
                 .isCaptain(teamMemberDto.isCaptain())
                 .user(
                         User.builder()

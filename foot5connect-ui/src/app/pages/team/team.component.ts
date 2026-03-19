@@ -1,5 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { TeamMemberDto } from '../../services/models/team-member-dto';
+import { TeamDto } from '../../services/models/team-dto';
+import { TeamService } from '../../services/teams/team.service';
 
 type TeamTab = 'roster' | 'matches' | 'stats' | 'schedule';
 
@@ -18,6 +21,7 @@ type TeamPlayer = {
   role: string;
   badge: string;
   imageClass: string;
+  levelClass: string;
   accent?: boolean;
   stats: Array<{ label: string; value: string }>;
 };
@@ -29,80 +33,76 @@ type TeamPlayer = {
   templateUrl: './team.component.html',
   styleUrls: ['./team.component.scss']
 })
-export class TeamComponent {
+export class TeamComponent implements OnInit {
+  private teamService = inject(TeamService);
+
   readonly maxPlayers = 5;
   readonly maxSubstitutes = 3;
+  readonly defaultTeamName = 'Mon équipe';
 
-  readonly teamStats: TeamStat[] = [
-    { label: 'Matchs', value: '30', icon: 'sports_soccer' },
-    { label: 'Victoires', value: '14', icon: 'emoji_events', accent: true },
-    { label: 'Égalités', value: '8', icon: 'balance', yellow: true },
-    { label: 'Défaites', value: '8', icon: 'cancel', red: true },
-    { label: 'Taux de victoire', value: '46.7%', icon: 'trending_up', accent: true },
-    { label: 'Taux de défaites', value: '26.7%', icon: 'trending_down', red: true }
-  ];
+  team: TeamDto | null = null;
+  members: TeamMemberDto[] = [];
+  loading = true;
+  error: string | null = null;
 
-  readonly players: TeamPlayer[] = [
-    {
-      name: 'Alex Smith',
-      number: '#10',
-      role: 'Capitaine',
-      badge: 'Attaquant',
-      imageClass: 'team-member-card__avatar--alex',
-      accent: true,
-      stats: [
-        { label: 'Matchs', value: '24' },
-        { label: 'Buts', value: '8' }
-      ]
-    },
-    {
-      name: 'Jamie Doe',
-      number: '#1',
-      role: 'GK',
-      badge: 'GK',
-      imageClass: 'team-member-card__avatar--jamie',
-      stats: [
-        { label: 'Matchs', value: '42' },
-        { label: 'Buts', value: '5' }
-      ]
-    },
-    {
-      name: 'Chris P.',
-      number: '#7',
-      role: 'Milieu',
-      badge: 'Milieu',
-      imageClass: 'team-member-card__avatar--chris',
-      stats: [
-        { label: 'Matchs', value: '20' },
-        { label: 'Buts', value: '8' }
-      ]
-    },
-    {
-      name: 'Sarah M.',
-      number: '#4',
-      role: 'Défenseure',
-      badge: 'Défenseure',
-      imageClass: 'team-member-card__avatar--sarah',
-      stats: [
-        { label: 'Matchs', value: '38' },
-        { label: 'Buts', value: '12' }
-      ]
+  ngOnInit(): void {
+    this.loadTeam();
+  }
+
+  get teamStats(): TeamStat[] {
+    const totalMatches = this.team?.totalMatches ?? 0;
+    const matchesWon = this.team?.matchesWon ?? 0;
+    const matchesDrawn = this.team?.matchesDrawn ?? 0;
+    const matchesLost = this.team?.matchesLost ?? 0;
+    const winRate = totalMatches > 0 ? `${((matchesWon / totalMatches) * 100).toFixed(1)}%` : '0%';
+    const lossRate = totalMatches > 0 ? `${((matchesLost / totalMatches) * 100).toFixed(1)}%` : '0%';
+
+    return [
+      { label: 'Matchs', value: `${totalMatches}`, icon: 'sports_soccer' },
+      { label: 'Victoires', value: `${matchesWon}`, icon: 'emoji_events', accent: true },
+      { label: 'Égalités', value: `${matchesDrawn}`, icon: 'balance', yellow: true },
+      { label: 'Défaites', value: `${matchesLost}`, icon: 'cancel', red: true },
+      { label: 'Taux de victoire', value: winRate, icon: 'trending_up', accent: true },
+      { label: 'Taux de défaites', value: lossRate, icon: 'trending_down', red: true }
+    ];
+  }
+
+  get players(): TeamPlayer[] {
+    return this.members
+      .filter((member) => member.selection !== 'SUBSTITUTE')
+      .slice(0, this.maxPlayers)
+      .map((member) => this.mapMemberToPlayer(member));
+  }
+
+  get substitutes(): TeamPlayer[] {
+    return this.members
+      .filter((member) => member.selection === 'SUBSTITUTE')
+      .slice(0, this.maxSubstitutes)
+      .map((member) => this.mapMemberToPlayer(member));
+  }
+
+  get teamName(): string {
+    return this.team?.name?.trim() || this.defaultTeamName;
+  }
+
+  get teamLocation(): string {
+    const city = this.team?.city?.trim();
+    const country = this.team?.country?.trim();
+
+    if (city && country) {
+      return `${city}, ${country}`;
     }
-  ];
 
-  readonly substitutes: TeamPlayer[] = [
-    {
-      name: 'Marcus L.',
-      number: '#12',
-      role: 'Polyvalent',
-      badge: 'Remplaçant',
-      imageClass: 'team-member-card__avatar--marcus',
-      stats: [
-        { label: 'Matchs', value: '11' },
-        { label: 'Buts', value: '7' }
-      ]
+    return city || country || '-';
+  }
+
+  get teamCreatedYear(): string {
+    if (!this.team?.createdDate) {
+      return '-';
     }
-  ];
+
+    return new Date(this.team.createdDate).getFullYear().toString();
+  }
 
   get playerCountLabel(): string {
     return `(${this.players.length}/${this.maxPlayers})`;
@@ -120,6 +120,124 @@ export class TeamComponent {
   get emptySubstituteSlots(): number[] {
     const missingSubstitutes = Math.max(this.maxSubstitutes - this.substitutes.length, 0);
     return Array.from({ length: missingSubstitutes }, (_, index) => index + 1);
+  }
+
+  getMemberInitials(player: TeamPlayer): string {
+    return player.name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('');
+  }
+
+  private loadTeam(): void {
+    this.loading = true;
+    this.error = null;
+
+    this.teamService.findMyMemberTeam().subscribe({
+      next: (team) => {
+        this.team = team;
+        this.members = team?.members ?? [];
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Erreur chargement équipe', err);
+        this.team = null;
+        this.members = [];
+        this.error = "Impossible de charger les données de l'équipe.";
+        this.loading = false;
+      }
+    });
+  }
+
+  private mapMemberToPlayer(member: TeamMemberDto): TeamPlayer {
+    const name = [member.firstName, member.lastName].filter(Boolean).join(' ').trim() || 'Joueur';
+
+    return {
+      name: this.capitalizeName(name),
+      number: member.jerseyNumber != null ? `#${member.jerseyNumber}` : '-',
+      role: this.memberRole(member),
+      badge: this.memberBadge(member),
+      imageClass: '',
+      levelClass: this.levelBadgeClass(member.level),
+      accent: !!member.captain,
+      stats: [
+        { label: 'Matchs', value: `${member.totalMatches ?? 0}` },
+        { label: 'Niveau', value: this.levelLabel(member.level) }
+      ]
+    };
+  }
+
+  private capitalizeName(name: string): string {
+    return name
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  private memberRole(member: TeamMemberDto): string {
+    if (member.captain) {
+      return 'Capitaine';
+    }
+
+    return this.positionLabel(member.position);
+  }
+
+  private memberBadge(member: TeamMemberDto): string {
+    if (member.selection === 'SUBSTITUTE') {
+      return 'Remplaçant';
+    }
+
+    return this.positionLabel(member.position);
+  }
+
+  private positionLabel(position?: TeamMemberDto['position']): string {
+    switch (position) {
+      case 'GOALKEEPER':
+        return 'Gardien';
+      case 'DEFENDER':
+        return 'Défenseur';
+      case 'MIDFIELDER':
+        return 'Milieu';
+      case 'ATTACKER':
+        return 'Attaquant';
+      case 'SUBSTITUTE':
+        return 'Remplaçant';
+      default:
+        return 'Joueur';
+    }
+  }
+
+  private levelLabel(level?: string): string {
+    switch (level) {
+      case 'DEBUTANT':
+        return 'Débutant';
+      case 'INTERMEDIAIRE':
+        return 'Intermédiaire';
+      case 'CONFIRMER':
+        return 'Confirmé';
+      case 'AVANCE':
+        return 'Avancé';
+      default:
+        return '-';
+    }
+  }
+
+  private levelBadgeClass(level?: string): string {
+    switch (level) {
+      case 'DEBUTANT':
+        return 'badge--green';
+      case 'INTERMEDIAIRE':
+        return 'badge--blue';
+      case 'CONFIRMER':
+        return 'badge--yellow';
+      case 'AVANCE':
+        return 'badge--red';
+      default:
+        return 'badge--green';
+    }
   }
 
   // setTab(tab: TeamTab, event: Event): void {

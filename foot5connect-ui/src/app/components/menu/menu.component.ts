@@ -8,6 +8,7 @@ import { HelperService } from '../../services/helper/helper.service';
 import { Api } from '../../services/api';
 import { findMyTeam } from '../../services/functions';
 import { filter } from 'rxjs/operators';
+import { TeamService } from '../../services/teams/team.service';
 
 
 
@@ -31,14 +32,18 @@ private router = inject(Router);
 
 private api = inject(Api);
 
+private teamService = inject(TeamService);
+
   @ViewChild('mobileNavToggle') mobileNavToggle?: ElementRef<HTMLInputElement>;
 
   isTeamMenuOpen = false;
+  hasTeamMembership = false;
 
   private currentUrl = '';
 
   constructor() {
     this.currentUrl = this.router.url;
+    this.loadTeamMembership();
     this.syncTeamMenuWithUrl();
 
     this.router.events
@@ -148,6 +153,18 @@ private api = inject(Api);
     if (this.isTeamRouteActive) {
       this.isTeamMenuOpen = true;
     }
+  }
+
+  private loadTeamMembership(): void {
+    this.teamService.hasMyTeamMembership().subscribe({
+      next: (hasMembership) => {
+        this.hasTeamMembership = hasMembership;
+      },
+      error: (err) => {
+        this.hasTeamMembership = false;
+        console.error(err);
+      }
+    });
   }
 
 }

@@ -32,10 +32,12 @@
           <span class="icon"><i class="fa-solid fa-plus"></i></span>
           Créer l'équipe
         </button>
-        <button class="submenu__item" type="button" routerLink="/user/team" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
-          <span class="icon"><i class="fa-solid fa-eye"></i></span>
-          Voir l'équipe
-        </button>
+        @if (hasTeamMembership) {
+          <button class="submenu__item" type="button" routerLink="/user/team" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+            <span class="icon"><i class="fa-solid fa-eye"></i></span>
+            Voir l'équipe
+          </button>
+        }
       </div>
     }
 

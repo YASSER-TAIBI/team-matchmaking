@@ -8,6 +8,10 @@ public interface TeamService {
 
     TeamDto findMyTeam();
 
+    TeamDto findMyMemberTeam();
+
+    boolean hasMyTeamMembership();
+
     TeamDto updateTeam(TeamDto teamDto);
 
     void leaveMyTeam();

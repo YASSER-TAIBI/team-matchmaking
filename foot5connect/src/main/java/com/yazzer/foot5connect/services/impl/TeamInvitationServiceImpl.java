@@ -14,6 +14,7 @@ import com.yazzer.foot5connect.dto.TeamInvitationDto;
 import com.yazzer.foot5connect.models.AvailabilityStatus;
 import com.yazzer.foot5connect.models.DisponibilityDetail;
 import com.yazzer.foot5connect.models.InvitationStatus;
+import com.yazzer.foot5connect.models.PlayerSelection;
 import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamInvitation;
 import com.yazzer.foot5connect.models.TeamMember;
@@ -139,6 +140,7 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
         TeamMember newMember = TeamMember.builder()
                 .team(invitation.getTeam())
                 .user(currentUser)
+                .selection(PlayerSelection.STARTER)
                 .isCaptain(false)
                 .build();
         teamMemberRepository.save(newMember);
