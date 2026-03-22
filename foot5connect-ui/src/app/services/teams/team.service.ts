@@ -39,7 +39,7 @@ export class TeamService {
       .pipe(map(res => res.body ?? false));
   }
 
-  updateTeam(data: { name?: string; logoUrl?: string }): Observable<TeamDto> {
+  updateTeam(data: Partial<TeamDto>): Observable<TeamDto> {
     return updateTeam(this.http, this.apiConfig.rootUrl, { body: data as TeamDto })
       .pipe(map(res => res.body ?? ({} as TeamDto)));
   }

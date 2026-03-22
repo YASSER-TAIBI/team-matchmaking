@@ -178,7 +178,7 @@
                       </div>
                       <div class="player-row__meta">
                         <div class="player-row__name">{{ getMemberFullName(member) }}</div>
-                        <div class="player-row__role">{{ member.captain ? 'Capitaine' : (member.position ?? 'Membre') }}</div>
+                        <div class="player-row__role">{{ member.captain ? 'Capitaine' : 'Membre' }}</div>
                       </div>
                     </div>
 
@@ -220,10 +220,12 @@
               <span class="material-symbols-outlined card__title-icon">groups_2</span>
               Effectif actif
             </h2>
-            <button class="pill-btn" type="button">
-              <span class="material-symbols-outlined pill-btn__icon">person_add</span>
-              Ajouter un joueur
-            </button>
+            @if (!isEditingFormation) {
+              <span class="update-item__action update-item__action--edit" (click)="startEditFormation()">
+                <span class="material-symbols-outlined">edit</span>
+                <span class="update-item__label">Modifier les informations</span>
+              </span>
+            }
           </div>
 
           <div class="table">
@@ -231,108 +233,80 @@
               <div class="table__col table__col--details">Détails du joueur</div>
               <div class="table__col table__col--number">Numéro</div>
               <div class="table__col table__col--position">Poste</div>
-              <div class="table__col table__col--actions">Actions</div>
+              <div class="table__col table__col--selection">Sélection</div>
             </div>
 
             <div class="table__body">
-              <article class="player-row">
-                <div class="player-row__details">
-                  <div class="avatar">
-                    <span class="avatar__img avatar__img--marcus"></span>
-                    <span class="avatar__status" aria-hidden="true"></span>
+              @for (member of formationMembers; track trackMember($index, member)) {
+                <article class="player-row player-row--formation">
+                  <div class="player-row__details">
+                    <div class="avatar">
+                      <span class="avatar__initials">{{ getMemberInitials(member) }}</span>
+                      @if (member.captain) {
+                        <span class="avatar__status" aria-hidden="true"></span>
+                      }
+                    </div>
+                    <div class="player-row__meta">
+                      <div class="player-row__name">{{ getMemberFullName(member) }}</div>
+                      <div class="player-row__role">{{ member.captain ? 'Capitaine' : 'Membre' }}</div>
+                    </div>
                   </div>
-                  <div class="player-row__meta">
-                    <div class="player-row__name">Marcus Stone</div>
-                    <div class="player-row__role">Capitaine</div>
+
+                  <div class="player-row__number">
+                    @if (isEditingFormation) {
+                      <input
+                        class="number-input"
+                        type="number"
+                        min="0"
+                        max="99"
+                        [name]="'jerseyNumber-' + (member.id ?? $index)"
+                        [(ngModel)]="getFormationMemberById(member.id)!.jerseyNumber"
+                      />
+                    } @else {
+                      <span>{{ member.jerseyNumber ?? '-' }}</span>
+                    }
                   </div>
-                </div>
 
-                <div class="player-row__number">
-                  <input class="number-input" type="number" value="10" />
-                </div>
-
-                <div class="player-row__position">
-                  <div class="pos-pill">
-                    <span class="pos-pill__dot pos-pill__dot--blue"></span>
-                    <span class="pos-pill__text">Attaquant</span>
+                  <div class="player-row__position">
+                    @if (isEditingFormation) {
+                      <select class="table-select" [name]="'position-' + (member.id ?? $index)" [(ngModel)]="getFormationMemberById(member.id)!.position">
+                        @for (option of positionOptions; track option.value) {
+                          <option [ngValue]="option.value">{{ option.label }}</option>
+                        }
+                      </select>
+                    } @else {
+                      <span>{{ positionLabel(member.position) }}</span>
+                    }
                   </div>
-                </div>
 
-                <div class="player-row__actions">
-                  <button class="icon-btn icon-btn--danger" type="button" aria-label="Supprimer le joueur">
-                    <span class="material-symbols-outlined">delete</span>
-                  </button>
-                  <button class="icon-btn" type="button" aria-label="Plus d'actions">
-                    <span class="material-symbols-outlined">more_vert</span>
-                  </button>
-                </div>
-              </article>
-
-              <article class="player-row">
-                <div class="player-row__details">
-                  <div class="avatar">
-                    <span class="avatar__img avatar__img--sarah"></span>
+                  <div class="player-row__selection">
+                    @if (isEditingFormation) {
+                      <select class="table-select" [name]="'selection-' + (member.id ?? $index)" [(ngModel)]="getFormationMemberById(member.id)!.selection">
+                        @for (option of selectionOptions; track option.value) {
+                          <option [ngValue]="option.value">{{ option.label }}</option>
+                        }
+                      </select>
+                    } @else {
+                      <span>{{ selectionLabel(member.selection) }}</span>
+                    }
                   </div>
-                  <div class="player-row__meta">
-                    <div class="player-row__name">Sarah Jensen</div>
-                    <div class="player-row__role">Milieu</div>
-                  </div>
-                </div>
+                </article>
+              }
 
-                <div class="player-row__number">
-                  <input class="number-input" type="number" value="7" />
+              @if (formationMembers.length === 0) {
+                <div class="table__empty">
+                  Aucun membre dans l'équipe
                 </div>
-
-                <div class="player-row__position">
-                  <div class="pos-pill">
-                    <span class="pos-pill__dot pos-pill__dot--yellow"></span>
-                    <span class="pos-pill__text">Milieu</span>
-                  </div>
-                </div>
-
-                <div class="player-row__actions">
-                  <button class="icon-btn icon-btn--danger" type="button" aria-label="Supprimer le joueur">
-                    <span class="material-symbols-outlined">delete</span>
-                  </button>
-                  <button class="icon-btn" type="button" aria-label="Plus d'actions">
-                    <span class="material-symbols-outlined">more_vert</span>
-                  </button>
-                </div>
-              </article>
-
-              <article class="player-row">
-                <div class="player-row__details">
-                  <div class="avatar">
-                    <span class="avatar__img avatar__img--david"></span>
-                  </div>
-                  <div class="player-row__meta">
-                    <div class="player-row__name">David Chen</div>
-                    <div class="player-row__role">Défenseur</div>
-                  </div>
-                </div>
-
-                <div class="player-row__number">
-                  <input class="number-input" type="number" value="4" />
-                </div>
-
-                <div class="player-row__position">
-                  <div class="pos-pill">
-                    <span class="pos-pill__dot pos-pill__dot--red"></span>
-                    <span class="pos-pill__text">Défense</span>
-                  </div>
-                </div>
-
-                <div class="player-row__actions">
-                  <button class="icon-btn icon-btn--danger" type="button" aria-label="Supprimer le joueur">
-                    <span class="material-symbols-outlined">delete</span>
-                  </button>
-                  <button class="icon-btn" type="button" aria-label="Plus d'actions">
-                    <span class="material-symbols-outlined">more_vert</span>
-                  </button>
-                </div>
-              </article>
+              }
             </div>
           </div>
+
+          @if (isEditingFormation) {
+            <div class="card__footer">
+              <button class="action-btn action-btn--cancel" type="button" (click)="cancelEditFormation()">Annuler</button>
+              <button class="action-btn action-btn--save" type="button" (click)="saveFormation()">Modifier</button>
+            </div>
+          }
         </section>
         }
 
@@ -387,8 +361,8 @@
         @if (activeTab === 'formation') {
         <section class="pitch-card">
           <div class="pitch-card__head">
-            <h2 class="pitch-card__title">Formation 2-1-2</h2>
-            <button class="pitch-card__edit" type="button">Modifier</button>
+            <h2 class="pitch-card__title">Formation <span class="pitch-card__title__small">{{ formationTitle }}</span></h2>
+            <h2 class="pitch-card__title">Members <span class="pitch-card__title__small">{{ starterMembersCount }}/5</span></h2>
           </div>
 
           <div class="football-pitch">
@@ -552,6 +526,18 @@
     </div>
   </div>
 </div>
+
+<app-confirm-dialog
+  [visible]="showFormationValidationDialog"
+  title="Composition invalide"
+  [message]="formationValidationMessage"
+  [details]="formationValidationDetails"
+  confirmText="Compris"
+  cancelText="Fermer"
+  icon="warning"
+  (confirmed)="closeFormationValidationDialog()"
+  (cancelled)="closeFormationValidationDialog()">
+</app-confirm-dialog>
 
 <app-confirm-dialog
   [visible]="showConfirmDialog"

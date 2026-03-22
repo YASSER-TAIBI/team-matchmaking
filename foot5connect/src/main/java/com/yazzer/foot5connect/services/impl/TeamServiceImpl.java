@@ -1,6 +1,7 @@
 package com.yazzer.foot5connect.services.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yazzer.foot5connect.dto.TeamDto;
+import com.yazzer.foot5connect.dto.TeamMemberDto;
 import com.yazzer.foot5connect.models.AvailabilityStatus;
 import com.yazzer.foot5connect.models.InvitationStatus;
 import com.yazzer.foot5connect.models.PlayerSelection;
@@ -110,6 +112,31 @@ public class TeamServiceImpl implements TeamService {
         }
         if (teamDto.getLogoUrl() != null) {
             team.setLogoUrl(teamDto.getLogoUrl());
+        }
+        if (teamDto.getMembers() != null) {
+            List<TeamMember> teamMembers = teamMemberRepository.findByTeam_Id(team.getId());
+
+            for (TeamMember member : teamMembers) {
+                Optional<TeamMemberDto> matchingMember = teamDto.getMembers().stream()
+                        .filter(memberDto -> memberDto.getId() != null && memberDto.getId().equals(member.getId()))
+                        .findFirst();
+
+                if (matchingMember.isEmpty()) {
+                    matchingMember = teamDto.getMembers().stream()
+                            .filter(memberDto -> memberDto.getUserId() != null
+                                    && member.getUser() != null
+                                    && memberDto.getUserId().equals(member.getUser().getId()))
+                            .findFirst();
+                }
+
+                matchingMember.ifPresent(memberDto -> {
+                    member.setJerseyNumber(memberDto.getJerseyNumber());
+                    member.setPosition(memberDto.getPosition());
+                    member.setSelection(memberDto.getSelection());
+                });
+            }
+
+            teamMemberRepository.saveAll(teamMembers);
         }
 
         team = teamRepository.save(team);
