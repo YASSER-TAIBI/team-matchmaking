@@ -62,7 +62,10 @@ public class TeamDto {
                 .captainId(team.getCaptain().getId())
                 .members(
                         team.getTeamMembers() != null
-                                ? team.getTeamMembers().stream().map(TeamMemberDto::fromEntity).collect(Collectors.toList())
+                                ? team.getTeamMembers().stream()
+                                .sorted((a, b) -> a.getCreatedDate().compareTo(b.getCreatedDate()))
+                                .map(TeamMemberDto::fromEntity)
+                                .collect(Collectors.toList())
                                 : Collections.emptyList()
                 )
                 .totalMatches(team.getTotalMatches())
