@@ -369,33 +369,21 @@
             <div class="football-pitch__circle" aria-hidden="true"></div>
             <div class="football-pitch__line" aria-hidden="true"></div>
 
-            <div class="token token--striker">
-              <div class="token__face token__face--marcus">
-                <span class="token__number token__number--primary">10</span>
+            @for (slot of formationPitchSlots; track trackPitchSlot($index, slot)) {
+              <div class="token" [ngClass]="slot.cssClass">
+                @if (slot.member) {
+                  <div class="token__face" [class.token__face--gk]="slot.member.position === 'GOALKEEPER'">
+                    @if (slot.member.captain) {
+                      <span class="token__captain" aria-label="Capitaine">★</span>
+                    }
+                    <span class="token__initials">{{ getMemberInitials(slot.member) }}</span>
+                    <span class="token__number" [class.token__number--gk]="slot.member.position === 'GOALKEEPER'">{{ slot.member.jerseyNumber ?? '?' }}</span>
+                  </div>
+                } @else {
+                  <div class="token__face token__face--empty">?</div>
+                }
               </div>
-            </div>
-
-            <div class="token token--mid-left">
-              <div class="token__face token__face--sarah">
-                <span class="token__number">7</span>
-              </div>
-            </div>
-
-            <div class="token token--mid-right">
-              <div class="token__face token__face--empty">?</div>
-            </div>
-
-            <div class="token token--def-left">
-              <div class="token__face token__face--david">
-                <span class="token__number">4</span>
-              </div>
-            </div>
-
-            <div class="token token--gk">
-              <div class="token__face token__face--gk">
-                <span class="token__number token__number--gk">1</span>
-              </div>
-            </div>
+            }
           </div>
         </section>
         }
