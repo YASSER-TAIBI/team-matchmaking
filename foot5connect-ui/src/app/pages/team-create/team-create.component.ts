@@ -16,6 +16,11 @@ type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation' |
 type TeamEditSection = 'identity' | 'formation';
 type PlayerPositionOption = NonNullable<TeamMemberDto['position']>;
 type PlayerSelectionOption = NonNullable<TeamMemberDto['selection']>;
+type PitchSlot = {
+  key: string;
+  cssClass: string;
+  member?: TeamMemberDto;
+};
 
 @Component({
   selector: 'app-team-create',
@@ -374,6 +379,37 @@ export class TeamCreateComponent implements OnInit {
     return this.formationMembers.filter(member => member.selection === 'STARTER').length;
   }
 
+  get substituteMembers(): TeamMemberDto[] {
+    return this.formationMembers.filter(member => member.selection === 'SUBSTITUTE');
+  }
+
+  get formationPitchSlots(): PitchSlot[] {
+    const starters = this.formationMembers.filter(member => member.selection === 'STARTER');
+    const goalkeepers = starters.filter(member => member.position === 'GOALKEEPER');
+    const defenders = starters.filter(member => member.position === 'DEFENDER');
+    const midfielders = starters.filter(member => member.position === 'MIDFIELDER');
+    const attackers = starters.filter(member => member.position === 'ATTACKER');
+
+    const formationVariant = this.getFormationVariant(defenders.length, midfielders.length, attackers.length);
+
+    const attackerClasses = formationVariant === '1-1-1-2'
+      ? ['token--str-left', 'token--str-right']
+      : ['token--striker'];
+    const midfielderClasses = formationVariant === '1-1-2-1'
+      ? ['token--mid-left', 'token--mid-right']
+      : ['token--middle'];
+    const defenderClasses = formationVariant === '1-2-1-1'
+      ? ['token--def-left', 'token--def-right']
+      : ['token--defender'];
+
+    return [
+      ...this.buildPitchSlots('attacker', attackerClasses, attackers),
+      ...this.buildPitchSlots('midfielder', midfielderClasses, midfielders),
+      ...this.buildPitchSlots('defender', defenderClasses, defenders),
+      ...this.buildPitchSlots('goalkeeper', ['token--gk'], goalkeepers)
+    ];
+  }
+
   getFormationMemberById(memberId?: number): TeamMemberDto | undefined {
     return this.editMembers.find(member => member.id === memberId);
   }
@@ -388,10 +424,8 @@ export class TeamCreateComponent implements OnInit {
         return 'Milieu';
       case 'ATTACKER':
         return 'Attaquant';
-      case 'SUBSTITUTE':
-        return 'Remplaçant';
       default:
-        return 'Non défini';
+        return '-';
     }
   }
 
@@ -402,7 +436,7 @@ export class TeamCreateComponent implements OnInit {
       case 'SUBSTITUTE':
         return 'Remplaçant';
       default:
-        return 'Non défini';
+        return '-';
     }
   }
 
@@ -425,20 +459,13 @@ export class TeamCreateComponent implements OnInit {
     return member.userId ?? member.id ?? index;
   }
 
+  trackPitchSlot(index: number, slot: PitchSlot): string {
+    return `${slot.key}-${slot.member?.id ?? index}`;
+  }
+
   private validateFormation(): string[] {
     const errors: string[] = [];
     const members = this.editMembers;
-
-    const countByPosition = {
-      GOALKEEPER: members.filter(member => member.position === 'GOALKEEPER').length,
-      DEFENDER: members.filter(member => member.position === 'DEFENDER').length,
-      MIDFIELDER: members.filter(member => member.position === 'MIDFIELDER').length,
-      ATTACKER: members.filter(member => member.position === 'ATTACKER').length
-    };
-
-    if (countByPosition.GOALKEEPER > 1) {
-      errors.push('Vous ne pouvez pas avoir plus d’un gardien.');
-    }
 
     const starters = members.filter(member => member.selection === 'STARTER');
     const substitutesCount = members.filter(member => member.selection === 'SUBSTITUTE').length;
@@ -494,6 +521,26 @@ export class TeamCreateComponent implements OnInit {
     }
 
     return errors;
+  }
+
+  private getFormationVariant(defenders: number, midfielders: number, attackers: number): '1-2-1-1' | '1-1-2-1' | '1-1-1-2' {
+    if (attackers >= 2) {
+      return '1-1-1-2';
+    }
+
+    if (midfielders >= 2) {
+      return '1-1-2-1';
+    }
+
+    return '1-2-1-1';
+  }
+
+  private buildPitchSlots(prefix: string, cssClasses: string[], members: TeamMemberDto[]): PitchSlot[] {
+    return cssClasses.map((cssClass, index) => ({
+      key: `${prefix}-${index}`,
+      cssClass,
+      member: members[index]
+    }));
   }
 
   private syncFormationEditMembers(): void {

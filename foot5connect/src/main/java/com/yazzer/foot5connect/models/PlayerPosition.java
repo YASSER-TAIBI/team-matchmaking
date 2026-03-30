@@ -4,6 +4,5 @@ public enum PlayerPosition {
     GOALKEEPER,
     DEFENDER,
     MIDFIELDER,
-    ATTACKER,
-    SUBSTITUTE
+    ATTACKER
 }
