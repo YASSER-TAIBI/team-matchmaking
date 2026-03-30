@@ -385,6 +385,26 @@
               </div>
             }
           </div>
+
+          @if (substituteMembers.length > 0) {
+            <div class="pitch-substitutes">
+              <span class="pitch-substitutes__label">Remplaçants</span>
+
+              <div class="pitch-substitutes__list">
+                @for (member of substituteMembers; track trackMember($index, member)) {
+                  <div class="pitch-substitutes__item">
+                    <div class="token__face" [class.token__face--gk]="member.position === 'GOALKEEPER'">
+                      @if (member.captain) {
+                        <span class="token__captain" aria-label="Capitaine">★</span>
+                      }
+                      <span class="token__initials">{{ getMemberInitials(member) }}</span>
+                      <span class="token__number" [class.token__number--gk]="member.position === 'GOALKEEPER'">{{ member.jerseyNumber ?? '?' }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </section>
         }
 

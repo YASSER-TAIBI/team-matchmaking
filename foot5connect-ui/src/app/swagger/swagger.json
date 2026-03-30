@@ -722,8 +722,7 @@
               "GOALKEEPER",
               "DEFENDER",
               "MIDFIELDER",
-              "ATTACKER",
-              "SUBSTITUTE"
+              "ATTACKER"
             ]
           },
           "userId": {

@@ -186,10 +186,6 @@ export class TeamComponent implements OnInit {
   }
 
   private memberBadge(member: TeamMemberDto): string {
-    if (member.selection === 'SUBSTITUTE') {
-      return 'Remplaçant';
-    }
-
     return this.positionLabel(member.position);
   }
 
@@ -203,8 +199,6 @@ export class TeamComponent implements OnInit {
         return 'Milieu';
       case 'ATTACKER':
         return 'Attaquant';
-      case 'SUBSTITUTE':
-        return 'Remplaçant';
       default:
         return 'Joueur';
     }

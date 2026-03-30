@@ -140,7 +140,6 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
         TeamMember newMember = TeamMember.builder()
                 .team(invitation.getTeam())
                 .user(currentUser)
-                .selection(PlayerSelection.STARTER)
                 .isCaptain(false)
                 .build();
         teamMemberRepository.save(newMember);

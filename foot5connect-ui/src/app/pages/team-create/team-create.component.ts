@@ -379,6 +379,10 @@ export class TeamCreateComponent implements OnInit {
     return this.formationMembers.filter(member => member.selection === 'STARTER').length;
   }
 
+  get substituteMembers(): TeamMemberDto[] {
+    return this.formationMembers.filter(member => member.selection === 'SUBSTITUTE');
+  }
+
   get formationPitchSlots(): PitchSlot[] {
     const starters = this.formationMembers.filter(member => member.selection === 'STARTER');
     const goalkeepers = starters.filter(member => member.position === 'GOALKEEPER');
@@ -420,10 +424,8 @@ export class TeamCreateComponent implements OnInit {
         return 'Milieu';
       case 'ATTACKER':
         return 'Attaquant';
-      case 'SUBSTITUTE':
-        return 'Remplaçant';
       default:
-        return 'Non défini';
+        return '-';
     }
   }
 
@@ -434,7 +436,7 @@ export class TeamCreateComponent implements OnInit {
       case 'SUBSTITUTE':
         return 'Remplaçant';
       default:
-        return 'Non défini';
+        return '-';
     }
   }
 
@@ -464,17 +466,6 @@ export class TeamCreateComponent implements OnInit {
   private validateFormation(): string[] {
     const errors: string[] = [];
     const members = this.editMembers;
-
-    const countByPosition = {
-      GOALKEEPER: members.filter(member => member.position === 'GOALKEEPER').length,
-      DEFENDER: members.filter(member => member.position === 'DEFENDER').length,
-      MIDFIELDER: members.filter(member => member.position === 'MIDFIELDER').length,
-      ATTACKER: members.filter(member => member.position === 'ATTACKER').length
-    };
-
-    if (countByPosition.GOALKEEPER > 1) {
-      errors.push('Vous ne pouvez pas avoir plus d’un gardien.');
-    }
 
     const starters = members.filter(member => member.selection === 'STARTER');
     const substitutesCount = members.filter(member => member.selection === 'SUBSTITUTE').length;
