@@ -43,6 +43,9 @@ public class Team extends AbstractEntity {
     @Column(nullable = false)
     private Integer matchesDrawn;
 
+    @Enumerated(EnumType.STRING)
+    private AvailabilityTeamLevel teamLevel;
+
     /* ================= RELATIONS ================= */
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)

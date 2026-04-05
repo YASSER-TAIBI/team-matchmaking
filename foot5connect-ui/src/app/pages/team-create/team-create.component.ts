@@ -14,6 +14,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 
 type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation' | 'historique';
 type TeamEditSection = 'identity' | 'formation';
+type AvailabilityLevel = 'DÉBUTANT' | 'AVANCÉ' | 'AMATEUR';
 type PlayerPositionOption = NonNullable<TeamMemberDto['position']>;
 type PlayerSelectionOption = NonNullable<TeamMemberDto['selection']>;
 type PitchSlot = {
@@ -45,6 +46,7 @@ export class TeamCreateComponent implements OnInit {
   selectedInvitationLevel: TeamInvitationDto['invitedUserLevel'] | null = null;
   selectedInvitationStatus: TeamInvitationDto['status'] | null = null;
   selectedInvitationDate: Date | null = null;
+  availabilityLevelValue = 50;
 
   isEditingIdentity = false;
   isEditingFormation = false;
@@ -76,6 +78,12 @@ export class TeamCreateComponent implements OnInit {
   readonly selectionOptions: Array<{ value: PlayerSelectionOption; label: string }> = [
     { value: 'STARTER', label: 'Titulaire' },
     { value: 'SUBSTITUTE', label: 'Remplaçant' }
+  ];
+
+  readonly availabilityLevels: Array<{ label: AvailabilityLevel; value: number }> = [
+    { label: 'DÉBUTANT', value: 0 },
+    { label: 'AMATEUR', value: 50 },
+    { label: 'AVANCÉ', value: 100 }
   ];
 
   ngOnInit(): void {
@@ -141,6 +149,31 @@ export class TeamCreateComponent implements OnInit {
     if (!value) {
       this.selectedInvitationDate = null;
     }
+  }
+
+  onAvailabilityLevelInput(event: Event): void {
+    const value = Number((event.target as HTMLInputElement | null)?.value ?? this.availabilityLevelValue);
+    this.availabilityLevelValue = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 50;
+  }
+
+  get availabilityLevelLabel(): AvailabilityLevel {
+    if (this.availabilityLevelValue <= 25) {
+      return 'DÉBUTANT';
+    }
+
+    if (this.availabilityLevelValue >= 75) {
+      return 'AVANCÉ';
+    }
+
+    return 'AMATEUR';
+  }
+
+  get availabilityLevelFillPercent(): string {
+    return `${this.availabilityLevelValue}%`;
+  }
+
+  isAvailabilityLevelActive(level: AvailabilityLevel): boolean {
+    return this.availabilityLevelLabel === level;
   }
 
   applyInvitationFilters(): void {

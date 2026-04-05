@@ -310,6 +310,111 @@
         </section>
         }
 
+        @if (activeTab === 'disponibilite') {
+        <section class="card availability-card">
+          <div class="availability-card__hero">
+             <div class="availability-panel__icon-wrap">
+                <span class="material-symbols-outlined availability-panel__hero-icon">calendar_today</span>
+              </div>
+              <div class="availability-panel__content">
+                <p class="availability-card__eyebrow">
+                <span class="availability-card__pulse"></span>
+                Programme du match
+              </p>
+                <div class="availability-panel__split">
+                  <div>
+                    <span class="availability-panel__label">Date</span>
+                    <strong class="availability-panel__value">Samedi, 26 Oct</strong>
+                  </div>
+                  <div>
+                    <span class="availability-panel__label">Créneau</span>
+                    <strong class="availability-panel__value">20:00 - 21:00</strong>
+                  </div>
+                </div>
+              </div>
+          </div>
+
+          <div class="availability-card__grid">
+            <section class="availability-overview">
+              <div class="availability-overview__top">
+                <div class="availability-overview__heading">
+                  <span class="material-symbols-outlined availability-overview__heading-icon">trending_up</span>
+                  <span class="availability-overview__heading-text">Niveau de jeu</span>
+                </div>
+                <strong class="availability-overview__status">{{ availabilityLevelLabel }}</strong>
+              </div>
+
+              <div class="availability-overview__meter">
+                <div class="availability-overview__meter-track"></div>
+                <div class="availability-overview__meter-fill" [style.width]="availabilityLevelFillPercent"></div>
+                <div class="availability-overview__meter-thumb" [style.left]="availabilityLevelFillPercent"></div>
+                <input
+                  class="availability-overview__meter-input"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="50"
+                  [value]="availabilityLevelValue"
+                  aria-label="Choisir le niveau de disponibilité"
+                  (input)="onAvailabilityLevelInput($event)"
+                />
+              </div>
+
+              <div class="availability-overview__scale">
+                @for (level of availabilityLevels; track level.label) {
+                  <span class="availability-overview__scale-item" [class.availability-overview__scale-item--active]="isAvailabilityLevelActive(level.label)">
+                    {{ level.label }}
+                  </span>
+                }
+              </div>
+
+              <div class="availability-overview__divider"></div>
+              <article class="availability-panel availability-panel--embedded">
+                <h3 class="availability-panel__title">Détails sur le niveau de jeu</h3>
+                <p class="availability-panel__subtitle">C’est vous qui choisissez le niveau de votre équipe selon les joueurs que vous avez constitués.</p>
+
+                <div class="availability-detail-list">
+                  <div class="availability-detail-item">
+                    <div class="availability-detail-item__icon">
+                      <span class="material-symbols-outlined">
+                        fitness_center
+                      </span>
+                    </div>
+                    <div class="availability-detail-item__body">
+                      <span class="availability-detail-item__label">Niveau 1</span>
+                      <strong class="availability-detail-item__title">Débutant</strong>
+                      <p class="availability-detail-item__text">Pour une équipe en construction, avec des joueurs qui découvrent encore leurs repères et cherchent avant tout à progresser ensemble.</p>
+                    </div>
+                  </div>
+
+                  <div class="availability-detail-item">
+                    <div class="availability-detail-item__icon">
+                      <span class="material-symbols-outlined">sports_soccer</span>
+                    </div>
+                    <div class="availability-detail-item__body">
+                      <span class="availability-detail-item__label">Niveau 2</span>
+                      <strong class="availability-detail-item__title">Amateur</strong>
+                      <p class="availability-detail-item__text">Pour une équipe équilibrée, avec de bonnes bases collectives, capable d’enchaîner les actions avec intensité tout en gardant du plaisir dans le jeu.</p>
+                    </div>
+                  </div>
+
+                  <div class="availability-detail-item">
+                    <div class="availability-detail-item__icon">
+                      <span class="material-symbols-outlined">military_tech</span>
+                    </div>
+                    <div class="availability-detail-item__body">
+                      <span class="availability-detail-item__label">Niveau 3</span>
+                      <strong class="availability-detail-item__title">Avancé</strong>
+                      <p class="availability-detail-item__text">Pour une équipe déjà bien structurée, avec des joueurs expérimentés, un rythme élevé et une vraie exigence tactique pendant tout le match.</p>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </section>
+          </div>
+        </section>
+        }
+
       </div>
 
       <aside class="team-create-right">
@@ -405,6 +510,56 @@
               </div>
             </div>
           }
+        </section>
+        }
+        @if (activeTab === 'disponibilite') {
+        <section class="card availability-sidebar">
+          <h3 class="availability-sidebar__title">Équipe prête</h3>
+
+          <div class="availability-progress">
+            <div class="availability-progress__ring">
+              <svg viewBox="0 0 160 160" aria-hidden="true">
+                <circle class="availability-progress__track" cx="80" cy="80" r="70"></circle>
+                <circle class="availability-progress__value" cx="80" cy="80" r="70"></circle>
+              </svg>
+              <div class="availability-progress__content">
+                <strong class="availability-progress__count">4/5</strong>
+                <span class="availability-progress__label">Ont rejoint</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="availability-alert">
+            <span class="material-symbols-outlined availability-alert__icon">info</span>
+            <p class="availability-alert__text">
+              <strong>Action requise :</strong> Vous avez besoin d’au moins 5 joueurs pour valider votre équipe. Envoyez plus d’invitations pour débloquer la confirmation.
+            </p>
+          </div>
+
+          <button class="availability-sidebar__cta availability-sidebar__cta--disabled" type="button" disabled>
+            <span class="material-symbols-outlined">lock</span>
+            Confirmer l'équipe
+          </button>
+
+          <div class="availability-sidebar__divider"></div>
+
+          <button class="availability-sidebar__secondary" type="button" (click)="goToInvitations()">
+            Inviter plus de joueurs
+          </button>
+        </section>
+
+        <section class="card availability-preview">
+          <h3 class="availability-preview__title">Équipe confirmée</h3>
+
+          <div class="availability-preview__avatars" aria-hidden="true">
+            <span class="availability-preview__avatar">YT</span>
+            <span class="availability-preview__avatar">AM</span>
+            <span class="availability-preview__avatar">SK</span>
+            <span class="availability-preview__avatar">RA</span>
+            <span class="availability-preview__avatar availability-preview__avatar--ghost">+1</span>
+          </div>
+
+          <p class="availability-preview__footnote">1 place restante</p>
         </section>
         }
 
