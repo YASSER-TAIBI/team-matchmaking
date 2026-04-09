@@ -170,4 +170,16 @@
       </div>
     </div>
   }
+
+  <app-confirm-dialog
+    [visible]="missingScheduleDialogVisible"
+    title="Informations du match manquantes"
+    message="Vous devez mettre à jour la date du match ainsi que la période de début et de fin avant d’inviter des joueurs."
+    [details]="['Date du match requise', 'Heure de début requise', 'Heure de fin requise']"
+    confirmText="Mettre à jour"
+    cancelText="Fermer"
+    icon="warning"
+    (confirmed)="redirectToTeamCreate()"
+    (cancelled)="closeMissingScheduleDialog()"
+  ></app-confirm-dialog>
 </section>

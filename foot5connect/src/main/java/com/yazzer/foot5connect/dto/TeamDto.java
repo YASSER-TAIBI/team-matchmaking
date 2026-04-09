@@ -1,11 +1,14 @@
 package com.yazzer.foot5connect.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.yazzer.foot5connect.models.AvailabilityTeamLevel;
 import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamStatus;
 import com.yazzer.foot5connect.models.User;
@@ -46,6 +49,14 @@ public class TeamDto {
     
     private Integer matchesDrawn;
 
+    private AvailabilityTeamLevel teamLevel;
+
+    private LocalDate availableDate;
+
+    private LocalTime startTime;
+    
+    private LocalTime endTime;
+
     public static TeamDto fromEntity(Team team) {
         if (team == null){
             return null;
@@ -72,6 +83,10 @@ public class TeamDto {
                 .matchesWon(team.getMatchesWon())
                 .matchesLost(team.getMatchesLost())
                 .matchesDrawn(team.getMatchesDrawn())
+                .teamLevel(team.getTeamLevel())
+                .availableDate(team.getAvailableDate())
+                .startTime(team.getStartTime())
+                .endTime(team.getEndTime())
                 .build();
     }
 
@@ -96,6 +111,10 @@ public class TeamDto {
                 .matchesWon(teamDto.getMatchesWon())
                 .matchesLost(teamDto.getMatchesLost())
                 .matchesDrawn(teamDto.getMatchesDrawn())
+                .teamLevel(teamDto.getTeamLevel())
+                .availableDate(teamDto.getAvailableDate())
+                .startTime(teamDto.getStartTime())
+                .endTime(teamDto.getEndTime())
                 .build();
     }
 

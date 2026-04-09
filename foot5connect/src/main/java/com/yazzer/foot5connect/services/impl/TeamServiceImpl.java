@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.yazzer.foot5connect.dto.TeamDto;
 import com.yazzer.foot5connect.dto.TeamMemberDto;
 import com.yazzer.foot5connect.models.AvailabilityStatus;
+import com.yazzer.foot5connect.models.AvailabilityTeamLevel;
 import com.yazzer.foot5connect.models.InvitationStatus;
 import com.yazzer.foot5connect.models.PlayerSelection;
 import com.yazzer.foot5connect.models.Team;
@@ -58,6 +59,7 @@ public class TeamServiceImpl implements TeamService {
                 .matchesWon(0)
                 .matchesLost(0)
                 .matchesDrawn(0)
+                .teamLevel(AvailabilityTeamLevel.AMATEUR)
                 .build();
         team = teamRepository.save(team);
 
@@ -113,6 +115,21 @@ public class TeamServiceImpl implements TeamService {
         if (teamDto.getLogoUrl() != null) {
             team.setLogoUrl(teamDto.getLogoUrl());
         }
+        if (teamDto.getStatus() != null) {
+            team.setStatus(teamDto.getStatus());
+        }
+        if (teamDto.getTeamLevel() != null) {
+            team.setTeamLevel(teamDto.getTeamLevel());
+        }
+        if (teamDto.getAvailableDate() != null) {
+            team.setAvailableDate(teamDto.getAvailableDate());
+        }
+        if (teamDto.getStartTime() != null) {
+            team.setStartTime(teamDto.getStartTime());
+        }
+        if (teamDto.getEndTime() != null) {
+            team.setEndTime(teamDto.getEndTime());
+        }
         if (teamDto.getMembers() != null) {
             List<TeamMember> teamMembers = teamMemberRepository.findByTeam_Id(team.getId());
 
@@ -154,7 +171,8 @@ public class TeamServiceImpl implements TeamService {
         TeamMember teamMember = teamMemberRepository.findByUser_Id(currentUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Aucun membre d'équipe trouvé pour cet utilisateur"));
 
-        Long teamId = teamMember.getTeam().getId();
+        Team team = teamMember.getTeam();
+        Long teamId = team.getId();
 
         List<TeamMember> teamMembers = teamMemberRepository.findByTeam_Id(teamId);
         if (teamMembers.isEmpty()) {
@@ -177,6 +195,12 @@ public class TeamServiceImpl implements TeamService {
             invitation.setStatus(InvitationStatus.ANNULLEE);
         }
         teamInvitationRepository.saveAll(pendingInvitations);
+
+        team.setStatus(TeamStatus.INACTIVE);
+        team.setAvailableDate(null);
+        team.setStartTime(null);
+        team.setEndTime(null);
+        teamRepository.save(team);
     }
 
     @Override
@@ -199,6 +223,9 @@ public class TeamServiceImpl implements TeamService {
                 .selection(PlayerSelection.STARTER)
                 .build();
         teamMemberRepository.save(captain);
+
+        team.setStatus(TeamStatus.INCOMPLETE);
+        teamRepository.save(team);
 
         // Mettre à jour le statut de l'utilisateur
         currentUser.setAvailabilityStatus(AvailabilityStatus.EN_EQUIPE);

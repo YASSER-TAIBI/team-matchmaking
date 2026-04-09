@@ -125,10 +125,50 @@
               </div>
 
               <div class="field">
-                <label class="field__label">Date de création</label>
+                <label class="field__label">Date du match</label>
                 <div class="field__control">
                   <span class="material-symbols-outlined field__prefix">calendar_month</span>
-                  <input class="field__input field__input--with-prefix field__input--readonly" type="text" placeholder="Date de création" [value]="(team?.createdDate ?? '').toString().slice(0, 10)" readonly />
+                  <input
+                    class="field__input field__input--with-prefix"
+                    type="date"
+                    placeholder="Date du match"
+                    [value]="isEditingIdentity ? editAvailableDate : (team?.availableDate ?? '').toString().slice(0, 10)"
+                    [readonly]="!isEditingIdentity"
+                    [class.field__input--readonly]="!isEditingIdentity"
+                    (input)="editAvailableDate = $any($event.target).value"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field__label">Heure de début</label>
+                <div class="field__control">
+                  <span class="material-symbols-outlined field__prefix">schedule</span>
+                  <input
+                    class="field__input field__input--with-prefix"
+                    type="time"
+                    placeholder="Heure de début"
+                    [value]="isEditingIdentity ? editStartTime : formatInputTime(team?.startTime)"
+                    [readonly]="!isEditingIdentity"
+                    [class.field__input--readonly]="!isEditingIdentity"
+                    (input)="editStartTime = $any($event.target).value"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field__label">Heure de fin</label>
+                <div class="field__control">
+                  <span class="material-symbols-outlined field__prefix">timer</span>
+                  <input
+                    class="field__input field__input--with-prefix"
+                    type="time"
+                    placeholder="Heure de fin"
+                    [value]="isEditingIdentity ? editEndTime : formatInputTime(team?.endTime)"
+                    [readonly]="!isEditingIdentity"
+                    [class.field__input--readonly]="!isEditingIdentity"
+                    (input)="editEndTime = $any($event.target).value"
+                  />
                 </div>
               </div>
             </form>
@@ -310,6 +350,112 @@
         </section>
         }
 
+        @if (activeTab === 'disponibilite') {
+        <section class="card availability-card">
+          <div class="availability-card__hero">
+             <div class="availability-panel__icon-wrap">
+                <span class="material-symbols-outlined availability-panel__hero-icon">calendar_today</span>
+              </div>
+              <div class="availability-panel__content">
+                <p class="availability-card__eyebrow">
+                <span class="availability-card__pulse"></span>
+                Programme du match
+              </p>
+                <div class="availability-panel__split">
+                  <div>
+                    <span class="availability-panel__label">Date</span>
+                    <strong class="availability-panel__value">{{ availabilityMatchDateLabel }}</strong>
+                  </div>
+                  <div>
+                    <span class="availability-panel__label">Créneau</span>
+                    <strong class="availability-panel__value">{{ availabilityMatchTimeRangeLabel }}</strong>
+                  </div>
+                </div>
+              </div>
+          </div>
+
+          <div class="availability-card__grid">
+            <section class="availability-overview">
+              <div class="availability-overview__top">
+                <div class="availability-overview__heading">
+                  <span class="material-symbols-outlined availability-overview__heading-icon">trending_up</span>
+                  <span class="availability-overview__heading-text">Niveau de jeu</span>
+                </div>
+                <strong class="availability-overview__status">{{ availabilityLevelLabel }}</strong>
+              </div>
+
+              <div class="availability-overview__meter">
+                <div class="availability-overview__meter-track"></div>
+                <div class="availability-overview__meter-fill" [style.width]="availabilityLevelFillPercent"></div>
+                <div class="availability-overview__meter-thumb" [style.left]="availabilityLevelFillPercent"></div>
+                <input
+                  class="availability-overview__meter-input"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="50"
+                  [value]="availabilityLevelValue"
+                  [disabled]="isAvailabilityLevelLocked"
+                  aria-label="Choisir le niveau de disponibilité"
+                  (input)="onAvailabilityLevelInput($event)"
+                />
+              </div>
+
+              <div class="availability-overview__scale">
+                @for (level of availabilityLevels; track level.label) {
+                  <span class="availability-overview__scale-item" [class.availability-overview__scale-item--active]="isAvailabilityLevelActive(level.label)">
+                    {{ level.label }}
+                  </span>
+                }
+              </div>
+
+              <div class="availability-overview__divider"></div>
+              <article class="availability-panel availability-panel--embedded">
+                <h3 class="availability-panel__title">Détails sur le niveau de jeu</h3>
+                <p class="availability-panel__subtitle">C’est vous qui choisissez le niveau de votre équipe selon les joueurs que vous avez constitués.</p>
+
+                <div class="availability-detail-list">
+                  <div class="availability-detail-item">
+                    <div class="availability-detail-item__icon">
+                      <span class="material-symbols-outlined">
+                        fitness_center
+                      </span>
+                    </div>
+                    <div class="availability-detail-item__body">
+                      <span class="availability-detail-item__label">Niveau 1</span>
+                      <strong class="availability-detail-item__title">Débutant</strong>
+                      <p class="availability-detail-item__text">Pour une équipe en construction, avec des joueurs qui découvrent encore leurs repères et cherchent avant tout à progresser ensemble.</p>
+                    </div>
+                  </div>
+
+                  <div class="availability-detail-item">
+                    <div class="availability-detail-item__icon">
+                      <span class="material-symbols-outlined">sports_soccer</span>
+                    </div>
+                    <div class="availability-detail-item__body">
+                      <span class="availability-detail-item__label">Niveau 2</span>
+                      <strong class="availability-detail-item__title">Amateur</strong>
+                      <p class="availability-detail-item__text">Pour une équipe équilibrée, avec de bonnes bases collectives, capable d’enchaîner les actions avec intensité tout en gardant du plaisir dans le jeu.</p>
+                    </div>
+                  </div>
+
+                  <div class="availability-detail-item">
+                    <div class="availability-detail-item__icon">
+                      <span class="material-symbols-outlined">military_tech</span>
+                    </div>
+                    <div class="availability-detail-item__body">
+                      <span class="availability-detail-item__label">Niveau 3</span>
+                      <strong class="availability-detail-item__title">Avancé</strong>
+                      <p class="availability-detail-item__text">Pour une équipe déjà bien structurée, avec des joueurs expérimentés, un rythme élevé et une vraie exigence tactique pendant tout le match.</p>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </section>
+          </div>
+        </section>
+        }
+
       </div>
 
       <aside class="team-create-right">
@@ -405,6 +551,63 @@
               </div>
             </div>
           }
+        </section>
+        }
+        @if (activeTab === 'disponibilite') {
+        <section class="card availability-sidebar">
+          <h3 class="availability-sidebar__title">Équipe prête</h3>
+
+          <div class="availability-progress">
+            <div class="availability-progress__ring">
+              <svg viewBox="0 0 160 160" aria-hidden="true">
+                <circle class="availability-progress__track" cx="80" cy="80" r="70"></circle>
+                <circle class="availability-progress__value" cx="80" cy="80" r="70" [style.stroke-dashoffset]="availabilityProgressOffset"></circle>
+              </svg>
+              <div class="availability-progress__content">
+                <strong class="availability-progress__count">{{ availableStarterCount }}/5</strong>
+                <span class="availability-progress__label">Ont rejoint</span>
+              </div>
+            </div>
+          </div>
+
+          @if (!canConfirmTeamAvailability) {
+            <div class="availability-alert">
+              <span class="material-symbols-outlined availability-alert__icon">info</span>
+              <p class="availability-alert__text">
+                <strong>Action requise :</strong> {{ availabilityAlertMessage }}
+              </p>
+            </div>
+          }
+
+          @if (!isTeamConfirmed) {
+            <button class="availability-sidebar__cta" [class.availability-sidebar__cta--disabled]="!canConfirmTeamAvailability" [class.availability-sidebar__cta--confirmed]="isTeamConfirmed" type="button" [disabled]="!canConfirmTeamAvailability || isAvailabilityConfirmationLocked" (click)="confirmTeamAvailability()">
+              <span class="material-symbols-outlined">{{ canConfirmTeamAvailability ? 'lock_open' : 'lock' }}</span>
+              Confirmer l'équipe
+            </button>
+          }
+
+          @if (!canConfirmTeamAvailability) {
+            <div class="availability-sidebar__divider"></div>
+
+            <button class="availability-sidebar__secondary" type="button" (click)="goToInvitations()">
+              Inviter plus de joueurs
+            </button>
+          }
+        </section>
+
+        <section class="card availability-preview">
+          <h3 class="availability-preview__title">Équipe confirmée</h3>
+
+          <div class="availability-preview__avatars" aria-hidden="true">
+            @for (avatar of confirmedAvailabilityAvatars; track avatar + $index) {
+              <span class="availability-preview__avatar">{{ avatar }}</span>
+            }
+            @if (remainingStarterPlaces > 0) {
+              <span class="availability-preview__avatar availability-preview__avatar--ghost">+{{ remainingStarterPlaces }}</span>
+            }
+          </div>
+
+          <p class="availability-preview__footnote">{{ isTeamConfirmed ? 'Équipe confirmée' : 'Équipe non confirmée' }} - {{ availabilityRemainingPlacesLabel }}</p>
         </section>
         }
 
@@ -553,6 +756,30 @@
   message="Voulez-vous vraiment enregistrer les modifications ?"
   (confirmed)="confirmSave()"
   (cancelled)="cancelConfirm()">
+</app-confirm-dialog>
+
+<app-confirm-dialog
+  [visible]="showIdentityScheduleDialog"
+  title="Informations du match manquantes"
+  message="Vous devez renseigner la date du match ainsi que l’heure de début et l’heure de fin avant de sauvegarder."
+  [details]="['Date du match requise', 'Heure de début requise', 'Heure de fin requise']"
+  confirmText="Compris"
+  cancelText="Fermer"
+  icon="warning"
+  (confirmed)="closeIdentityScheduleDialog()"
+  (cancelled)="closeIdentityScheduleDialog()">
+</app-confirm-dialog>
+
+<app-confirm-dialog
+  [visible]="showAvailabilityConfirmDialog"
+  title="Confirmer l'équipe"
+  message="Voulez-vous vraiment confirmer cette équipe pour le match ?"
+  [details]="['Le niveau de jeu sélectionné sera enregistré.', 'La date et le créneau du match seront confirmés.', 'Après confirmation, l’équipe ne pourra plus être modifiée depuis cet écran.']"
+  confirmText="Confirmer"
+  cancelText="Annuler"
+  icon="task_alt"
+  (confirmed)="confirmAvailabilityConfirmation()"
+  (cancelled)="cancelAvailabilityConfirmation()">
 </app-confirm-dialog>
 
 <app-confirm-dialog
