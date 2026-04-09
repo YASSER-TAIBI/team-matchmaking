@@ -3,10 +3,12 @@
 
 import { TeamMemberDto } from '../models/team-member-dto';
 export interface TeamDto {
+  availableDate?: string;
   captainId?: number;
   city?: string;
   country?: string;
   createdDate?: string;
+  endTime?: string;
   id?: number;
   logoUrl?: string;
   matchesDrawn?: number;
@@ -14,6 +16,8 @@ export interface TeamDto {
   matchesWon?: number;
   members?: Array<TeamMemberDto>;
   name?: string;
-  status?: 'INCOMPLETE' | 'COMPLETE' | 'IN_MATCH';
+  startTime?: string;
+  status?: 'INACTIVE' | 'INCOMPLETE' | 'COMPLETE' | 'IN_MATCH';
+  teamLevel?: 'DEBUTANT' | 'AVANCE' | 'AMATEUR';
   totalMatches?: number;
 }

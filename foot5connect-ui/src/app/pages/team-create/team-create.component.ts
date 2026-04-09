@@ -15,6 +15,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation' | 'historique';
 type TeamEditSection = 'identity' | 'formation';
 type AvailabilityLevel = 'DÉBUTANT' | 'AVANCÉ' | 'AMATEUR';
+type TeamLevelValue = NonNullable<TeamDto['teamLevel']>;
 type PlayerPositionOption = NonNullable<TeamMemberDto['position']>;
 type PlayerSelectionOption = NonNullable<TeamMemberDto['selection']>;
 type PitchSlot = {
@@ -52,9 +53,14 @@ export class TeamCreateComponent implements OnInit {
   isEditingFormation = false;
   editName = '';
   editLogoUrl = '';
+  editAvailableDate = '';
+  editStartTime = '';
+  editEndTime = '';
   editMembers: TeamMemberDto[] = [];
   showConfirmDialog = false;
   showFormationValidationDialog = false;
+  showIdentityScheduleDialog = false;
+  showAvailabilityConfirmDialog = false;
   confirmEditSection: TeamEditSection = 'identity';
   showLeaveTeamDialog = false;
   showRemoveMemberDialog = false;
@@ -93,6 +99,7 @@ export class TeamCreateComponent implements OnInit {
       next: (data) => {
         this.team = data;
         this.members = data?.members ?? [];
+        this.syncAvailabilityLevelFromTeam();
         this.syncFormationEditMembers();
         this.hasLeftTeam = this.members.length === 0;
       },
@@ -152,6 +159,10 @@ export class TeamCreateComponent implements OnInit {
   }
 
   onAvailabilityLevelInput(event: Event): void {
+    if (this.isTeamConfirmed) {
+      return;
+    }
+
     const value = Number((event.target as HTMLInputElement | null)?.value ?? this.availabilityLevelValue);
     this.availabilityLevelValue = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 50;
   }
@@ -174,6 +185,140 @@ export class TeamCreateComponent implements OnInit {
 
   isAvailabilityLevelActive(level: AvailabilityLevel): boolean {
     return this.availabilityLevelLabel === level;
+  }
+
+  get selectedTeamLevelValue(): TeamLevelValue {
+    switch (this.availabilityLevelLabel) {
+      case 'DÉBUTANT':
+        return 'DEBUTANT';
+      case 'AVANCÉ':
+        return 'AVANCE';
+      default:
+        return 'AMATEUR';
+    }
+  }
+
+  get availabilityMatchDateLabel(): string {
+    const value = this.team?.availableDate;
+    if (!value) {
+      return 'Non renseignée';
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return date.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'short'
+    });
+  }
+
+  get availabilityMatchTimeRangeLabel(): string {
+    if (!this.team?.startTime || !this.team?.endTime) {
+      return 'Non renseigné';
+    }
+
+    return `${this.formatInputTime(this.team.startTime)} - ${this.formatInputTime(this.team.endTime)}`;
+  }
+
+  get availableStarterCount(): number {
+    return this.members.filter(member => member.selection === 'STARTER').length;
+  }
+
+  get availabilityProgressPercent(): number {
+    return Math.max(0, Math.min(100, (this.availableStarterCount / 5) * 100));
+  }
+
+  get availabilityProgressOffset(): number {
+    const circumference = 2 * Math.PI * 70;
+    return circumference - (circumference * this.availabilityProgressPercent) / 100;
+  }
+
+  get remainingStarterPlaces(): number {
+    return Math.max(0, 5 - this.availableStarterCount);
+  }
+
+  get canConfirmTeamAvailability(): boolean {
+    return this.availableStarterCount === 5;
+  }
+
+  get isAvailabilityConfirmationLocked(): boolean {
+    return this.isTeamConfirmed;
+  }
+
+  get isAvailabilityLevelLocked(): boolean {
+    return this.isTeamConfirmed;
+  }
+
+  get isTeamConfirmed(): boolean {
+    return this.team?.status === 'COMPLETE';
+  }
+
+  get availabilityAlertMessage(): string {
+    if (this.canConfirmTeamAvailability) {
+      return 'Votre équipe dispose maintenant de 5 titulaires. Vous pouvez confirmer votre équipe pour le match.';
+    }
+
+    return `Vous avez besoin d’au moins 5 joueurs titulaires pour valider votre équipe. Il vous reste ${this.remainingStarterPlaces} place${this.remainingStarterPlaces > 1 ? 's' : ''} à compléter.`;
+  }
+
+  get confirmedAvailabilityAvatars(): string[] {
+    return this.members
+      .filter(member => member.selection === 'STARTER')
+      .slice(0, 5)
+      .map(member => this.getMemberInitials(member));
+  }
+
+  get availabilityRemainingPlacesLabel(): string {
+    if (this.remainingStarterPlaces <= 0) {
+      return 'Aucune place restante';
+    }
+
+    return `${this.remainingStarterPlaces} place${this.remainingStarterPlaces > 1 ? 's' : ''} restante${this.remainingStarterPlaces > 1 ? 's' : ''}`;
+  }
+
+  confirmTeamAvailability(): void {
+    if (!this.canConfirmTeamAvailability || this.isTeamConfirmed) {
+      return;
+    }
+
+    if (!this.team?.availableDate || !this.team?.startTime || !this.team?.endTime) {
+      this.showIdentityScheduleDialog = true;
+      return;
+    }
+
+    this.showAvailabilityConfirmDialog = true;
+  }
+
+  confirmAvailabilityConfirmation(): void {
+    this.showAvailabilityConfirmDialog = false;
+
+    const team = this.team;
+    if (!team) {
+      return;
+    }
+
+    this.teamService.updateTeam({
+      availableDate: team.availableDate,
+      startTime: team.startTime,
+      endTime: team.endTime,
+      status: 'COMPLETE',
+      teamLevel: this.selectedTeamLevelValue
+    }).subscribe({
+      next: (updated: TeamDto) => {
+        this.team = updated;
+        this.members = updated?.members ?? this.members;
+        this.syncAvailabilityLevelFromTeam();
+      },
+      error: (err: any) => console.error('Erreur lors de la confirmation de l’équipe', err)
+    });
+  }
+
+  cancelAvailabilityConfirmation(): void {
+    this.showAvailabilityConfirmDialog = false;
   }
 
   applyInvitationFilters(): void {
@@ -209,6 +354,9 @@ export class TeamCreateComponent implements OnInit {
   startEditIdentity(): void {
     this.editName = this.team?.name ?? '';
     this.editLogoUrl = this.team?.logoUrl ?? '';
+    this.editAvailableDate = (this.team?.availableDate ?? '').slice(0, 10);
+    this.editStartTime = this.formatInputTime(this.team?.startTime);
+    this.editEndTime = this.formatInputTime(this.team?.endTime);
     this.isEditingIdentity = true;
   }
 
@@ -217,8 +365,17 @@ export class TeamCreateComponent implements OnInit {
   }
 
   saveIdentity(): void {
+    if (!this.editAvailableDate || !this.editStartTime || !this.editEndTime) {
+      this.showIdentityScheduleDialog = true;
+      return;
+    }
+
     this.confirmEditSection = 'identity';
     this.showConfirmDialog = true;
+  }
+
+  closeIdentityScheduleDialog(): void {
+    this.showIdentityScheduleDialog = false;
   }
 
   startEditFormation(): void {
@@ -280,6 +437,7 @@ export class TeamCreateComponent implements OnInit {
             next: (data) => {
               this.team = data;
               this.members = data?.members ?? [];
+              this.syncAvailabilityLevelFromTeam();
               this.hasLeftTeam = this.members.length === 0;
               this.showLeaveTeamDialog = false;
               this.loadMemberInvitations();
@@ -358,10 +516,18 @@ export class TeamCreateComponent implements OnInit {
       return;
     }
 
-    this.teamService.updateTeam({ name: this.editName, logoUrl: this.editLogoUrl }).subscribe({
+    this.teamService.updateTeam({
+      name: this.editName,
+      logoUrl: this.editLogoUrl,
+      availableDate: this.editAvailableDate,
+      startTime: `${this.editStartTime}:00`,
+      endTime: `${this.editEndTime}:00`,
+      teamLevel: this.selectedTeamLevelValue
+    }).subscribe({
       next: (updated: TeamDto) => {
         this.team = updated;
         this.members = updated?.members ?? this.members;
+        this.syncAvailabilityLevelFromTeam();
         this.syncFormationEditMembers();
         this.isEditingIdentity = false;
       },
@@ -392,6 +558,27 @@ export class TeamCreateComponent implements OnInit {
     const first = m.firstName?.[0] ?? '';
     const last = m.lastName?.[0] ?? '';
     return `${first}${last}`.toUpperCase();
+  }
+
+  formatInputTime(time?: string): string {
+    if (!time) {
+      return '';
+    }
+
+    return time.length >= 5 ? time.slice(0, 5) : time;
+  }
+
+  private syncAvailabilityLevelFromTeam(): void {
+    switch (this.team?.teamLevel) {
+      case 'DEBUTANT':
+        this.availabilityLevelValue = 0;
+        return;
+      case 'AVANCE':
+        this.availabilityLevelValue = 100;
+        return;
+      default:
+        this.availabilityLevelValue = 50;
+    }
   }
 
   get formationMembers(): TeamMemberDto[] {

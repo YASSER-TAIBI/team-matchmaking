@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -45,6 +47,15 @@ public class Team extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     private AvailabilityTeamLevel teamLevel;
+
+    @Column(name = "available_date")
+    private LocalDate availableDate;
+
+    @Column(name = "start_time")
+    private LocalTime startTime;
+
+    @Column(name = "end_time")
+    private LocalTime endTime;
 
     /* ================= RELATIONS ================= */
 

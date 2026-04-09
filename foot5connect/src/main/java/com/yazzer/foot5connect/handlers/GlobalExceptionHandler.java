@@ -41,9 +41,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ExceptionRepresentation> handleException() {
+    public ResponseEntity<ExceptionRepresentation> handleException(DataIntegrityViolationException exception) {
+        String errorMessage = exception.getMostSpecificCause() != null
+                ? exception.getMostSpecificCause().getMessage()
+                : exception.getMessage();
+
         ExceptionRepresentation representation = ExceptionRepresentation.builder()
-                .errorMessage("A user already exists with the provided email")
+                .errorMessage(errorMessage)
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(representation);
     }

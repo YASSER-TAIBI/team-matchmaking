@@ -8,7 +8,7 @@ export interface TeamMemberDto {
   jerseyNumber?: number;
   lastName?: string;
   level?: string;
-  position?: 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'ATTACKER' ;
+  position?: 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'ATTACKER';
   selection?: 'STARTER' | 'SUBSTITUTE';
   teamId?: number;
   totalMatches?: number;

@@ -672,6 +672,7 @@
           "status": {
             "type": "string",
             "enum": [
+              "INACTIVE",
               "INCOMPLETE",
               "COMPLETE",
               "IN_MATCH"
@@ -702,6 +703,24 @@
           "matchesDrawn": {
             "type": "integer",
             "format": "int32"
+          },
+          "teamLevel": {
+            "type": "string",
+            "enum": [
+              "DEBUTANT",
+              "AVANCE",
+              "AMATEUR"
+            ]
+          },
+          "availableDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
           }
         }
       },

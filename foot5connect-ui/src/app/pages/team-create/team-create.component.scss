@@ -407,8 +407,8 @@
 
 .field__prefix {
   position: absolute;
-  left: 12px;
-  top: 12px;
+  left: 14px;
+  top: 14px;
   color: rgba(255, 255, 255, 0.45);
   font-size: 18px;
 }
@@ -440,6 +440,14 @@
   opacity: 0.5;
   cursor: default;
   pointer-events: none;
+}
+
+.field__input[type='date']::-webkit-calendar-picker-indicator,
+.field__input[type='time']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 1;
+  cursor: pointer;
+  font-size: 15px;
 }
 
 .color-picker {
@@ -1234,7 +1242,7 @@
   overflow: hidden;
   border-radius: 28px;
   padding: 28px;
-  background: linear-gradient(135deg, rgba(19, 236, 91, 0.12), rgba(17, 24, 19, 0.92));
+  background: linear-gradient(135deg, rgb(5 237 82 / 7%), rgb(17 24 19 / 50%));
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -1282,7 +1290,7 @@
 .availability-overview {
   padding: 30px 28px;
   border-radius: 28px;
-  background: linear-gradient(180deg, rgba(20, 38, 24, 0.96), rgba(18, 34, 21, 0.92));
+  background: linear-gradient(180deg, rgb(20 38 24 / 50%), rgb(18 34 21 / 50%));  
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -1332,6 +1340,10 @@
   opacity: 0;
   cursor: pointer;
   z-index: 3;
+}
+
+.availability-overview__meter-input:disabled {
+  cursor: not-allowed;
 }
 
 .availability-overview__meter-input::-webkit-slider-thumb {
@@ -1613,7 +1625,8 @@
   stroke: var(--neon-green);
   stroke-linecap: round;
   stroke-dasharray: 439.82;
-  stroke-dashoffset: 87.96;
+  stroke-dashoffset: 439.82;
+  transition: stroke-dashoffset 0.45s ease;
 }
 
 .availability-progress__content {
@@ -1679,12 +1692,28 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  background: var(--neon-green);
+  color: #07130a;
+  cursor: pointer;
+}
+
+.availability-sidebar__cta:hover:not(:disabled) {
+  filter: brightness(1.03);
+  box-shadow: 0 16px 34px rgba(19, 236, 91, 0.26); 
 }
 
 .availability-sidebar__cta--disabled {
   background: rgba(51, 65, 85, 0.55);
   color: rgba(255, 255, 255, 0.45);
   cursor: not-allowed;
+}
+
+.availability-sidebar__cta--confirmed,
+.availability-sidebar__cta--confirmed:disabled {
+  background: var(--neon-green);
+  color: #07130a;
+  cursor: not-allowed;
+  opacity: 1;
 }
 
 .availability-sidebar__divider {

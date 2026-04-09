@@ -4,8 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
+import { Router } from '@angular/router';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { AvailablePlayerDto } from '../../services/models/available-player-dto';
 import { CreateTeamInvitationRequest } from '../../services/models/create-team-invitation-request';
+import { TeamDto } from '../../services/models/team-dto';
 import { UserDto } from '../../services/models/user-dto';
 import { HelperService } from '../../services/helper/helper.service';
 import { InvitationService } from '../../services/invitations/invitation.service';
@@ -15,7 +18,7 @@ import { UserService } from '../../services/users/user.service';
 @Component({
   selector: 'app-available-players',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatDatepickerModule, MatNativeDateModule, MatInputModule],
+  imports: [CommonModule, FormsModule, MatDatepickerModule, MatNativeDateModule, MatInputModule, ConfirmDialogComponent],
   templateUrl: './available-players.component.html',
   styleUrl: './available-players.component.scss'
 })
@@ -27,11 +30,13 @@ export class AvailablePlayersComponent implements OnInit {
   private userService = inject(UserService);
   private invitationService = inject(InvitationService);
   private teamService = inject(TeamService);
+  private router = inject(Router);
 
   allPlayers: AvailablePlayerDto[] = [];
   players: AvailablePlayerDto[] = [];
   loading = false;
   error: string | null = null;
+  currentTeam: TeamDto | null = null;
   currentUserHasTeam = false;
   currentUserIsInTeamSelection = false;
 
@@ -51,6 +56,7 @@ export class AvailablePlayersComponent implements OnInit {
   proposedDate = '';
   proposedStartTime = '';
   proposedEndTime = '';
+  missingScheduleDialogVisible = false;
 
   ngOnInit(): void {
     this.currentUserId = this.helperService.userId;
@@ -62,10 +68,12 @@ export class AvailablePlayersComponent implements OnInit {
   private loadCurrentUserTeam(): void {
     this.teamService.findMyTeam().subscribe({
       next: (team) => {
+        this.currentTeam = team;
         this.currentUserHasTeam = !!team;
         this.currentUserIsInTeamSelection = !!team?.members?.some(member => member.userId === this.currentUserId);
       },
       error: () => {
+        this.currentTeam = null;
         this.currentUserHasTeam = false;
         this.currentUserIsInTeamSelection = false;
       }
@@ -188,12 +196,30 @@ export class AvailablePlayersComponent implements OnInit {
       return;
     }
 
+    if (!this.hasRequiredMatchSchedule()) {
+      this.openMissingScheduleDialog();
+      return;
+    }
+
     this.inviteError = null;
     this.invitedPlayer = player;
-    this.proposedDate = (player.availableDate ?? '').slice(0, 10);
-    this.proposedStartTime = this.formatInputTime(player.startTime);
-    this.proposedEndTime = this.formatInputTime(player.endTime);
+    this.proposedDate = (this.currentTeam?.availableDate ?? '').slice(0, 10);
+    this.proposedStartTime = this.formatInputTime(this.currentTeam?.startTime);
+    this.proposedEndTime = this.formatInputTime(this.currentTeam?.endTime);
     this.inviteModalVisible = true;
+  }
+
+  openMissingScheduleDialog(): void {
+    this.missingScheduleDialogVisible = true;
+  }
+
+  closeMissingScheduleDialog(): void {
+    this.missingScheduleDialogVisible = false;
+  }
+
+  redirectToTeamCreate(): void {
+    this.missingScheduleDialogVisible = false;
+    this.router.navigateByUrl('/user/team/create');
   }
 
   closeInviteModal(): void {
@@ -234,7 +260,7 @@ export class AvailablePlayersComponent implements OnInit {
       },
       error: (err: any) => {
         this.inviteSubmitting = false;
-        this.inviteError = err?.error?.message ?? "Impossible d'envoyer l'invitation.";
+        this.inviteError = err?.error?.errorMessage ?? err?.error?.message ?? "Impossible d'envoyer l'invitation.";
       }
     });
   }
@@ -244,6 +270,10 @@ export class AvailablePlayersComponent implements OnInit {
       return '';
     }
     return time.length >= 5 ? time.slice(0, 5) : time;
+  }
+
+  private hasRequiredMatchSchedule(): boolean {
+    return !!this.currentTeam?.availableDate && !!this.currentTeam?.startTime && !!this.currentTeam?.endTime;
   }
 
   initials(player: AvailablePlayerDto): string {

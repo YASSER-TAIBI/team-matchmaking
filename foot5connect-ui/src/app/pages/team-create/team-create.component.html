@@ -125,10 +125,50 @@
               </div>
 
               <div class="field">
-                <label class="field__label">Date de création</label>
+                <label class="field__label">Date du match</label>
                 <div class="field__control">
                   <span class="material-symbols-outlined field__prefix">calendar_month</span>
-                  <input class="field__input field__input--with-prefix field__input--readonly" type="text" placeholder="Date de création" [value]="(team?.createdDate ?? '').toString().slice(0, 10)" readonly />
+                  <input
+                    class="field__input field__input--with-prefix"
+                    type="date"
+                    placeholder="Date du match"
+                    [value]="isEditingIdentity ? editAvailableDate : (team?.availableDate ?? '').toString().slice(0, 10)"
+                    [readonly]="!isEditingIdentity"
+                    [class.field__input--readonly]="!isEditingIdentity"
+                    (input)="editAvailableDate = $any($event.target).value"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field__label">Heure de début</label>
+                <div class="field__control">
+                  <span class="material-symbols-outlined field__prefix">schedule</span>
+                  <input
+                    class="field__input field__input--with-prefix"
+                    type="time"
+                    placeholder="Heure de début"
+                    [value]="isEditingIdentity ? editStartTime : formatInputTime(team?.startTime)"
+                    [readonly]="!isEditingIdentity"
+                    [class.field__input--readonly]="!isEditingIdentity"
+                    (input)="editStartTime = $any($event.target).value"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field__label">Heure de fin</label>
+                <div class="field__control">
+                  <span class="material-symbols-outlined field__prefix">timer</span>
+                  <input
+                    class="field__input field__input--with-prefix"
+                    type="time"
+                    placeholder="Heure de fin"
+                    [value]="isEditingIdentity ? editEndTime : formatInputTime(team?.endTime)"
+                    [readonly]="!isEditingIdentity"
+                    [class.field__input--readonly]="!isEditingIdentity"
+                    (input)="editEndTime = $any($event.target).value"
+                  />
                 </div>
               </div>
             </form>
@@ -324,11 +364,11 @@
                 <div class="availability-panel__split">
                   <div>
                     <span class="availability-panel__label">Date</span>
-                    <strong class="availability-panel__value">Samedi, 26 Oct</strong>
+                    <strong class="availability-panel__value">{{ availabilityMatchDateLabel }}</strong>
                   </div>
                   <div>
                     <span class="availability-panel__label">Créneau</span>
-                    <strong class="availability-panel__value">20:00 - 21:00</strong>
+                    <strong class="availability-panel__value">{{ availabilityMatchTimeRangeLabel }}</strong>
                   </div>
                 </div>
               </div>
@@ -355,6 +395,7 @@
                   max="100"
                   step="50"
                   [value]="availabilityLevelValue"
+                  [disabled]="isAvailabilityLevelLocked"
                   aria-label="Choisir le niveau de disponibilité"
                   (input)="onAvailabilityLevelInput($event)"
                 />
@@ -520,46 +561,53 @@
             <div class="availability-progress__ring">
               <svg viewBox="0 0 160 160" aria-hidden="true">
                 <circle class="availability-progress__track" cx="80" cy="80" r="70"></circle>
-                <circle class="availability-progress__value" cx="80" cy="80" r="70"></circle>
+                <circle class="availability-progress__value" cx="80" cy="80" r="70" [style.stroke-dashoffset]="availabilityProgressOffset"></circle>
               </svg>
               <div class="availability-progress__content">
-                <strong class="availability-progress__count">4/5</strong>
+                <strong class="availability-progress__count">{{ availableStarterCount }}/5</strong>
                 <span class="availability-progress__label">Ont rejoint</span>
               </div>
             </div>
           </div>
 
-          <div class="availability-alert">
-            <span class="material-symbols-outlined availability-alert__icon">info</span>
-            <p class="availability-alert__text">
-              <strong>Action requise :</strong> Vous avez besoin d’au moins 5 joueurs pour valider votre équipe. Envoyez plus d’invitations pour débloquer la confirmation.
-            </p>
-          </div>
+          @if (!canConfirmTeamAvailability) {
+            <div class="availability-alert">
+              <span class="material-symbols-outlined availability-alert__icon">info</span>
+              <p class="availability-alert__text">
+                <strong>Action requise :</strong> {{ availabilityAlertMessage }}
+              </p>
+            </div>
+          }
 
-          <button class="availability-sidebar__cta availability-sidebar__cta--disabled" type="button" disabled>
-            <span class="material-symbols-outlined">lock</span>
-            Confirmer l'équipe
-          </button>
+          @if (!isTeamConfirmed) {
+            <button class="availability-sidebar__cta" [class.availability-sidebar__cta--disabled]="!canConfirmTeamAvailability" [class.availability-sidebar__cta--confirmed]="isTeamConfirmed" type="button" [disabled]="!canConfirmTeamAvailability || isAvailabilityConfirmationLocked" (click)="confirmTeamAvailability()">
+              <span class="material-symbols-outlined">{{ canConfirmTeamAvailability ? 'lock_open' : 'lock' }}</span>
+              Confirmer l'équipe
+            </button>
+          }
 
-          <div class="availability-sidebar__divider"></div>
+          @if (!canConfirmTeamAvailability) {
+            <div class="availability-sidebar__divider"></div>
 
-          <button class="availability-sidebar__secondary" type="button" (click)="goToInvitations()">
-            Inviter plus de joueurs
-          </button>
+            <button class="availability-sidebar__secondary" type="button" (click)="goToInvitations()">
+              Inviter plus de joueurs
+            </button>
+          }
         </section>
 
         <section class="card availability-preview">
           <h3 class="availability-preview__title">Équipe confirmée</h3>
 
           <div class="availability-preview__avatars" aria-hidden="true">
-            <span class="availability-preview__avatar">YT</span>
-            <span class="availability-preview__avatar">AM</span>
-            <span class="availability-preview__avatar">SK</span>
-            <span class="availability-preview__avatar">RA</span>
-            <span class="availability-preview__avatar availability-preview__avatar--ghost">+1</span>
+            @for (avatar of confirmedAvailabilityAvatars; track avatar + $index) {
+              <span class="availability-preview__avatar">{{ avatar }}</span>
+            }
+            @if (remainingStarterPlaces > 0) {
+              <span class="availability-preview__avatar availability-preview__avatar--ghost">+{{ remainingStarterPlaces }}</span>
+            }
           </div>
 
-          <p class="availability-preview__footnote">1 place restante</p>
+          <p class="availability-preview__footnote">{{ isTeamConfirmed ? 'Équipe confirmée' : 'Équipe non confirmée' }} - {{ availabilityRemainingPlacesLabel }}</p>
         </section>
         }
 
@@ -708,6 +756,30 @@
   message="Voulez-vous vraiment enregistrer les modifications ?"
   (confirmed)="confirmSave()"
   (cancelled)="cancelConfirm()">
+</app-confirm-dialog>
+
+<app-confirm-dialog
+  [visible]="showIdentityScheduleDialog"
+  title="Informations du match manquantes"
+  message="Vous devez renseigner la date du match ainsi que l’heure de début et l’heure de fin avant de sauvegarder."
+  [details]="['Date du match requise', 'Heure de début requise', 'Heure de fin requise']"
+  confirmText="Compris"
+  cancelText="Fermer"
+  icon="warning"
+  (confirmed)="closeIdentityScheduleDialog()"
+  (cancelled)="closeIdentityScheduleDialog()">
+</app-confirm-dialog>
+
+<app-confirm-dialog
+  [visible]="showAvailabilityConfirmDialog"
+  title="Confirmer l'équipe"
+  message="Voulez-vous vraiment confirmer cette équipe pour le match ?"
+  [details]="['Le niveau de jeu sélectionné sera enregistré.', 'La date et le créneau du match seront confirmés.', 'Après confirmation, l’équipe ne pourra plus être modifiée depuis cet écran.']"
+  confirmText="Confirmer"
+  cancelText="Annuler"
+  icon="task_alt"
+  (confirmed)="confirmAvailabilityConfirmation()"
+  (cancelled)="cancelAvailabilityConfirmation()">
 </app-confirm-dialog>
 
 <app-confirm-dialog
