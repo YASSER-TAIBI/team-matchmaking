@@ -11,6 +11,7 @@ import { TeamComponent } from './pages/team/team.component';
 import { TeamCreateComponent } from './pages/team-create/team-create.component';
 import { TeamConditionsComponent } from './pages/team-conditions/team-conditions.component';
 import { TeamInvitationsComponent } from './pages/team-invitations/team-invitations.component';
+import { MatchesComponent } from './pages/matches/matches.component';
 
 export const routes: Routes = [
   {
@@ -48,6 +49,10 @@ export const routes: Routes = [
       {
         path: 'available-players',
         component: AvailablePlayersComponent
+      },
+      {
+        path: 'matches',
+        component: MatchesComponent
       },
       {
         path: 'invitations',

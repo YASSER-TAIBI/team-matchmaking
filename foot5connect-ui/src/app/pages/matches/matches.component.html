@@ -1,0 +1,151 @@
+<section class="matches-page">
+  <header class="matches-page__header">
+    <div class="matches-page__titles">
+      <h1 class="matches-page__title">Trouver un <span>match</span></h1>
+      <p class="matches-page__subtitle">
+        Trouvez votre prochain adversaire, acceptez un challenge et réservez votre rencontre.
+      </p>
+    </div>
+  </header>
+
+  <section class="matches-filters" aria-label="Filtres des matchs">
+    <div class="matches-filters__group">
+      <label class="matches-filters__label" for="matches-location">Localisation</label>
+      <div class="matches-filters__control">
+        <i class="fa-solid fa-location-dot"></i>
+        <select id="matches-location" [(ngModel)]="selectedLocation">
+          <option value="">Sélectionner tous</option>
+          @for (location of locationOptions; track location) {
+            <option [value]="location">{{ location }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="matches-filters__group">
+      <label class="matches-filters__label" for="matches-date">Date</label>
+      <div class="matches-filters__control">
+        <i class="fa-solid fa-calendar-day"></i>
+        <select id="matches-date" [(ngModel)]="selectedDate">
+          <option value="">Sélectionner tous</option>
+          @for (date of dateOptions; track date) {
+            <option [value]="date">{{ date }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="matches-filters__group">
+      <label class="matches-filters__label" for="matches-format">Format</label>
+      <div class="matches-filters__control">
+        <i class="fa-solid fa-futbol"></i>
+        <select id="matches-format" [(ngModel)]="selectedFormat">
+          <option value="">Sélectionner tous</option>
+          @for (format of formatOptions; track format) {
+            <option [value]="format">{{ format }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <button class="matches-filters__refresh" type="button" (click)="resetFilters()">
+      <i class="fa-solid fa-rotate-right"></i>
+    </button>
+    
+    <button class="matches-filters__search" type="button" (click)="searchMatches()">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+
+    
+  </section>
+
+  <div class="matches-grid">
+    @for (card of visibleCards; track trackByCardId($index, card)) {
+      <article class="matches-card">
+        <div class="matches-card__media" [ngClass]="card.heroClass" [style.background-image]="'url(' + card.backgroundImage + ')'">
+          <div class="matches-card__overlay"></div>
+
+          @if (card.status) {
+            <span class="matches-card__badge" [ngClass]="statusClass(card.status)">{{ statusLabel(card.status) }}</span>
+          }
+
+          <button class="matches-card__favorite" type="button" aria-label="Ajouter aux favoris">
+            <i class="fa-solid fa-heart"></i>
+          </button>
+        </div>
+
+        <div class="matches-card__body">
+          <div class="matches-card__team">
+            <div class="matches-card__logo-shell">
+              <div class="matches-card__logo-inner" [ngClass]="card.logoClass">
+                <span>{{ card.initials }}</span>
+              </div>
+            </div>
+
+            <div>
+              <h2 class="matches-card__team-name">{{ card.teamName }}</h2>
+              <div class="matches-card__rating">
+                <i class="fa-solid fa-star"></i>
+                <span>{{ card.ratingLabel }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="matches-card__details">
+            <div class="matches-card__detail-item">
+              <div class="matches-card__detail-icon">
+                <i class="fa-solid fa-clock"></i>
+              </div>
+              <div>
+                <p class="matches-card__detail-title">{{ card.dateLabel }}</p>
+                <p class="matches-card__detail-subtitle">{{ card.relativeDateLabel }}</p>
+              </div>
+            </div>
+
+            <div class="matches-card__detail-item">
+              <div class="matches-card__detail-icon">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div>
+                <p class="matches-card__detail-title">{{ card.venueName }}</p>
+                <p class="matches-card__detail-subtitle">{{ card.venueMeta }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="matches-card__tags">
+            <span class="matches-card__tag matches-card__tag--primary">{{ card.level }}</span>
+            <span class="matches-card__tag">{{ card.format }}</span>
+            <span class="matches-card__tag">{{ card.price }}</span>
+          </div>
+
+          <div class="matches-card__actions">
+            <button class="matches-card__accept" type="button">Accepter le challenge</button>
+            <button class="matches-card__message" type="button" aria-label="Envoyer un message">
+              <i class="fa-solid fa-comment"></i>
+            </button>
+          </div>
+        </div>
+      </article>
+    }
+
+    @if (visibleCards.length === 0) {
+      <article class="matches-empty-state">
+        <div class="matches-empty-state__icon">
+          <i class="fa-solid fa-futbol"></i>
+        </div>
+        <h3>Aucune demande trouvée</h3>
+        <p>Modifie tes filtres pour afficher plus de matchs disponibles.</p>
+      </article>
+    }
+  </div>
+
+  @if (canLoadMore) {
+    <div class="matches-page__footer">
+      <button class="matches-page__load-more" type="button" (click)="loadMore()">
+        Charger plus de demandes
+        <i class="fa-solid fa-chevron-down"></i>
+      </button>
+    </div>
+  }
+</section>

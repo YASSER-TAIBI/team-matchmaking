@@ -1,9 +1,10 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, inject, NgZone, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TeamInvitationDto } from '../../services/models/team-invitation-dto';
 import { HelperService } from '../../services/helper/helper.service';
 import { InvitationService } from '../../services/invitations/invitation.service';
@@ -24,6 +25,15 @@ type PitchSlot = {
   member?: TeamMemberDto;
 };
 
+const GOOGLE_MAPS_API_KEY = 'AIzaSyDh2l1oVsTJNaA9Dl4wQiqXokD3_o11Uak';
+
+declare global {
+  interface Window {
+    google?: any;
+    initializeGoogleMapsPlaces?: () => void;
+  }
+}
+
 @Component({
   selector: 'app-team-create',
   standalone: true,
@@ -31,10 +41,27 @@ type PitchSlot = {
   templateUrl: './team-create.component.html',
   styleUrl: './team-create.component.scss'
 })
-export class TeamCreateComponent implements OnInit {
+export class TeamCreateComponent implements OnInit, AfterViewInit {
   private helperService = inject(HelperService);
   private invitationService = inject(InvitationService);
   private teamService = inject(TeamService);
+  private sanitizer = inject(DomSanitizer);
+  private document = inject(DOCUMENT);
+  private ngZone = inject(NgZone);
+
+  private availabilityPlacesLibrary?: any;
+  private availabilityAutocompleteElement?: any;
+  private availabilityAutocompleteHost?: ElementRef<HTMLElement>;
+
+  @ViewChild('availabilityAutocompleteHost')
+  set availabilityAutocompleteHostRef(value: ElementRef<HTMLElement> | undefined) {
+    this.availabilityAutocompleteHost = value;
+    if (value) {
+      void this.initializeAvailabilityAutocomplete();
+    }
+  }
+
+  private availabilityAutocompleteInitialized = false;
 
   activeTab: TeamCreateTab = 'creation';
   team: TeamDto | null = null;
@@ -73,6 +100,14 @@ export class TeamCreateComponent implements OnInit {
   memberToRemove: TeamMemberDto | null = null;
   formationValidationMessage = '';
   formationValidationDetails: string[] = [];
+  availabilityAddressQuery = '';
+  availabilityFieldName = 'Terrain à confirmer';
+  availabilityFieldAddress = 'Non renseignée';
+  availabilityFieldPricing: 'FREE' | 'PAID' = 'PAID';
+  availabilityPricePerPerson = 12;
+  availabilitySelectedPlaceId = '';
+  availabilitySelectedLatitude: number | null = null;
+  availabilitySelectedLongitude: number | null = null;
 
   readonly positionOptions: Array<{ value: PlayerPositionOption; label: string }> = [
     { value: 'GOALKEEPER', label: 'Gardien' },
@@ -94,6 +129,7 @@ export class TeamCreateComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUserId = this.helperService.userId;
+    this.initializeAvailabilityLocationFromUser();
 
     this.teamService.findMyTeam().subscribe({
       next: (data) => {
@@ -107,6 +143,10 @@ export class TeamCreateComponent implements OnInit {
     });
 
     this.loadMemberInvitations();
+  }
+
+  ngAfterViewInit(): void {
+    void this.initializeAvailabilityAutocomplete();
   }
 
   loadMemberInvitations(): void {
@@ -222,6 +262,35 @@ export class TeamCreateComponent implements OnInit {
     }
 
     return `${this.formatInputTime(this.team.startTime)} - ${this.formatInputTime(this.team.endTime)}`;
+  }
+
+  get availabilityMapUrl(): SafeResourceUrl {
+    if (this.availabilitySelectedPlaceId) {
+      const placeId = encodeURIComponent(this.availabilitySelectedPlaceId);
+      return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=place_id:${placeId}`);
+    }
+
+    if (this.availabilitySelectedLatitude !== null && this.availabilitySelectedLongitude !== null) {
+      const coordinates = encodeURIComponent(`${this.availabilitySelectedLatitude},${this.availabilitySelectedLongitude}`);
+      return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=${coordinates}`);
+    }
+
+    const query = encodeURIComponent(this.availabilityFieldAddress || this.availabilityAddressQuery || this.availabilityFieldName);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.google.com/maps?q=${query}&z=15&output=embed`);
+  }
+
+  get availabilityTotalTeamCost(): number {
+    if (this.availabilityFieldPricing === 'FREE') {
+      return 0;
+    }
+
+    const value = Number(this.availabilityPricePerPerson);
+    const normalizedValue = Number.isFinite(value) ? Math.max(0, value) : 0;
+    return normalizedValue * 5;
+  }
+
+  get availabilityTotalTeamCostLabel(): string {
+    return `${this.availabilityTotalTeamCost.toFixed(2)} €`;
   }
 
   get availableStarterCount(): number {
@@ -349,6 +418,170 @@ export class TeamCreateComponent implements OnInit {
 
   goToInvitations(): void {
     this.activeTab = 'invitation';
+  }
+
+  async confirmAvailabilityField(): Promise<void> {
+    const normalizedQuery = this.availabilityAddressQuery.trim();
+
+    if (normalizedQuery) {
+      if (!this.availabilitySelectedPlaceId) {
+        this.availabilityFieldAddress = normalizedQuery;
+        this.availabilityFieldName = normalizedQuery;
+      }
+    }
+
+    console.log('Terrain confirmé', {
+      fieldName: this.availabilityFieldName,
+      address: this.availabilityFieldAddress,
+      placeId: this.availabilitySelectedPlaceId || null,
+      latitude: this.availabilitySelectedLatitude,
+      longitude: this.availabilitySelectedLongitude,
+      pricing: this.availabilityFieldPricing,
+      pricePerPerson: this.availabilityFieldPricing === 'PAID' ? this.availabilityPricePerPerson : null,
+      totalTeamCost: this.availabilityFieldPricing === 'PAID' ? this.availabilityTotalTeamCost : null
+    });
+  }
+
+  onAvailabilityAddressInputChange(): void {
+    this.availabilitySelectedPlaceId = '';
+    this.availabilitySelectedLatitude = null;
+    this.availabilitySelectedLongitude = null;
+  }
+
+  setAvailabilityFieldPricing(pricing: 'FREE' | 'PAID'): void {
+    this.availabilityFieldPricing = pricing;
+  }
+
+  private initializeAvailabilityLocationFromUser(): void {
+    const userCity = this.helperService.userCity?.trim();
+
+    if (!userCity) {
+      this.availabilityAddressQuery = '';
+      this.availabilityFieldAddress = 'Non renseignée';
+      this.availabilityFieldName = 'Terrain à confirmer';
+      return;
+    }
+
+    this.availabilityAddressQuery = userCity;
+    this.availabilityFieldAddress = userCity;
+    this.availabilityFieldName = `${userCity}`;
+  }
+
+  private async initializeAvailabilityAutocomplete(): Promise<void> {
+    if (!this.availabilityAutocompleteHost?.nativeElement) {
+      return;
+    }
+
+    const host = this.availabilityAutocompleteHost.nativeElement;
+
+    if (this.availabilityAutocompleteInitialized && this.availabilityAutocompleteElement) {
+      host.innerHTML = '';
+      host.appendChild(this.availabilityAutocompleteElement);
+      return;
+    }
+
+    try {
+      await this.loadGoogleMapsPlacesScript();
+    } catch (error) {
+      console.error('Erreur initialisation Google Places', error);
+      return;
+    }
+
+    if (!window.google?.maps || !this.availabilityAutocompleteHost?.nativeElement) {
+      return;
+    }
+
+    this.availabilityPlacesLibrary = await window.google.maps.importLibrary('places');
+
+    this.availabilityAutocompleteElement = new this.availabilityPlacesLibrary.PlaceAutocompleteElement({
+      includedPrimaryTypes: ['establishment', 'geocode']
+    });
+
+    this.availabilityAutocompleteElement.setAttribute('aria-label', 'Rechercher une adresse de terrain');
+    this.availabilityAutocompleteElement.setAttribute('placeholder', 'Rechercher un terrain...');
+    this.availabilityAutocompleteElement.classList.add('availability-map-card__autocomplete-element');
+    this.applyAvailabilityAutocompleteElementStyles();
+
+    host.innerHTML = '';
+    host.appendChild(this.availabilityAutocompleteElement);
+
+    this.availabilityAutocompleteElement.addEventListener('gmp-select', async (event: any) => {
+      const placePrediction = event?.placePrediction;
+      if (!placePrediction) {
+        return;
+      }
+
+      const place = placePrediction.toPlace();
+      await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location', 'id'] });
+
+      this.ngZone.run(() => {
+        this.applyAvailabilityPlaceSelection(place);
+      });
+    });
+
+    this.availabilityAutocompleteInitialized = true;
+  }
+
+  private applyAvailabilityAutocompleteElementStyles(): void {
+    if (!this.availabilityAutocompleteElement) {
+      return;
+    }
+
+    const style = this.availabilityAutocompleteElement.style;
+    style.display = 'block';
+    style.width = '100%';
+    style.minHeight = '52px';
+    style.boxSizing = 'border-box';
+    style.borderRadius = '16px';
+    style.border = '1px solid rgba(255, 255, 255, 0.08)';
+    style.backgroundColor = 'rgba(11, 20, 14, 0.85)';
+    style.color = '#f4fdf8';
+    style.fontFamily = 'inherit';
+    style.fontSize = '14px';
+    style.lineHeight = '1.2';
+  }
+
+  private applyAvailabilityPlaceSelection(place: any): void {
+    this.availabilityFieldName = place.displayName || place.name || this.availabilityAddressQuery;
+    this.availabilityFieldAddress = place.formattedAddress || place.formatted_address || place.displayName || place.name || this.availabilityAddressQuery;
+    this.availabilityAddressQuery = this.availabilityFieldAddress;
+    this.availabilitySelectedPlaceId = place.id || place.place_id || '';
+    this.availabilitySelectedLatitude = place.location?.lat ? place.location.lat() : (place.geometry?.location?.lat ? place.geometry.location.lat() : null);
+    this.availabilitySelectedLongitude = place.location?.lng ? place.location.lng() : (place.geometry?.location?.lng ? place.geometry.location.lng() : null);
+  }
+
+  private loadGoogleMapsPlacesScript(): Promise<void> {
+    if (window.google?.maps?.places) {
+      return Promise.resolve();
+    }
+
+    const existingScript = this.document.getElementById('google-maps-places-script') as HTMLScriptElement | null;
+    if (existingScript) {
+      return new Promise((resolve, reject) => {
+        existingScript.addEventListener('load', () => resolve(), { once: true });
+        existingScript.addEventListener('error', () => reject(new Error('Impossible de charger Google Maps Places.')), { once: true });
+      });
+    }
+
+    return new Promise((resolve, reject) => {
+      const script = this.document.createElement('script');
+      script.id = 'google-maps-places-script';
+      script.async = true;
+      script.defer = true;
+      window.initializeGoogleMapsPlaces = () => {
+        resolve();
+        delete window.initializeGoogleMapsPlaces;
+      };
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&v=weekly&loading=async&callback=initializeGoogleMapsPlaces`;
+      script.onload = () => {
+        if (window.google?.maps?.places) {
+          resolve();
+          delete window.initializeGoogleMapsPlaces;
+        }
+      };
+      script.onerror = () => reject(new Error('Impossible de charger Google Maps Places.'));
+      this.document.body.appendChild(script);
+    });
   }
 
   startEditIdentity(): void {

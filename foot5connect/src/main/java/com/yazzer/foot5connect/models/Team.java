@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -56,6 +57,12 @@ public class Team extends AbstractEntity {
 
     @Column(name = "end_time")
     private LocalTime endTime;
+
+    private String location;
+
+    private BigDecimal prix;
+
+    private TarificationTerrain tarificationTerrain;
 
     /* ================= RELATIONS ================= */
 

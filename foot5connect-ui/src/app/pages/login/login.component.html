@@ -35,7 +35,7 @@
                 <div class="label">Email</div>
                 <mat-form-field class="field" appearance="outline">
                   <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-envelope"></i></span>
-                  <input matInput type="email" placeholder="ex: name@email.com" [(ngModel)]="authRequest.email" name="email" required/>
+                  <input matInput type="email" placeholder="ex: name@email.com" [(ngModel)]="authRequest.email" name="email" autocomplete="username" required/>
                 </mat-form-field>
               </div>
 
@@ -47,7 +47,7 @@
                 </div>
                 <mat-form-field class="field" appearance="outline">
                   <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-lock"></i></span>
-                  <input matInput type="password" placeholder="••••••••" [(ngModel)]="authRequest.password" name="password" required/>
+                  <input matInput type="password" placeholder="••••••••" [(ngModel)]="authRequest.password" name="password" autocomplete="current-password" required/>
                 </mat-form-field>
               </div>
             }
@@ -88,7 +88,7 @@
                   <div class="label">Email</div>
                   <mat-form-field class="field" appearance="outline">
                     <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-envelope"></i></span>
-                    <input matInput type="email" placeholder="ex: champion@example.com" [(ngModel)]="userDto.email" name="email" required/>
+                    <input matInput type="email" placeholder="ex: champion@example.com" [(ngModel)]="userDto.email" name="email" autocomplete="email" required/>
                   </mat-form-field>
                 </div>
 
@@ -97,7 +97,7 @@
                   <div class="label">Mot de passe</div>
                   <mat-form-field class="field" appearance="outline">
                     <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-lock"></i></span>
-                    <input matInput type="password" placeholder="••••••••" [(ngModel)]="userDto.password" name="password" required/>
+                    <input matInput type="password" placeholder="••••••••" [(ngModel)]="userDto.password" name="password" autocomplete="new-password" required/>
                   </mat-form-field>
                 </div>
 
@@ -106,7 +106,7 @@
                   <div class="label">Confirmer mot de passe</div>
                   <mat-form-field class="field" appearance="outline">
                     <span matPrefix class="mat-icon-prefix"><i class="fa-solid fa-lock"></i></span>
-                    <input matInput type="password" placeholder="••••••••" [(ngModel)]="userDto.confirmPassword" name="confirmPassword" required/>
+                    <input matInput type="password" placeholder="••••••••" [(ngModel)]="userDto.confirmPassword" name="confirmPassword" autocomplete="new-password" required/>
                   </mat-form-field>
                 </div>
 
@@ -184,7 +184,7 @@
       </div>
     </div>
 
-    <div class="login-split__right" aria-hidden="true">
+    <div class="login-split__right" aria-hidden="true" [style.background-image]="'linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url(' + loginImages.login_bg + ')'">
       <div class="promo">
         <div class="promo__stats">
           <div class="stat">

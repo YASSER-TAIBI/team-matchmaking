@@ -1283,6 +1283,272 @@
   line-height: 1.55;
 }
 
+.availability-map-card {
+  padding: 30px 28px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgb(20 38 24 / 52%), rgb(18 34 21 / 62%));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.18);
+}
+
+.availability-map-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.availability-map-card__eyebrow {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.availability-map-card__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #f4fdf8;
+}
+
+.availability-map-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(19, 236, 91, 0.08);
+  border: 1px solid rgba(19, 236, 91, 0.18);
+  color: var(--neon-green);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.availability-map-card__badge .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.availability-map-card__search {
+  margin-bottom: 20px;
+}
+
+.availability-map-card__search-field {
+  position: relative;
+  display: block;
+}
+
+.availability-map-card__search-icon {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+.availability-map-card__autocomplete-host {
+  width: 100%;
+  min-height: 48px;
+  padding-left: 0;
+}
+
+.availability-map-card__autocomplete-host .availability-map-card__autocomplete-element {
+  display: block;
+  width: 100%;
+}
+
+.availability-map-card__input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(11, 20, 14, 0.85);
+  color: #f4fdf8;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.availability-map-card__search-field .availability-map-card__input {
+  padding-left: 46px;
+}
+
+.availability-map-card__input::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.availability-map-card__input:focus {
+  border-color: rgba(19, 236, 91, 0.8);
+  box-shadow: 0 0 0 3px rgba(19, 236, 91, 0.18);
+}
+
+.availability-map-card__input--price {
+  padding-left: 36px;
+}
+
+.availability-map-card__confirm {
+  min-height: 48px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.availability-map-card__media {
+  position: relative;
+  overflow: hidden;
+  height: 260px;
+  margin-bottom: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 24, 16, 0.9);
+}
+
+.availability-map-card__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  filter: grayscale(0.35) saturate(0.8) contrast(1.05) brightness(0.82);
+}
+
+.availability-map-card__pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  background: rgba(19, 236, 91, 0.14);
+  border: 1px solid rgba(19, 236, 91, 0.28);
+  color: var(--neon-green);
+  box-shadow: 0 0 0 10px rgba(19, 236, 91, 0.08);
+  backdrop-filter: blur(6px);
+}
+
+.availability-map-card__details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.availability-map-card__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.availability-map-card__value {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.45;
+}
+
+.availability-map-card__pricing {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.availability-map-card__pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+
+.availability-map-card__toggle {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.availability-map-card__toggle-btn {
+  border: 0;
+  min-width: 84px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.availability-map-card__toggle-btn--active {
+  background: var(--neon-green);
+  color: #102216;
+  box-shadow: 0 0 20px rgba(19, 236, 91, 0.2);
+}
+
+.availability-map-card__price-input-wrap {
+  position: relative;
+}
+
+.availability-map-card__currency {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.availability-map-card__total {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 18px 0 0;
+}
+
+.availability-map-card__maps {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.availability-map-card__total-value {
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.05;
+  color: var(--neon-green);
+}
+
+.availability-map-card__total-note {
+  max-width: 270px;
+  margin: 0;
+  text-align: left;
+  align-self: stretch;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.48);
+}
+
 .availability-card__grid {
   display: block;
 }
@@ -1865,6 +2131,14 @@
     display: block;
   }
 
+  .availability-map-card__details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .availability-map-card__pricing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .availability-panel__split {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2104,9 +2378,46 @@
   }
 
   .availability-card__hero,
+  .availability-map-card,
   .availability-panel {
     padding: 20px 18px;
     border-radius: 22px;
+  }
+
+  .availability-map-card__header,
+  .availability-map-card__search,
+  .availability-map-card__pricing-grid,
+  .availability-map-card__details {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .availability-map-card__header {
+    gap: 14px;
+  }
+
+  .availability-map-card__media {
+    height: 220px;
+    border-radius: 20px;
+  }
+
+  .availability-map-card__confirm {
+    width: 100%;
+  }
+
+  .availability-map-card__total,
+  .availability-map-card__maps {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .availability-map-card__total-note {
+    max-width: none;
+    text-align: left;
+  }
+
+  .availability-map-card__title {
+    font-size: 19px;
   }
 
   .availability-overview {
