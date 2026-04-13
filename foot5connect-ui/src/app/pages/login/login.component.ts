@@ -13,6 +13,7 @@ import { AuthenticationRequest, UserDto } from '../../services/models';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { LOGIN_IMAGES } from '../../../assets/img/login/login-images';
 
 
 @Component({
@@ -37,6 +38,7 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  readonly loginImages = LOGIN_IMAGES;
   readonly countries = Country.getAllCountries().sort((a, b) => a.name.localeCompare(b.name));
   cities: Array<{ name: string }> = [];
   authRequest: AuthenticationRequest = {};
