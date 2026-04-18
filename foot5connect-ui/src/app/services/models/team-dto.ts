@@ -16,8 +16,12 @@ export interface TeamDto {
   matchesWon?: number;
   members?: Array<TeamMemberDto>;
   name?: string;
+  pitchAddress?: string;
+  prix?: number;
   startTime?: string;
   status?: 'INACTIVE' | 'INCOMPLETE' | 'COMPLETE' | 'IN_MATCH';
+  tarificationTerrain?: 'GRATUIT' | 'PAYANT';
   teamLevel?: 'DEBUTANT' | 'AVANCE' | 'AMATEUR';
+  titleAddress?: string;
   totalMatches?: number;
 }

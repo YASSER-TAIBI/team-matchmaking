@@ -7,6 +7,7 @@ import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@a
 import { HttpInterceptorService } from './services/http-interceptor/http-interceptor.service';
 import { ApiConfiguration } from './services/api-configuration';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,7 +22,7 @@ export const appConfig: ApplicationConfig = {
     },
     {
       provide: ApiConfiguration,
-      useValue: { rootUrl: 'http://localhost:8080' } as ApiConfiguration
+      useValue: { rootUrl: environment.api.rootUrl } as ApiConfiguration
     },
     {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'},
   ]

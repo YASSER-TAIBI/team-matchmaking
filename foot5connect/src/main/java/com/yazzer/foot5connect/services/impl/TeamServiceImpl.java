@@ -130,6 +130,18 @@ public class TeamServiceImpl implements TeamService {
         if (teamDto.getEndTime() != null) {
             team.setEndTime(teamDto.getEndTime());
         }
+        if (teamDto.getPitchAddress() != null) {
+            team.setPitchAddress(teamDto.getPitchAddress());
+        }
+        if (teamDto.getTitleAddress() != null) {
+            team.setTitleAddress(teamDto.getTitleAddress());
+        }
+        if (teamDto.getPrix() != null) {
+            team.setPrix(teamDto.getPrix());
+        }
+        if (teamDto.getTarificationTerrain() != null) {
+            team.setTarificationTerrain(teamDto.getTarificationTerrain());
+        }
         if (teamDto.getMembers() != null) {
             List<TeamMember> teamMembers = teamMemberRepository.findByTeam_Id(team.getId());
 

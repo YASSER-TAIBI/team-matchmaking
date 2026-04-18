@@ -12,6 +12,7 @@ import { TeamService } from '../../services/teams/team.service';
 import { TeamDto } from '../../services/models/team-dto';
 import { TeamMemberDto } from '../../services/models/team-member-dto';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { environment } from '../../../environments/environment';
 
 type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation' | 'historique';
 type TeamEditSection = 'identity' | 'formation';
@@ -24,8 +25,6 @@ type PitchSlot = {
   cssClass: string;
   member?: TeamMemberDto;
 };
-
-const GOOGLE_MAPS_API_KEY = 'AIzaSyDh2l1oVsTJNaA9Dl4wQiqXokD3_o11Uak';
 
 declare global {
   interface Window {
@@ -103,8 +102,8 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   availabilityAddressQuery = '';
   availabilityFieldName = 'Terrain à confirmer';
   availabilityFieldAddress = 'Non renseignée';
-  availabilityFieldPricing: 'FREE' | 'PAID' = 'PAID';
-  availabilityPricePerPerson = 12;
+  availabilityFieldPricing: NonNullable<TeamDto['tarificationTerrain']> = 'PAYANT';
+  availabilityPricePerPerson = 9;
   availabilitySelectedPlaceId = '';
   availabilitySelectedLatitude: number | null = null;
   availabilitySelectedLongitude: number | null = null;
@@ -135,6 +134,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
       next: (data) => {
         this.team = data;
         this.members = data?.members ?? [];
+        this.syncAvailabilityDetailsFromTeam();
         this.syncAvailabilityLevelFromTeam();
         this.syncFormationEditMembers();
         this.hasLeftTeam = this.members.length === 0;
@@ -267,20 +267,20 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   get availabilityMapUrl(): SafeResourceUrl {
     if (this.availabilitySelectedPlaceId) {
       const placeId = encodeURIComponent(this.availabilitySelectedPlaceId);
-      return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=place_id:${placeId}`);
+      return this.sanitizer.bypassSecurityTrustResourceUrl(`${environment.googleMaps.embedPlaceBaseUrl}?key=${environment.googleMaps.apiKey}&q=place_id:${placeId}`);
     }
 
     if (this.availabilitySelectedLatitude !== null && this.availabilitySelectedLongitude !== null) {
       const coordinates = encodeURIComponent(`${this.availabilitySelectedLatitude},${this.availabilitySelectedLongitude}`);
-      return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=${coordinates}`);
+      return this.sanitizer.bypassSecurityTrustResourceUrl(`${environment.googleMaps.embedPlaceBaseUrl}?key=${environment.googleMaps.apiKey}&q=${coordinates}`);
     }
 
     const query = encodeURIComponent(this.availabilityFieldAddress || this.availabilityAddressQuery || this.availabilityFieldName);
-    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.google.com/maps?q=${query}&z=15&output=embed`);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`${environment.googleMaps.embedSearchBaseUrl}?q=${query}&z=15&output=embed`);
   }
 
   get availabilityTotalTeamCost(): number {
-    if (this.availabilityFieldPricing === 'FREE') {
+    if (this.availabilityFieldPricing === 'GRATUIT') {
       return 0;
     }
 
@@ -354,7 +354,12 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (!this.team?.availableDate || !this.team?.startTime || !this.team?.endTime) {
+    if (!this.team?.availableDate ||
+       !this.team?.startTime ||
+        !this.team?.endTime ||
+         !this.availabilitySelectedPlaceId ||
+          !this.availabilityFieldPricing ||
+            (this.availabilityFieldPricing === 'PAYANT' && !this.availabilityPricePerPerson)) {
       this.showIdentityScheduleDialog = true;
       return;
     }
@@ -375,11 +380,18 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
       startTime: team.startTime,
       endTime: team.endTime,
       status: 'COMPLETE',
-      teamLevel: this.selectedTeamLevelValue
+      teamLevel: this.selectedTeamLevelValue,
+      tarificationTerrain: this.availabilityFieldPricing,
+      prix: this.availabilityFieldPricing === 'PAYANT' ? this.availabilityPricePerPerson : undefined,
+      pitchAddress: this.availabilitySelectedPlaceId,
+      titleAddress: this.availabilityFieldName
     }).subscribe({
       next: (updated: TeamDto) => {
         this.team = updated;
         this.members = updated?.members ?? this.members;
+        this.syncAvailabilityDetailsFromTeam();
+        this.availabilityAddressQuery = '';
+        this.clearAvailabilityAutocompleteSearch();
         this.syncAvailabilityLevelFromTeam();
       },
       error: (err: any) => console.error('Erreur lors de la confirmation de l’équipe', err)
@@ -420,27 +432,27 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     this.activeTab = 'invitation';
   }
 
-  async confirmAvailabilityField(): Promise<void> {
-    const normalizedQuery = this.availabilityAddressQuery.trim();
+  // async confirmAvailabilityField(): Promise<void> {
+  //   const normalizedQuery = this.availabilityAddressQuery.trim();
 
-    if (normalizedQuery) {
-      if (!this.availabilitySelectedPlaceId) {
-        this.availabilityFieldAddress = normalizedQuery;
-        this.availabilityFieldName = normalizedQuery;
-      }
-    }
+  //   if (normalizedQuery) {
+  //     if (!this.availabilitySelectedPlaceId) {
+  //       this.availabilityFieldAddress = normalizedQuery;
+  //       this.availabilityFieldName = normalizedQuery;
+  //     }
+  //   }
 
-    console.log('Terrain confirmé', {
-      fieldName: this.availabilityFieldName,
-      address: this.availabilityFieldAddress,
-      placeId: this.availabilitySelectedPlaceId || null,
-      latitude: this.availabilitySelectedLatitude,
-      longitude: this.availabilitySelectedLongitude,
-      pricing: this.availabilityFieldPricing,
-      pricePerPerson: this.availabilityFieldPricing === 'PAID' ? this.availabilityPricePerPerson : null,
-      totalTeamCost: this.availabilityFieldPricing === 'PAID' ? this.availabilityTotalTeamCost : null
-    });
-  }
+  //   console.log('Terrain confirmé', {
+  //     fieldName: this.availabilityFieldName,
+  //     address: this.availabilityFieldAddress,
+  //     placeId: this.availabilitySelectedPlaceId || null,
+  //     latitude: this.availabilitySelectedLatitude,
+  //     longitude: this.availabilitySelectedLongitude,
+  //     pricing: this.availabilityFieldPricing,
+  //     pricePerPerson: this.availabilityFieldPricing === 'PAYANT' ? this.availabilityPricePerPerson : null,
+  //     totalTeamCost: this.availabilityFieldPricing === 'PAYANT' ? this.availabilityTotalTeamCost : null
+  //   });
+  // }
 
   onAvailabilityAddressInputChange(): void {
     this.availabilitySelectedPlaceId = '';
@@ -448,8 +460,13 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     this.availabilitySelectedLongitude = null;
   }
 
-  setAvailabilityFieldPricing(pricing: 'FREE' | 'PAID'): void {
+  setAvailabilityFieldPricing(pricing: NonNullable<TeamDto['tarificationTerrain']>): void {
     this.availabilityFieldPricing = pricing;
+    if (pricing === 'GRATUIT') {
+      this.availabilityPricePerPerson = 0;
+    } else {
+      this.availabilityPricePerPerson = 9;
+    }
   }
 
   private initializeAvailabilityLocationFromUser(): void {
@@ -467,6 +484,80 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     this.availabilityFieldName = `${userCity}`;
   }
 
+  private syncAvailabilityDetailsFromTeam(): void {
+    if (!this.team) {
+      this.updateAvailabilityAutocompleteInteractivity();
+      return;
+    }
+
+    if (this.team.titleAddress) {
+      this.availabilityFieldName = this.team.titleAddress;
+      this.availabilityFieldAddress = this.team.titleAddress;
+    }
+
+    if (this.team.pitchAddress) {
+      this.availabilitySelectedPlaceId = this.team.pitchAddress;
+    }
+
+    if (this.team.tarificationTerrain) {
+      this.availabilityFieldPricing = this.team.tarificationTerrain;
+    }
+
+    if (this.team.tarificationTerrain === 'PAYANT') {
+      this.availabilityPricePerPerson = this.team.prix ?? this.availabilityPricePerPerson;
+    } else if (this.team.tarificationTerrain === 'GRATUIT') {
+      this.availabilityPricePerPerson = 0;
+    }
+
+    this.updateAvailabilityAutocompleteInteractivity();
+  }
+
+  private updateAvailabilityAutocompleteInteractivity(): void {
+    const host = this.availabilityAutocompleteHost?.nativeElement;
+    if (host) {
+      host.style.pointerEvents = this.isTeamConfirmed ? 'none' : 'auto';
+      host.style.opacity = this.isTeamConfirmed ? '0.7' : '1';
+      host.setAttribute('aria-disabled', this.isTeamConfirmed ? 'true' : 'false');
+    }
+
+    if (!this.availabilityAutocompleteElement) {
+      return;
+    }
+
+    const autocompleteElement = this.availabilityAutocompleteElement as HTMLElement & { disabled?: boolean };
+    if ('disabled' in autocompleteElement) {
+      autocompleteElement.disabled = this.isTeamConfirmed;
+    }
+
+    if (this.isTeamConfirmed) {
+      autocompleteElement.setAttribute('tabindex', '-1');
+      autocompleteElement.setAttribute('aria-disabled', 'true');
+      return;
+    }
+
+    autocompleteElement.removeAttribute('tabindex');
+    autocompleteElement.setAttribute('aria-disabled', 'false');
+  }
+
+  private clearAvailabilityAutocompleteSearch(): void {
+    if (!this.availabilityAutocompleteElement) {
+      return;
+    }
+
+    const autocompleteElement = this.availabilityAutocompleteElement as any;
+    autocompleteElement.value = '';
+
+    const internalInput = autocompleteElement.querySelector?.('input') as HTMLInputElement | null;
+    if (internalInput) {
+      internalInput.value = '';
+    }
+
+    const shadowInput = autocompleteElement.shadowRoot?.querySelector?.('input') as HTMLInputElement | null;
+    if (shadowInput) {
+      shadowInput.value = '';
+    }
+  }
+
   private async initializeAvailabilityAutocomplete(): Promise<void> {
     if (!this.availabilityAutocompleteHost?.nativeElement) {
       return;
@@ -477,6 +568,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     if (this.availabilityAutocompleteInitialized && this.availabilityAutocompleteElement) {
       host.innerHTML = '';
       host.appendChild(this.availabilityAutocompleteElement);
+      this.updateAvailabilityAutocompleteInteractivity();
       return;
     }
 
@@ -504,6 +596,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
 
     host.innerHTML = '';
     host.appendChild(this.availabilityAutocompleteElement);
+    this.updateAvailabilityAutocompleteInteractivity();
 
     this.availabilityAutocompleteElement.addEventListener('gmp-select', async (event: any) => {
       const placePrediction = event?.placePrediction;
@@ -555,6 +648,10 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
       return Promise.resolve();
     }
 
+    if (!environment.googleMaps.apiKey) {
+      return Promise.reject(new Error('Google Maps API key is missing in environment.googleMaps.apiKey'));
+    }
+
     const existingScript = this.document.getElementById('google-maps-places-script') as HTMLScriptElement | null;
     if (existingScript) {
       return new Promise((resolve, reject) => {
@@ -572,7 +669,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
         resolve();
         delete window.initializeGoogleMapsPlaces;
       };
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&v=weekly&loading=async&callback=initializeGoogleMapsPlaces`;
+      script.src = `${environment.googleMaps.scriptBaseUrl}?key=${environment.googleMaps.apiKey}&libraries=places&v=weekly&loading=async&callback=initializeGoogleMapsPlaces`;
       script.onload = () => {
         if (window.google?.maps?.places) {
           resolve();
