@@ -721,6 +721,22 @@
           },
           "endTime": {
             "type": "string"
+          },
+          "pitchAddress": {
+            "type": "string"
+          },
+          "titleAddress": {
+            "type": "string"
+          },
+          "prix": {
+            "type": "number"
+          },
+          "tarificationTerrain": {
+            "type": "string",
+            "enum": [
+              "GRATUIT",
+              "PAYANT"
+            ]
           }
         }
       },

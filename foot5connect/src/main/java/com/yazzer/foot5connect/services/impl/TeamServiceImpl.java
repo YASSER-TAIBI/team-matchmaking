@@ -130,6 +130,18 @@ public class TeamServiceImpl implements TeamService {
         if (teamDto.getEndTime() != null) {
             team.setEndTime(teamDto.getEndTime());
         }
+        if (teamDto.getPitchAddress() != null) {
+            team.setPitchAddress(teamDto.getPitchAddress());
+        }
+        if (teamDto.getTitleAddress() != null) {
+            team.setTitleAddress(teamDto.getTitleAddress());
+        }
+        if (teamDto.getPrix() != null) {
+            team.setPrix(teamDto.getPrix());
+        }
+        if (teamDto.getTarificationTerrain() != null) {
+            team.setTarificationTerrain(teamDto.getTarificationTerrain());
+        }
         if (teamDto.getMembers() != null) {
             List<TeamMember> teamMembers = teamMemberRepository.findByTeam_Id(team.getId());
 
@@ -161,6 +173,26 @@ public class TeamServiceImpl implements TeamService {
         return TeamDto.fromEntity(
                 teamRepository.findByCaptainIdWithMembers(currentUser.getId()).orElse(team)
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TeamDto> findCompleteTeamsInMyCity() {
+        User currentUser = getAuthenticatedUser();
+        String city = currentUser.getCity();
+        System.out.println("DEBUG city=[" + city + "]");
+
+        if (city == null || city.isBlank()) {
+            return List.of();
+        }
+
+        List<Team> teams = teamRepository.findByStatusAndCity(TeamStatus.COMPLETE, city);
+        System.out.println("DEBUG teams.size=" + teams.size());
+
+        return teams
+                .stream()
+                .map(TeamDto::fromEntity)
+                .toList();
     }
 
     @Override

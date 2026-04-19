@@ -1,5 +1,6 @@
 package com.yazzer.foot5connect.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.yazzer.foot5connect.models.AvailabilityTeamLevel;
+import com.yazzer.foot5connect.models.TarificationTerrain;
 import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamStatus;
 import com.yazzer.foot5connect.models.User;
@@ -57,6 +59,15 @@ public class TeamDto {
     
     private LocalTime endTime;
 
+    private String pitchAddress;
+
+    private String titleAddress;
+
+    private BigDecimal prix;
+
+    private TarificationTerrain tarificationTerrain;
+
+
     public static TeamDto fromEntity(Team team) {
         if (team == null){
             return null;
@@ -87,6 +98,10 @@ public class TeamDto {
                 .availableDate(team.getAvailableDate())
                 .startTime(team.getStartTime())
                 .endTime(team.getEndTime())
+                .pitchAddress(team.getPitchAddress())
+                .titleAddress(team.getTitleAddress())
+                .prix(team.getPrix())
+                .tarificationTerrain(team.getTarificationTerrain())
                 .build();
     }
 
@@ -115,6 +130,10 @@ public class TeamDto {
                 .availableDate(teamDto.getAvailableDate())
                 .startTime(teamDto.getStartTime())
                 .endTime(teamDto.getEndTime())
+                .pitchAddress(teamDto.getPitchAddress())
+                .titleAddress(teamDto.getTitleAddress())
+                .prix(teamDto.getPrix())
+                .tarificationTerrain(teamDto.getTarificationTerrain())
                 .build();
     }
 

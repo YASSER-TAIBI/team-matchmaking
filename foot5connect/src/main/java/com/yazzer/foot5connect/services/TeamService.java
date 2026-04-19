@@ -1,5 +1,7 @@
 package com.yazzer.foot5connect.services;
 
+import java.util.List;
+
 import com.yazzer.foot5connect.dto.TeamDto;
 
 public interface TeamService {
@@ -13,6 +15,8 @@ public interface TeamService {
     boolean hasMyTeamMembership();
 
     TeamDto updateTeam(TeamDto teamDto);
+
+    List<TeamDto> findCompleteTeamsInMyCity();
 
     void leaveMyTeam();
 

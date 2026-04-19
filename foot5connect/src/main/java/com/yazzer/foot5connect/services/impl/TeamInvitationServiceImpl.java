@@ -75,11 +75,6 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
             throw new IllegalStateException("L'horaire proposé est invalide");
         }
 
-        if (request.getStartTime().isBefore(invitedDisponibility.getStartTime())
-                || request.getEndTime().isAfter(invitedDisponibility.getEndTime())) {
-            throw new IllegalStateException("L'horaire proposé doit être dans la plage de disponibilité du joueur");
-        }
-
         User invitedUser = invitedDisponibility.getUser();
 
         if (invitedUser.getTeamMembers() != null && !invitedUser.getTeamMembers().isEmpty()) {

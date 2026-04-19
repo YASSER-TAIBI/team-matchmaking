@@ -1,13 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatInputModule } from '@angular/material/input';
 import { MATCHES_IMAGES } from '../../../assets/img/matches/matches-images';
+import { HelperService } from '../../services/helper/helper.service';
+import { TeamDto } from '../../services/models/team-dto';
+import { TeamService } from '../../services/teams/team.service';
 
 interface MatchRequestCard {
   id: number;
   teamName: string;
   ratingLabel: string;
-  status: 'new' | 'urgent' | 'friendly' | null;
+  availableDateOnly: string | null;
+  levelCode: TeamDto['teamLevel'] | null;
   dateLabel: string;
   relativeDateLabel: string;
   venueName: string;
@@ -16,6 +23,7 @@ interface MatchRequestCard {
   format: string;
   price: string;
   city: string;
+  country: string;
   competitive: boolean;
   heroClass: string;
   backgroundImage: string;
@@ -26,260 +34,69 @@ interface MatchRequestCard {
 @Component({
   selector: 'app-matches',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatDatepickerModule, MatNativeDateModule, MatInputModule],
   templateUrl: './matches.component.html',
   styleUrls: ['./matches.component.scss']
 })
-export class MatchesComponent {
-  readonly cards: MatchRequestCard[] = [
-    {
-      id: 1,
-      teamName: 'Thunder FC',
-      ratingLabel: '4.8 Rating',
-      status: 'new',
-      dateLabel: '12 Oct, 20:00 (1h30)',
-      relativeDateLabel: 'Ce soir • Échauffement 19:45',
-      venueName: 'Power League Shoreditch',
-      venueMeta: 'Terrain 5 • Outdoor 4G',
-      level: 'Intermédiaire',
-      format: '5v5',
-      price: '7.50€ / pers',
-      city: 'London',
-      competitive: true,
-      heroClass: 'matches-card__media--night',
-      backgroundImage: MATCHES_IMAGES.stadium_01,
-      logoClass: 'matches-card__logo-inner--emerald',
-      initials: 'TF'
-    },
-    {
-      id: 2,
-      teamName: 'Lightning Strikers',
-      ratingLabel: '5.0 Rating',
-      status: 'urgent',
-      dateLabel: '13 Oct, 19:30 (1h)',
-      relativeDateLabel: 'Demain',
-      venueName: 'Goals Wembley',
-      venueMeta: 'Terrain 2 • Outdoor 5G',
-      level: 'Avancé',
-      format: '7v7',
-      price: 'Couvert',
-      city: 'London',
-      competitive: true,
-      heroClass: 'matches-card__media--field',
-      backgroundImage: MATCHES_IMAGES.stadium_02,
-      logoClass: 'matches-card__logo-inner--violet',
-      initials: 'LS'
-    },
-    {
-      id: 3,
-      teamName: 'Hackney Heroes',
-      ratingLabel: 'Nouvelle équipe',
-      status: null,
-      dateLabel: '14 Oct, 18:00 (1h)',
-      relativeDateLabel: 'Lundi',
-      venueName: 'Hackney Marshes',
-      venueMeta: 'South Field',
-      level: 'Débutant',
-      format: '11v11',
-      price: 'Gratuit',
-      city: 'London',
-      competitive: false,
-      heroClass: 'matches-card__media--strategy',
-      backgroundImage: MATCHES_IMAGES.stadium_03,
-      logoClass: 'matches-card__logo-inner--orange',
-      initials: 'HH'
-    },
-    {
-      id: 4,
-      teamName: 'Camden Kickers',
-      ratingLabel: '4.5 Rating',
-      status: null,
-      dateLabel: '15 Oct, 21:00 (1h)',
-      relativeDateLabel: 'Mardi',
-      venueName: 'Castle Haven',
-      venueMeta: 'Camden Town',
-      level: 'Open',
-      format: '5v5',
-      price: 'Sans frais',
-      city: 'London',
-      competitive: false,
-      heroClass: 'matches-card__media--ball',
-      backgroundImage: MATCHES_IMAGES.stadium_04,
-      logoClass: 'matches-card__logo-inner--teal',
-      initials: 'CK'
-    },
-    {
-      id: 5,
-      teamName: 'Islington Ballers',
-      ratingLabel: '4.2 Rating',
-      status: 'friendly',
-      dateLabel: '16 Oct, 20:30 (1h)',
-      relativeDateLabel: 'Mercredi',
-      venueName: 'Market Road',
-      venueMeta: 'Terrain 1',
-      level: 'Confirmé',
-      format: '5v5',
-      price: 'Friendly',
-      city: 'London',
-      competitive: false,
-      heroClass: 'matches-card__media--action',
-      backgroundImage: MATCHES_IMAGES.stadium_05,
-      logoClass: 'matches-card__logo-inner--purple',
-      initials: 'IB'
-    },
-    {
-      id: 6,
-      teamName: 'Shoreditch Stars',
-      ratingLabel: '4.7 Rating',
-      status: null,
-      dateLabel: '17 Oct, 19:00 (1h)',
-      relativeDateLabel: 'Jeudi',
-      venueName: 'Haggerston Park',
-      venueMeta: 'Terrain 3',
-      level: 'Casual',
-      format: 'Mixte',
-      price: '5€ / pers',
-      city: 'London',
-      competitive: false,
-      heroClass: 'matches-card__media--stadium',
-      backgroundImage: MATCHES_IMAGES.stadium_06,
-      logoClass: 'matches-card__logo-inner--green',
-      initials: 'SS'
-    },
-    {
-      id: 7,
-      teamName: 'Brixton Wolves',
-      ratingLabel: '4.6 Rating',
-      status: 'new',
-      dateLabel: '18 Oct, 20:15 (1h)',
-      relativeDateLabel: 'Vendredi',
-      venueName: 'Brixton Rec',
-      venueMeta: 'Pitch Central • Indoor',
-      level: 'Intermédiaire',
-      format: '5v5',
-      price: '6€ / pers',
-      city: 'London',
-      competitive: true,
-      heroClass: 'matches-card__media--night',
-      backgroundImage: MATCHES_IMAGES.stadium_07,
-      logoClass: 'matches-card__logo-inner--teal',
-      initials: 'BW'
-    },
-    {
-      id: 8,
-      teamName: 'Northside Elite',
-      ratingLabel: '4.9 Rating',
-      status: 'urgent',
-      dateLabel: '19 Oct, 18:45 (1h30)',
-      relativeDateLabel: 'Samedi • Arrivée 18:15',
-      venueName: 'Finchley Power Arena',
-      venueMeta: 'Terrain 4 • Outdoor',
-      level: 'Avancé',
-      format: '5v5',
-      price: '9€ / pers',
-      city: 'London',
-      competitive: true,
-      heroClass: 'matches-card__media--field',
-      backgroundImage: MATCHES_IMAGES.stadium_08,
-      logoClass: 'matches-card__logo-inner--purple',
-      initials: 'NE'
-    },
-    {
-      id: 9,
-      teamName: 'Paris Eleven',
-      ratingLabel: '4.3 Rating',
-      status: null,
-      dateLabel: '20 Oct, 21:00 (1h)',
-      relativeDateLabel: 'Dimanche',
-      venueName: 'UrbanSoccer Puteaux',
-      venueMeta: 'Terrain 6 • Indoor',
-      level: 'Confirmé',
-      format: '5v5',
-      price: '8€ / pers',
-      city: 'Paris',
-      competitive: true,
-      heroClass: 'matches-card__media--strategy',
-      backgroundImage: MATCHES_IMAGES.stadium_09,
-      logoClass: 'matches-card__logo-inner--violet',
-      initials: 'PE'
-    },
-    {
-      id: 10,
-      teamName: 'Atlas Five',
-      ratingLabel: 'Nouvelle équipe',
-      status: 'friendly',
-      dateLabel: '21 Oct, 19:30 (1h)',
-      relativeDateLabel: 'Mardi prochain',
-      venueName: 'Casablanca Arena',
-      venueMeta: 'Terrain 2 • Mixte',
-      level: 'Débutant',
-      format: '5v5',
-      price: 'Gratuit',
-      city: 'Casablanca',
-      competitive: false,
-      heroClass: 'matches-card__media--action',
-      backgroundImage: MATCHES_IMAGES.stadium_10,
-      logoClass: 'matches-card__logo-inner--orange',
-      initials: 'AF'
-    },
-    {
-      id: 11,
-      teamName: 'Canal United',
-      ratingLabel: '4.4 Rating',
-      status: null,
-      dateLabel: '22 Oct, 22:00 (1h)',
-      relativeDateLabel: 'Mercredi prochain',
-      venueName: 'Regent’s Park Hub',
-      venueMeta: 'Pitch 1 • Night session',
-      level: 'Open',
-      format: '7v7',
-      price: '7€ / pers',
-      city: 'London',
-      competitive: false,
-      heroClass: 'matches-card__media--ball',
-      backgroundImage: MATCHES_IMAGES.stadium_11,
-      logoClass: 'matches-card__logo-inner--green',
-      initials: 'CU'
-    },
-    {
-      id: 12,
-      teamName: 'Royal Foot Club',
-      ratingLabel: '4.8 Rating',
-      status: 'new',
-      dateLabel: '23 Oct, 20:00 (1h30)',
-      relativeDateLabel: 'Jeudi prochain',
-      venueName: 'Kensington Arena',
-      venueMeta: 'Terrain VIP • Indoor',
-      level: 'Confirmé',
-      format: '5v5',
-      price: '10€ / pers',
-      city: 'London',
-      competitive: true,
-      heroClass: 'matches-card__media--stadium',
-      backgroundImage: MATCHES_IMAGES.stadium_01,
-      logoClass: 'matches-card__logo-inner--emerald',
-      initials: 'RF'
-    }
-  ];
+export class MatchesComponent implements OnInit {
+  private readonly teamService = inject(TeamService);
+  private readonly helperService = inject(HelperService);
 
-  selectedLocation = '';
-  selectedDate = '';
-  selectedFormat = '';
-  appliedLocation = '';
-  appliedDate = '';
-  appliedFormat = '';
+  cards: MatchRequestCard[] = [];
+  hasCompleteTeam = false;
+  permissionsLoaded = false;
+  currentUserTeamId: number | null = null;
   visibleCount = 6;
+  isLoading = false;
+  errorMessage = '';
 
-  readonly locationOptions = ['London', 'Paris', 'Casablanca'];
-  readonly dateOptions = ['Aujourd’hui', 'Cette semaine', 'Ce mois'];
-  readonly formatOptions = ['5v5', '7v7', '11v11', 'Mixte'];
+  selectedDate: Date | null = null;
+  selectedLevel: TeamDto['teamLevel'] | '' = '';
+  appliedDate: Date | null = null;
+  appliedLevel: TeamDto['teamLevel'] | '' = '';
+
+  readonly userCity = this.helperService.userCity;
+  readonly userCountry = this.helperService.userCountry;
+  readonly currentUserId = this.helperService.userId;
+  readonly levelOptions: Array<{ value: TeamDto['teamLevel']; label: string }> = [
+    { value: 'DEBUTANT', label: 'Débutant' },
+    { value: 'AMATEUR', label: 'Amateur' },
+    { value: 'AVANCE', label: 'Avancé' }
+  ];
+  readonly heroClasses = [
+    'matches-card__media--night',
+    'matches-card__media--field',
+    'matches-card__media--strategy',
+    'matches-card__media--ball',
+    'matches-card__media--action',
+    'matches-card__media--stadium'
+  ];
+  readonly logoClasses = [
+    'matches-card__logo-inner--emerald',
+    'matches-card__logo-inner--violet',
+    'matches-card__logo-inner--orange',
+    'matches-card__logo-inner--teal',
+    'matches-card__logo-inner--purple',
+    'matches-card__logo-inner--green'
+  ];
+  readonly backgroundImages = Object.values(MATCHES_IMAGES);
+
+  ngOnInit(): void {
+    this.loadActionPermissions();
+    this.loadCompleteTeams();
+  }
 
   get filteredCards(): MatchRequestCard[] {
+    const selectedDateOnly = this.appliedDate
+      ? `${this.appliedDate.getFullYear()}-${String(this.appliedDate.getMonth() + 1).padStart(2, '0')}-${String(this.appliedDate.getDate()).padStart(2, '0')}`
+      : null;
+
     return this.cards.filter((card) => {
-      const locationMatch = !this.appliedLocation || card.city === this.appliedLocation;
-      const dateMatch = !this.appliedDate || this.matchesDateFilter(card.relativeDateLabel, this.appliedDate);
-      const formatMatch = !this.appliedFormat || card.format === this.appliedFormat;
-      return locationMatch && dateMatch && formatMatch;
+      const cityMatch = !this.userCity || card.city === this.userCity;
+      const countryMatch = !this.userCountry || card.country === this.userCountry;
+      const dateMatch = !selectedDateOnly || card.availableDateOnly === selectedDateOnly;
+      const levelMatch = !this.appliedLevel || card.levelCode === this.appliedLevel;
+      return cityMatch && countryMatch && dateMatch && levelMatch;
     });
   }
 
@@ -291,21 +108,37 @@ export class MatchesComponent {
     return this.visibleCount < this.filteredCards.length;
   }
 
+  get canUseMatchActions(): boolean {
+    return this.permissionsLoaded && this.hasCompleteTeam;
+  }
+
+  canUseMatchActionsForCard(card: MatchRequestCard): boolean {
+    return this.canUseMatchActions && card.id !== this.currentUserTeamId;
+  }
+
   searchMatches(): void {
-    this.appliedLocation = this.selectedLocation;
     this.appliedDate = this.selectedDate;
-    this.appliedFormat = this.selectedFormat;
+    this.appliedLevel = this.selectedLevel;
     this.visibleCount = 6;
   }
 
   resetFilters(): void {
-    this.selectedLocation = '';
-    this.selectedDate = '';
-    this.selectedFormat = '';
-    this.appliedLocation = '';
-    this.appliedDate = '';
-    this.appliedFormat = '';
+    this.selectedDate = null;
+    this.selectedLevel = '';
+    this.appliedDate = null;
+    this.appliedLevel = '';
     this.visibleCount = 6;
+  }
+
+  onDateSelected(date: Date | null): void {
+    this.selectedDate = date;
+  }
+
+  onAvailabilityInput(event: Event): void {
+    const value = (event.target as HTMLInputElement | null)?.value ?? '';
+    if (!value) {
+      this.selectedDate = null;
+    }
   }
 
   loadMore(): void {
@@ -316,42 +149,160 @@ export class MatchesComponent {
     return card.id;
   }
 
-  statusLabel(status: MatchRequestCard['status']): string {
-    switch (status) {
-      case 'new':
-        return 'New';
-      case 'urgent':
-        return 'Urgent';
-      case 'friendly':
-        return 'Friendly';
+  onAcceptChallenge(card: MatchRequestCard): void {
+    console.log('[matches] accept click', {
+      cardId: card.id,
+      teamName: card.teamName,
+      hasCompleteTeam: this.hasCompleteTeam,
+      canUseMatchActions: this.canUseMatchActions,
+      currentUserTeamId: this.currentUserTeamId
+    });
+  }
+
+  onMessageTeam(card: MatchRequestCard): void {
+    console.log('[matches] message click', {
+      cardId: card.id,
+      teamName: card.teamName,
+      hasCompleteTeam: this.hasCompleteTeam,
+      canUseMatchActions: this.canUseMatchActions,
+      currentUserTeamId: this.currentUserTeamId
+    });
+  }
+
+  private loadCompleteTeams(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.teamService.findCompleteTeamsInMyCity().subscribe({
+      next: (teams: TeamDto[]) => {
+        this.cards = teams.map((team, index) => this.mapTeamToCard(team, index));
+        this.visibleCount = 6;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.errorMessage = 'Impossible de charger les équipes disponibles pour ta ville.';
+        this.cards = [];
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private loadActionPermissions(): void {
+    this.hasCompleteTeam = false;
+    this.permissionsLoaded = false;
+    this.currentUserTeamId = null;
+
+    this.teamService.findMyTeam().subscribe({
+      next: (team: TeamDto | null) => {
+        this.currentUserTeamId = team?.id ?? null;
+        if (this.isCompleteTeam(team)) {
+          this.hasCompleteTeam = true;
+          this.permissionsLoaded = true;
+          return;
+        }
+        this.loadMemberTeamPermission();
+      },
+      error: (error) => {
+        this.loadMemberTeamPermission();
+      }
+    });
+  }
+
+  private loadMemberTeamPermission(): void {
+    this.teamService.findMyMemberTeam().subscribe({
+      next: (team: TeamDto | null) => {
+        this.currentUserTeamId = team?.id ?? null;
+        this.hasCompleteTeam = this.isCompleteTeam(team);
+        this.permissionsLoaded = true;
+      },
+      error: (error) => {
+        this.hasCompleteTeam = false;
+        this.permissionsLoaded = true;
+        this.currentUserTeamId = null;
+      }
+    });
+  }
+
+  private isCompleteTeam(team: TeamDto | null): boolean {
+    return team?.status === 'COMPLETE' && team?.captainId === this.currentUserId;
+  }
+
+  private mapTeamToCard(team: TeamDto, index: number): MatchRequestCard {
+    const matchesWon = team.matchesWon ?? 0;
+    const matchesLost = team.matchesLost ?? 0;
+    const matchesDrawn = team.matchesDrawn ?? 0;
+    const tarification = team.tarificationTerrain === 'GRATUIT' ? 'Gratuit' : 'Payant';
+
+    return {
+      id: team.id ?? index + 1,
+      teamName: team.name ?? 'Équipe sans nom',
+      ratingLabel: `${matchesWon}V • ${matchesDrawn}N • ${matchesLost}P`,
+      availableDateOnly: (team.availableDate ?? '').slice(0, 10) || null,
+      levelCode: team.teamLevel ?? null,
+      dateLabel: this.formatDate(team.availableDate),
+      relativeDateLabel: `${this.formatTime(team.startTime)} - ${this.formatTime(team.endTime)}`,
+      venueName: team.titleAddress || team.pitchAddress || 'Adresse non renseignée',
+      venueMeta: team.city || 'Ville non définie',
+      level: this.mapTeamLevel(team.teamLevel),
+      format: tarification,
+      price: team.tarificationTerrain === 'GRATUIT' ? '0 / pers' : `${team.prix ?? 0} / pers`,
+      city: team.city ?? '',
+      country: team.country ?? '',
+      competitive: matchesWon >= matchesLost,
+      heroClass: this.heroClasses[index % this.heroClasses.length],
+      backgroundImage: this.backgroundImages[index % this.backgroundImages.length],
+      logoClass: this.logoClasses[index % this.logoClasses.length],
+      initials: this.getInitials(team.name)
+    };
+  }
+
+  private mapTeamLevel(level: TeamDto['teamLevel']): string {
+    switch (level) {
+      case 'DEBUTANT':
+        return 'Débutant';
+      case 'AVANCE':
+        return 'Avancé';
+      case 'AMATEUR':
+        return 'Amateur';
       default:
-        return '';
+        return 'Non défini';
     }
   }
 
-  statusClass(status: MatchRequestCard['status']): string {
-    switch (status) {
-      case 'new':
-        return 'matches-card__badge--new';
-      case 'urgent':
-        return 'matches-card__badge--urgent';
-      case 'friendly':
-        return 'matches-card__badge--friendly';
-      default:
-        return '';
+  private formatDate(dateValue?: string): string {
+    if (!dateValue) {
+      return 'Date non définie';
     }
+
+    const parsedDate = new Date(dateValue);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return dateValue;
+    }
+
+    return parsedDate.toLocaleDateString('fr-FR', {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
   }
 
-  private matchesDateFilter(relativeDateLabel: string, selectedDate: string): boolean {
-    switch (selectedDate) {
-      case 'Aujourd’hui':
-        return relativeDateLabel.includes('Ce soir') || relativeDateLabel.includes('Aujourd’hui');
-      case 'Cette semaine':
-        return true;
-      case 'Ce mois':
-        return true;
-      default:
-        return true;
+  private formatTime(timeValue?: string): string {
+    if (!timeValue) {
+      return '--:--';
     }
+
+    return timeValue.slice(0, 5);
+  }
+
+  private getInitials(name?: string): string {
+    if (!name) {
+      return 'TM';
+    }
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 1) {
+      return parts[0].slice(0, 2).toUpperCase();
+    }
+    return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
   }
 }

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiConfiguration } from '../api-configuration';
-import { createTeam, findMyMemberTeam, hasMyTeamMembership } from '../functions';
+import { createTeam, findCompleteTeamsInMyCity, findMyMemberTeam, hasMyTeamMembership } from '../functions';
 import { findMyTeam } from '../functions';
 import { rejoinMyTeam } from '../fn/team-controller/rejoin-my-team';
 import { leaveMyTeam } from '../fn/team-controller/leave-my-team';
@@ -32,6 +32,11 @@ export class TeamService {
   findMyMemberTeam() {
     return findMyMemberTeam(this.http, this.apiConfig.rootUrl)
       .pipe(map(res => (res.body as TeamDto) ?? null));
+  }
+
+  findCompleteTeamsInMyCity(): Observable<TeamDto[]> {
+    return findCompleteTeamsInMyCity(this.http, this.apiConfig.rootUrl)
+      .pipe(map(res => (res.body ?? []) as TeamDto[]));
   }
 
   hasMyTeamMembership() {

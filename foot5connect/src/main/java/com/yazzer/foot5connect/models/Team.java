@@ -58,10 +58,15 @@ public class Team extends AbstractEntity {
     @Column(name = "end_time")
     private LocalTime endTime;
 
-    private String location;
+    @Column(name = "pitch_address")
+    private String pitchAddress;
+
+    @Column(name = "title_address")
+    private String titleAddress;
 
     private BigDecimal prix;
 
+    @Enumerated(EnumType.STRING)
     private TarificationTerrain tarificationTerrain;
 
     /* ================= RELATIONS ================= */
