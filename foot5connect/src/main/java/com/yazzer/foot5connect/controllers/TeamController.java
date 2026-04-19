@@ -1,5 +1,7 @@
 package com.yazzer.foot5connect.controllers;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +47,11 @@ public class TeamController {
     @PutMapping("/update")
     public ResponseEntity<TeamDto> updateTeam(@RequestBody TeamDto teamDto) {
         return ResponseEntity.ok(teamService.updateTeam(teamDto));
+    }
+
+    @GetMapping("/me/complete-in-my-city")
+    public ResponseEntity<List<TeamDto>> findCompleteTeamsInMyCity() {
+        return ResponseEntity.ok(teamService.findCompleteTeamsInMyCity());
     }
 
     @DeleteMapping("/me/leave")

@@ -176,6 +176,26 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<TeamDto> findCompleteTeamsInMyCity() {
+        User currentUser = getAuthenticatedUser();
+        String city = currentUser.getCity();
+        System.out.println("DEBUG city=[" + city + "]");
+
+        if (city == null || city.isBlank()) {
+            return List.of();
+        }
+
+        List<Team> teams = teamRepository.findByStatusAndCity(TeamStatus.COMPLETE, city);
+        System.out.println("DEBUG teams.size=" + teams.size());
+
+        return teams
+                .stream()
+                .map(TeamDto::fromEntity)
+                .toList();
+    }
+
+    @Override
     @Transactional
     public void leaveMyTeam() {
         User currentUser = getAuthenticatedUser();

@@ -92,9 +92,33 @@
   appearance: none;
 }
 
+.matches-filters__control input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px 12px 44px;
+  border-radius: 18px;
+  background: rgba(17, 24, 19, 0.9);
+  color: #f4fdf8;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  appearance: none;
+}
+
 .matches-filters__control select:focus {
   border-color: rgba(19, 236, 91, 0.8);
   box-shadow: 0 0 0 3px rgba(19, 236, 91, 0.18);
+}
+
+.matches-filters__control input:focus {
+  border-color: rgba(19, 236, 91, 0.8);
+  box-shadow: 0 0 0 3px rgba(19, 236, 91, 0.18);
+}
+
+.matches-filters__control:focus {
+  border-color: none !important;
+  box-shadow: none !important;
 }
 
 .matches-filters__search,
@@ -127,6 +151,20 @@
 .matches-filters__search:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+.matches-card__message:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.25);
+}
+
+.matches-card__accept:disabled,
+.matches-card__message:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  user-select: none;
 }
 
 .matches-filters__refresh:hover {

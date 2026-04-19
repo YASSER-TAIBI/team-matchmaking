@@ -13,36 +13,37 @@
       <label class="matches-filters__label" for="matches-location">Localisation</label>
       <div class="matches-filters__control">
         <i class="fa-solid fa-location-dot"></i>
-        <select id="matches-location" [(ngModel)]="selectedLocation">
-          <option value="">Sélectionner tous</option>
-          @for (location of locationOptions; track location) {
-            <option [value]="location">{{ location }}</option>
-          }
+        <select id="matches-location" disabled>
+          <option>{{ (userCity || '-') + ', ' + (userCountry || '-') }}</option>
         </select>
       </div>
     </div>
 
     <div class="matches-filters__group">
-      <label class="matches-filters__label" for="matches-date">Date</label>
+      <label class="matches-filters__label" for="matches-date">Disponibilité</label>
       <div class="matches-filters__control">
         <i class="fa-solid fa-calendar-day"></i>
-        <select id="matches-date" [(ngModel)]="selectedDate">
-          <option value="">Sélectionner tous</option>
-          @for (date of dateOptions; track date) {
-            <option [value]="date">{{ date }}</option>
-          }
-        </select>
+        <input
+          id="matches-date"
+          matInput
+          [matDatepicker]="availabilityPicker"
+          (dateChange)="onDateSelected($event.value)"
+          (click)="availabilityPicker.open()"
+          (input)="onAvailabilityInput($event)"
+          placeholder="N'importe quel jour"
+        />
+        <mat-datepicker #availabilityPicker></mat-datepicker>
       </div>
     </div>
 
     <div class="matches-filters__group">
-      <label class="matches-filters__label" for="matches-format">Format</label>
+      <label class="matches-filters__label" for="matches-level">Niveau</label>
       <div class="matches-filters__control">
-        <i class="fa-solid fa-futbol"></i>
-        <select id="matches-format" [(ngModel)]="selectedFormat">
+        <i class="fa-solid fa-signal"></i>
+        <select id="matches-level" [(ngModel)]="selectedLevel">
           <option value="">Sélectionner tous</option>
-          @for (format of formatOptions; track format) {
-            <option [value]="format">{{ format }}</option>
+          @for (level of levelOptions; track level.value) {
+            <option [value]="level.value">{{ level.label }}</option>
           }
         </select>
       </div>
@@ -51,23 +52,36 @@
     <button class="matches-filters__refresh" type="button" (click)="resetFilters()">
       <i class="fa-solid fa-rotate-right"></i>
     </button>
-    
+
     <button class="matches-filters__search" type="button" (click)="searchMatches()">
       <i class="fa-solid fa-magnifying-glass"></i>
     </button>
-
-    
   </section>
+
+  @if (isLoading) {
+    <article class="matches-empty-state">
+      <div class="matches-empty-state__icon">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+      </div>
+      <h3>Chargement des équipes...</h3>
+    </article>
+  }
+
+  @if (errorMessage) {
+    <article class="matches-empty-state">
+      <div class="matches-empty-state__icon">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3>Erreur</h3>
+      <p>{{ errorMessage }}</p>
+    </article>
+  }
 
   <div class="matches-grid">
     @for (card of visibleCards; track trackByCardId($index, card)) {
       <article class="matches-card">
         <div class="matches-card__media" [ngClass]="card.heroClass" [style.background-image]="'url(' + card.backgroundImage + ')'">
           <div class="matches-card__overlay"></div>
-
-          @if (card.status) {
-            <span class="matches-card__badge" [ngClass]="statusClass(card.status)">{{ statusLabel(card.status) }}</span>
-          }
 
           <button class="matches-card__favorite" type="button" aria-label="Ajouter aux favoris">
             <i class="fa-solid fa-heart"></i>
@@ -120,8 +134,23 @@
           </div>
 
           <div class="matches-card__actions">
-            <button class="matches-card__accept" type="button">Accepter le challenge</button>
-            <button class="matches-card__message" type="button" aria-label="Envoyer un message">
+            <button
+              class="matches-card__accept"
+              type="button"
+              [disabled]="!canUseMatchActionsForCard(card)"
+              [attr.aria-disabled]="!canUseMatchActionsForCard(card)"
+              (click)="onAcceptChallenge(card)"
+            >
+              Accepter le challenge
+            </button>
+            <button
+              class="matches-card__message"
+              type="button"
+              aria-label="Envoyer un message"
+              [disabled]="!canUseMatchActionsForCard(card)"
+              [attr.aria-disabled]="!canUseMatchActionsForCard(card)"
+              (click)="onMessageTeam(card)"
+            >
               <i class="fa-solid fa-comment"></i>
             </button>
           </div>
@@ -129,13 +158,13 @@
       </article>
     }
 
-    @if (visibleCards.length === 0) {
+    @if (!isLoading && !errorMessage && visibleCards.length === 0) {
       <article class="matches-empty-state">
         <div class="matches-empty-state__icon">
           <i class="fa-solid fa-futbol"></i>
         </div>
-        <h3>Aucune demande trouvée</h3>
-        <p>Modifie tes filtres pour afficher plus de matchs disponibles.</p>
+        <h3>Aucune équipe trouvée</h3>
+        <p>Aucune équipe COMPLETE n'est disponible pour votre ville pour le moment.</p>
       </article>
     }
   </div>
