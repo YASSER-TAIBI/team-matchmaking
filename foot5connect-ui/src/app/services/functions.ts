@@ -23,8 +23,10 @@ export type { RejectInvitation$Params } from './fn/team-invitation-controller/re
 export { rejectInvitation } from './fn/team-invitation-controller/reject-invitation';
 export type { AcceptInvitation$Params } from './fn/team-invitation-controller/accept-invitation';
 export { acceptInvitation } from './fn/team-invitation-controller/accept-invitation';
-export type { CreateInvitation$Params } from './fn/team-invitation-controller/create-invitation';
-export { createInvitation } from './fn/team-invitation-controller/create-invitation';
+export type { CreateInvitationTeam$Params } from './fn/team-invitation-controller/create-invitation-team';
+export { createInvitationTeam } from './fn/team-invitation-controller/create-invitation-team';
+export type { CreateInvitationMatch$Params } from './fn/team-invitation-controller/create-invitation-match';
+export { createInvitationMatch } from './fn/team-invitation-controller/create-invitation-match';
 export type { FindMemberInvitations$Params } from './fn/team-invitation-controller/find-member-invitations';
 export { findMemberInvitations } from './fn/team-invitation-controller/find-member-invitations';
 export type { FindMyInvitations$Params } from './fn/team-invitation-controller/find-my-invitations';

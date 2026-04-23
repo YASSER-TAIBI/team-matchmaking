@@ -13,7 +13,8 @@ import { TeamInvitationDto } from '../../services/models/team-invitation-dto';
 export class TeamInvitationsComponent implements OnInit {
   private invitationService = inject(InvitationService);
 
-  activeTab: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE' = 'EN_ATTENTE';
+  activeTeamTab: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE' = 'EN_ATTENTE';
+  activeMatchTab: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE' = 'EN_ATTENTE';
   invitations: TeamInvitationDto[] = [];
   loading = false;
   error: string | null = null;
@@ -40,13 +41,30 @@ export class TeamInvitationsComponent implements OnInit {
     });
   }
 
-  setTab(tab: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE', event: Event): void {
+  setTeamTab(tab: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE', event: Event): void {
     event.preventDefault();
-    this.activeTab = tab;
+    this.activeTeamTab = tab;
   }
 
-  get filteredInvitations(): TeamInvitationDto[] {
-    return this.invitations.filter(invitation => invitation.status === this.activeTab);
+  setMatchTab(tab: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE', event: Event): void {
+    event.preventDefault();
+    this.activeMatchTab = tab;
+  }
+
+  get teamInvitations(): TeamInvitationDto[] {
+    return this.invitations.filter(invitation => invitation.type === 'TEAM');
+  }
+
+  get matchInvitations(): TeamInvitationDto[] {
+    return this.invitations.filter(invitation => invitation.type === 'MATCH');
+  }
+
+  get filteredTeamInvitations(): TeamInvitationDto[] {
+    return this.teamInvitations.filter(invitation => invitation.status === this.activeTeamTab);
+  }
+
+  get filteredMatchInvitations(): TeamInvitationDto[] {
+    return this.matchInvitations.filter(invitation => invitation.status === this.activeMatchTab);
   }
 
   acceptInvitation(invitation: TeamInvitationDto): void {
@@ -117,8 +135,8 @@ export class TeamInvitationsComponent implements OnInit {
     }
   }
 
-  countByStatus(status: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE'): number {
-    return this.invitations.filter(invitation => invitation.status === status).length;
+  countByStatus(status: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE', type: 'TEAM' | 'MATCH'): number {
+    return this.invitations.filter(invitation => invitation.type === type && invitation.status === status).length;
   }
 
   invitationBadgeClass(status?: TeamInvitationDto['status']): string {
@@ -158,14 +176,6 @@ export class TeamInvitationsComponent implements OnInit {
 
   fullName(invitation: TeamInvitationDto): string {
     return `${invitation.invitedUserFirstName ?? ''} ${invitation.invitedUserLastName ?? ''}`.trim() || 'Joueur';
-  }
-
-  private replaceInvitation(updated: TeamInvitationDto): void {
-    const id = updated.id;
-    if (!id) {
-      return;
-    }
-    this.invitations = this.invitations.map(item => item.id === id ? updated : item);
   }
 
   private reloadInvitationsAfterAction(): void {

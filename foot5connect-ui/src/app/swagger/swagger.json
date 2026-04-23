@@ -213,12 +213,42 @@
         }
       }
     },
-    "/team-invitations": {
+    "/team-invitations/team": {
       "post": {
         "tags": [
           "team-invitation-controller"
         ],
-        "operationId": "createInvitation",
+        "operationId": "createInvitationTeam",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeamInvitationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamInvitationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/team-invitations/match": {
+      "post": {
+        "tags": [
+          "team-invitation-controller"
+        ],
+        "operationId": "createInvitationMatch",
         "requestBody": {
           "content": {
             "application/json": {
@@ -493,6 +523,29 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TeamDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/me/complete-in-my-city": {
+      "get": {
+        "tags": [
+          "team-controller"
+        ],
+        "operationId": "findCompleteTeamsInMyCity",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamDto"
+                  }
                 }
               }
             }
@@ -838,6 +891,13 @@
           },
           "invitedUserLevel": {
             "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TEAM",
+              "MATCH"
+            ]
           }
         }
       },
@@ -960,6 +1020,9 @@
             "type": "string"
           },
           "endTime": {
+            "type": "string"
+          },
+          "type": {
             "type": "string"
           }
         }

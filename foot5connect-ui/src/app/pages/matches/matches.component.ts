@@ -6,11 +6,14 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MATCHES_IMAGES } from '../../../assets/img/matches/matches-images';
 import { HelperService } from '../../services/helper/helper.service';
+import { InvitationService } from '../../services/invitations/invitation.service';
+import { CreateTeamInvitationRequest } from '../../services/models/create-team-invitation-request';
 import { TeamDto } from '../../services/models/team-dto';
 import { TeamService } from '../../services/teams/team.service';
 
 interface MatchRequestCard {
   id: number;
+  captainId: number | null;
   teamName: string;
   ratingLabel: string;
   availableDateOnly: string | null;
@@ -41,14 +44,24 @@ interface MatchRequestCard {
 export class MatchesComponent implements OnInit {
   private readonly teamService = inject(TeamService);
   private readonly helperService = inject(HelperService);
+  private readonly invitationService = inject(InvitationService);
 
   cards: MatchRequestCard[] = [];
   hasCompleteTeam = false;
   permissionsLoaded = false;
   currentUserTeamId: number | null = null;
+  currentTeam: TeamDto | null = null;
   visibleCount = 6;
   isLoading = false;
   errorMessage = '';
+  inviteModalVisible = false;
+  inviteSubmitting = false;
+  inviteError: string | null = null;
+  inviteSuccess: string | null = null;
+  invitedTeam: MatchRequestCard | null = null;
+  proposedDate = '';
+  proposedStartTime = '';
+  proposedEndTime = '';
 
   selectedDate: Date | null = null;
   selectedLevel: TeamDto['teamLevel'] | '' = '';
@@ -149,14 +162,17 @@ export class MatchesComponent implements OnInit {
     return card.id;
   }
 
-  onAcceptChallenge(card: MatchRequestCard): void {
-    console.log('[matches] accept click', {
-      cardId: card.id,
-      teamName: card.teamName,
-      hasCompleteTeam: this.hasCompleteTeam,
-      canUseMatchActions: this.canUseMatchActions,
-      currentUserTeamId: this.currentUserTeamId
-    });
+  onSendChallenge(card: MatchRequestCard): void {
+    if (!this.canUseMatchActionsForCard(card) || !card.captainId) {
+      return;
+    }
+
+    this.inviteError = null;
+    this.invitedTeam = card;
+    this.proposedDate = (this.currentTeam?.availableDate ?? '').slice(0, 10);
+    this.proposedStartTime = this.formatInputTime(this.currentTeam?.startTime);
+    this.proposedEndTime = this.formatInputTime(this.currentTeam?.endTime);
+    this.inviteModalVisible = true;
   }
 
   onMessageTeam(card: MatchRequestCard): void {
@@ -191,9 +207,11 @@ export class MatchesComponent implements OnInit {
     this.hasCompleteTeam = false;
     this.permissionsLoaded = false;
     this.currentUserTeamId = null;
+    this.currentTeam = null;
 
     this.teamService.findMyTeam().subscribe({
       next: (team: TeamDto | null) => {
+        this.currentTeam = team;
         this.currentUserTeamId = team?.id ?? null;
         if (this.isCompleteTeam(team)) {
           this.hasCompleteTeam = true;
@@ -211,6 +229,7 @@ export class MatchesComponent implements OnInit {
   private loadMemberTeamPermission(): void {
     this.teamService.findMyMemberTeam().subscribe({
       next: (team: TeamDto | null) => {
+        this.currentTeam = team;
         this.currentUserTeamId = team?.id ?? null;
         this.hasCompleteTeam = this.isCompleteTeam(team);
         this.permissionsLoaded = true;
@@ -219,6 +238,7 @@ export class MatchesComponent implements OnInit {
         this.hasCompleteTeam = false;
         this.permissionsLoaded = true;
         this.currentUserTeamId = null;
+        this.currentTeam = null;
       }
     });
   }
@@ -235,6 +255,7 @@ export class MatchesComponent implements OnInit {
 
     return {
       id: team.id ?? index + 1,
+      captainId: team.captainId ?? null,
       teamName: team.name ?? 'Équipe sans nom',
       ratingLabel: `${matchesWon}V • ${matchesDrawn}N • ${matchesLost}P`,
       availableDateOnly: (team.availableDate ?? '').slice(0, 10) || null,
@@ -254,6 +275,58 @@ export class MatchesComponent implements OnInit {
       logoClass: this.logoClasses[index % this.logoClasses.length],
       initials: this.getInitials(team.name)
     };
+  }
+
+  closeInviteModal(): void {
+    if (this.inviteSubmitting) {
+      return;
+    }
+
+    this.inviteModalVisible = false;
+    this.invitedTeam = null;
+    this.inviteError = null;
+  }
+
+  submitInvitation(): void {
+    if (!this.invitedTeam?.captainId) {
+      this.inviteError = 'Équipe invalide.';
+      return;
+    }
+
+    if (!this.proposedDate || !this.proposedStartTime || !this.proposedEndTime) {
+      this.inviteError = 'Veuillez compléter la date et les horaires proposés.';
+      return;
+    }
+
+    this.inviteSubmitting = true;
+    this.inviteError = null;
+
+    const payload: CreateTeamInvitationRequest = {
+      invitedUserId: this.invitedTeam.captainId,
+      availableDate: this.proposedDate,
+      startTime: `${this.proposedStartTime}:00`,
+      endTime: `${this.proposedEndTime}:00`
+    };
+
+    this.invitationService.createInvitationMatch(payload).subscribe({
+      next: () => {
+        this.inviteSubmitting = false;
+        this.inviteSuccess = `Invitation de match envoyée à ${this.invitedTeam?.teamName ?? 'l\'équipe'}`;
+        this.closeInviteModal();
+      },
+      error: (err: any) => {
+        this.inviteSubmitting = false;
+        this.inviteError = err?.error?.errorMessage ?? err?.error?.message ?? "Impossible d'envoyer l'invitation.";
+      }
+    });
+  }
+
+  private formatInputTime(time?: string): string {
+    if (!time) {
+      return '';
+    }
+
+    return time.length >= 5 ? time.slice(0, 5) : time;
   }
 
   private mapTeamLevel(level: TeamDto['teamLevel']): string {

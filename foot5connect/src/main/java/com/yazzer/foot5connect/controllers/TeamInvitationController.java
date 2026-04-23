@@ -24,9 +24,14 @@ public class TeamInvitationController {
 
     private final TeamInvitationService teamInvitationService;
 
-    @PostMapping
-    public ResponseEntity<TeamInvitationDto> createInvitation(@RequestBody CreateTeamInvitationRequest request) {
-        return ResponseEntity.ok(teamInvitationService.createInvitation(request));
+    @PostMapping("/team")
+    public ResponseEntity<TeamInvitationDto> createInvitationTeam(@RequestBody CreateTeamInvitationRequest request) {
+        return ResponseEntity.ok(teamInvitationService.createInvitationTeam(request));
+    }
+
+    @PostMapping("/match")
+    public ResponseEntity<TeamInvitationDto> createInvitationMatch(@RequestBody CreateTeamInvitationRequest request) {
+        return ResponseEntity.ok(teamInvitationService.createInvitationMatch(request));
     }
 
     @GetMapping("/me")

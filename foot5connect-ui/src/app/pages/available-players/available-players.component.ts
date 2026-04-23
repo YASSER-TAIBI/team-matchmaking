@@ -252,7 +252,7 @@ export class AvailablePlayersComponent implements OnInit {
       endTime: `${this.proposedEndTime}:00`
     };
 
-    this.invitationService.createInvitation(payload).subscribe({
+    this.invitationService.createInvitationTeam(payload).subscribe({
       next: () => {
         this.inviteSubmitting = false;
         this.inviteSuccess = `Invitation envoyée à ${(this.invitedPlayer?.firstName ?? '')} ${(this.invitedPlayer?.lastName ?? '')}`.trim();
