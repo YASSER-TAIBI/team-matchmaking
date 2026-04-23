@@ -14,7 +14,7 @@ import com.yazzer.foot5connect.dto.TeamInvitationDto;
 import com.yazzer.foot5connect.models.AvailabilityStatus;
 import com.yazzer.foot5connect.models.DisponibilityDetail;
 import com.yazzer.foot5connect.models.InvitationStatus;
-import com.yazzer.foot5connect.models.PlayerSelection;
+import com.yazzer.foot5connect.models.InvitationType;
 import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamInvitation;
 import com.yazzer.foot5connect.models.TeamMember;
@@ -41,7 +41,7 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
 
     @Override
     @Transactional
-    public TeamInvitationDto createInvitation(CreateTeamInvitationRequest request) {
+    public TeamInvitationDto createInvitationTeam(CreateTeamInvitationRequest request) {
         User currentUser = getAuthenticatedUser();
 
         if (request == null
@@ -81,10 +81,11 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
             throw new IllegalStateException("Ce joueur appartient déjà à une équipe");
         }
 
-        boolean hasPendingInvitation = teamInvitationRepository.existsByTeam_IdAndInvitedUser_IdAndStatus(
+        boolean hasPendingInvitation = teamInvitationRepository.existsByTeam_IdAndInvitedUser_IdAndStatusAndType(
                 myTeam.getId(),
                 invitedUser.getId(),
-                InvitationStatus.EN_ATTENTE
+                InvitationStatus.EN_ATTENTE,
+                InvitationType.TEAM
         );
         if (hasPendingInvitation) {
             throw new IllegalStateException("Une invitation en attente existe déjà pour ce joueur");
@@ -97,6 +98,62 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
                 .availableDate(request.getAvailableDate())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
+                .type(InvitationType.TEAM)
+                .build();
+
+        TeamInvitation saved = teamInvitationRepository.save(invitation);
+        return TeamInvitationDto.fromEntity(saved);
+    }
+
+    @Override
+    @Transactional
+    public TeamInvitationDto createInvitationMatch(CreateTeamInvitationRequest request) {
+        User currentUser = getAuthenticatedUser();
+
+        if (request == null
+                || request.getInvitedUserId() == null
+                || request.getAvailableDate() == null
+                || request.getStartTime() == null
+                || request.getEndTime() == null) {
+            throw new IllegalArgumentException("L'équipe invitée et les horaires proposés sont obligatoires");
+        }
+
+        Team myTeam = teamRepository.findByCaptain_Id(currentUser.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Aucune équipe trouvée pour ce capitaine"));
+
+        if (request.getInvitedUserId().equals(currentUser.getId())) {
+            throw new IllegalStateException("Vous ne pouvez pas vous inviter vous-même");
+        }
+
+        Team invitedTeam = teamRepository.findByCaptain_Id(request.getInvitedUserId())
+                .orElseThrow(() -> new IllegalStateException("Cette équipe n'est pas disponible pour un match"));
+
+        if (!request.getAvailableDate().equals(invitedTeam.getAvailableDate())) {
+            throw new IllegalStateException("La date proposée doit correspondre au jour de disponibilité de l'equipe");
+        }
+
+        if (!request.getStartTime().isBefore(request.getEndTime())) {
+            throw new IllegalStateException("L'horaire proposé est invalide");
+        }
+
+        boolean hasPendingInvitation = teamInvitationRepository.existsByTeam_IdAndInvitedUser_IdAndStatusAndType(
+                myTeam.getId(),
+                request.getInvitedUserId(),
+                InvitationStatus.EN_ATTENTE,
+                InvitationType.MATCH
+        );
+        if (hasPendingInvitation) {
+            throw new IllegalStateException("Une invitation en attente existe déjà pour cette equipe");
+        }
+
+        TeamInvitation invitation = TeamInvitation.builder()
+                .team(myTeam)
+                .invitedUser(invitedTeam.getCaptain())
+                .status(InvitationStatus.EN_ATTENTE)
+                .availableDate(request.getAvailableDate())
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .type(InvitationType.MATCH)
                 .build();
 
         TeamInvitation saved = teamInvitationRepository.save(invitation);

@@ -36,6 +36,10 @@ public class TeamInvitation extends AbstractEntity {
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private InvitationType type;
+
     /* ================= RELATIONS ================= */
 
     @ManyToOne

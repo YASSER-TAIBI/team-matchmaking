@@ -12,8 +12,13 @@ export class InvitationService {
   private http = inject(HttpClient);
   private apiConfig = inject(ApiConfiguration);
 
-  createInvitation(payload: CreateTeamInvitationRequest): Observable<TeamInvitationDto> {
-    return this.http.post<TeamInvitationDto>(`${this.apiConfig.rootUrl}/team-invitations`, payload)
+  createInvitationTeam(payload: CreateTeamInvitationRequest): Observable<TeamInvitationDto> {
+    return this.http.post<TeamInvitationDto>(`${this.apiConfig.rootUrl}/team-invitations/team`, payload)
+      .pipe(map(res => res ?? {} as TeamInvitationDto));
+  }
+
+  createInvitationMatch(payload: CreateTeamInvitationRequest): Observable<TeamInvitationDto> {
+    return this.http.post<TeamInvitationDto>(`${this.apiConfig.rootUrl}/team-invitations/match`, payload)
       .pipe(map(res => res ?? {} as TeamInvitationDto));
   }
  

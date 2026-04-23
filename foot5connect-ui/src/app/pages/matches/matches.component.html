@@ -5,6 +5,9 @@
       <p class="matches-page__subtitle">
         Trouvez votre prochain adversaire, acceptez un challenge et réservez votre rencontre.
       </p>
+      @if (inviteSuccess) {
+        <p class="matches-page__success">{{ inviteSuccess }}</p>
+      }
     </div>
   </header>
 
@@ -139,9 +142,9 @@
               type="button"
               [disabled]="!canUseMatchActionsForCard(card)"
               [attr.aria-disabled]="!canUseMatchActionsForCard(card)"
-              (click)="onAcceptChallenge(card)"
+              (click)="onSendChallenge(card)"
             >
-              Accepter le challenge
+              Envoyer un défi
             </button>
             <button
               class="matches-card__message"
@@ -175,6 +178,54 @@
         Charger plus de demandes
         <i class="fa-solid fa-chevron-down"></i>
       </button>
+    </div>
+  }
+
+  @if (inviteModalVisible) {
+    <div class="invite-modal-overlay" (click)="closeInviteModal()">
+      <div class="invite-modal" (click)="$event.stopPropagation()">
+        <div class="invite-modal__header">
+          <div>
+            <h3>Proposer un créneau</h3>
+            <p>
+              Invitation pour
+              <strong>{{ invitedTeam?.teamName ?? 'Équipe' }}</strong>
+            </p>
+          </div>
+          <button type="button" class="invite-modal__close" aria-label="Fermer" [disabled]="inviteSubmitting" (click)="closeInviteModal()">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="invite-modal__body">
+          <div class="invite-modal__field invite-modal__field--full">
+            <label>Date du match</label>
+            <input type="date" [(ngModel)]="proposedDate" readonly />
+          </div>
+
+          <div class="invite-modal__times">
+            <div class="invite-modal__field">
+              <label>Début</label>
+              <input type="time" [(ngModel)]="proposedStartTime" />
+            </div>
+            <div class="invite-modal__field">
+              <label>Fin</label>
+              <input type="time" [(ngModel)]="proposedEndTime" />
+            </div>
+          </div>
+        </div>
+
+        @if (inviteError) {
+          <p class="invite-modal__error">{{ inviteError }}</p>
+        }
+
+        <div class="invite-modal__actions">
+          <button type="button" class="matches-card__modal-secondary" [disabled]="inviteSubmitting" (click)="closeInviteModal()">Annuler</button>
+          <button type="button" class="matches-card__modal-primary" [disabled]="inviteSubmitting" (click)="submitInvitation()">
+            {{ inviteSubmitting ? 'Envoi...' : 'Envoyer' }}
+          </button>
+        </div>
+      </div>
     </div>
   }
 </section>

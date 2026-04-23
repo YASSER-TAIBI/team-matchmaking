@@ -1,108 +1,222 @@
 <section class="invites">
   <header class="invites__header">
-    <h1>Les invitations d'<span>équipe</span></h1>
-    <p>Acceptez ou refusez les invitations envoyées par les capitaines.</p>
+    <h1>Les invitations <span>reçues</span></h1>
+    <p>Acceptez ou refusez les invitations d'équipe et les invitations de match.</p>
   </header>
 
-  <nav class="tabs" aria-label="Filtres des invitations">
-    <a
-      class="tabs__item"
-      href="#"
-      [class.tabs__item--active]="activeTab === 'EN_ATTENTE'"
-      (click)="setTab('EN_ATTENTE', $event)">
-      En Attente
-      <span class="tabs__count">{{ countByStatus('EN_ATTENTE') }}</span>
-    </a>
-    <a
-      class="tabs__item"
-      href="#"
-      [class.tabs__item--active]="activeTab === 'ACCEPTEE'"
-      (click)="setTab('ACCEPTEE', $event)">
-      Acceptée
-      <span class="tabs__count">{{ countByStatus('ACCEPTEE') }}</span>
-    </a>
-    <a
-      class="tabs__item"
-      href="#"
-      [class.tabs__item--active]="activeTab === 'REFUSEE'"
-      (click)="setTab('REFUSEE', $event)">
-      Refusée
-      <span class="tabs__count">{{ countByStatus('REFUSEE') }}</span>
-    </a>
-    <a
-      class="tabs__item"
-      href="#"
-      [class.tabs__item--active]="activeTab === 'ANNULLEE'"
-      (click)="setTab('ANNULLEE', $event)">
-      Annulée
-      <span class="tabs__count">{{ countByStatus('ANNULLEE') }}</span>
-    </a>
-  </nav>
+  <section class="invites__section">
+    <header class="invites__section-header">
+      <div class="invites__section-title">
+        <span class="material-symbols-outlined invites__section-icon" aria-hidden="true">groups</span>
+        <h2>Invitations d'équipe</h2>
+      </div>
+    </header>
 
-  @if (loading) {
-    <div>Chargement...</div>
-  }
-  @if (error) {
-    <div class="invites__error">{{ error }}</div>
-  }
-  @if (!loading && !error && filteredInvitations.length === 0) {
-    <div class="invites__empty">
-      <div class="invites__empty-card">
-        <div class="invites__empty-icon">{{ countByStatus(activeTab) }}</div>
-        <div class="invites__empty-content">
-          <strong>Aucune invitation {{ tabLabel(activeTab).toLowerCase() }}.</strong>
-          <p>Les invitations de cette catégorie apparaîtront ici.</p>
+    <nav class="tabs" aria-label="Filtres des invitations d'équipe">
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeTeamTab === 'EN_ATTENTE'"
+        (click)="setTeamTab('EN_ATTENTE', $event)">
+        En Attente
+        <span class="tabs__count">{{ countByStatus('EN_ATTENTE', 'TEAM') }}</span>
+      </a>
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeTeamTab === 'ACCEPTEE'"
+        (click)="setTeamTab('ACCEPTEE', $event)">
+        Acceptée
+        <span class="tabs__count">{{ countByStatus('ACCEPTEE', 'TEAM') }}</span>
+      </a>
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeTeamTab === 'REFUSEE'"
+        (click)="setTeamTab('REFUSEE', $event)">
+        Refusée
+        <span class="tabs__count">{{ countByStatus('REFUSEE', 'TEAM') }}</span>
+      </a>
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeTeamTab === 'ANNULLEE'"
+        (click)="setTeamTab('ANNULLEE', $event)">
+        Annulée
+        <span class="tabs__count">{{ countByStatus('ANNULLEE', 'TEAM') }}</span>
+      </a>
+    </nav>
+
+    @if (loading) {
+      <div>Chargement...</div>
+    }
+    @if (error) {
+      <div class="invites__error">{{ error }}</div>
+    }
+    @if (!loading && !error && filteredTeamInvitations.length === 0) {
+      <div class="invites__empty">
+        <div class="invites__empty-card">
+          <div class="invites__empty-icon">{{ countByStatus(activeTeamTab, 'TEAM') }}</div>
+          <div class="invites__empty-content">
+            <strong>Aucune invitation d'équipe {{ tabLabel(activeTeamTab).toLowerCase() }}.</strong>
+            <p>Les invitations d'équipe de cette catégorie apparaîtront ici.</p>
+          </div>
         </div>
       </div>
-    </div>
-  }
+    }
 
-  @if (!loading && filteredInvitations.length > 0) {
-    <div class="invites__grid">
-      @for (invitation of filteredInvitations; track invitation.id ?? $index) {
-        <article class="invite-card">
-          <div class="invite-card__header">
-            <div>
-              <h3>{{ invitation.teamName || 'Équipe' }}</h3>
-              <p class="invite-card__subtitle">Invitation d'équipe</p>
+    @if (!loading && filteredTeamInvitations.length > 0) {
+      <div class="invites__grid">
+        @for (invitation of filteredTeamInvitations; track invitation.id ?? $index) {
+          <article class="invite-card">
+            <div class="invite-card__header">
+              <div>
+                <h3>{{ invitation.teamName || 'Équipe' }}</h3>
+                <p class="invite-card__subtitle">Invitation d'équipe</p>
+              </div>
+              <span [class]="invitationBadgeClass(invitation.status)">{{ invitationLabel(invitation.status) }}</span>
             </div>
-            <span [class]="invitationBadgeClass(invitation.status)">{{ invitationLabel(invitation.status) }}</span>
-          </div>
 
-          <div class="invite-card__details">
-            <div class="invite-card__row">
-              <span class="invite-card__label">Joueur invité</span>
-              <strong>{{ fullName(invitation) }}</strong>
+            <div class="invite-card__details">
+              <div class="invite-card__row">
+                <span class="invite-card__label">Joueur invité</span>
+                <strong>{{ fullName(invitation) }}</strong>
+              </div>
+              <div class="invite-card__row">
+                <span class="invite-card__label">Date</span>
+                <strong>{{ formatDate(invitation.availableDate) }}</strong>
+              </div>
+              <div class="invite-card__row">
+                <span class="invite-card__label">Horaire</span>
+                <strong>{{ formatTime(invitation.startTime) }} - {{ formatTime(invitation.endTime) }}</strong>
+              </div>
             </div>
-            <div class="invite-card__row">
-              <span class="invite-card__label">Date</span>
-              <strong>{{ formatDate(invitation.availableDate) }}</strong>
-            </div>
-            <div class="invite-card__row">
-              <span class="invite-card__label">Horaire</span>
-              <strong>{{ formatTime(invitation.startTime) }} - {{ formatTime(invitation.endTime) }}</strong>
-            </div>
+            @if (canRespond(invitation)) {
+              <div class="invite-card__footer">
+                <button
+                  type="button"
+                  class="btn btn--accept"
+                  [disabled]="actionLoadingId === invitation.id"
+                  (click)="acceptInvitation(invitation)">
+                  Accepter
+                </button>
+                <button
+                  type="button"
+                  class="btn btn--reject"
+                  [disabled]="actionLoadingId === invitation.id"
+                  (click)="rejectInvitation(invitation)">
+                  Refuser
+                </button>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="invites__section">
+    <header class="invites__section-header">
+      <div class="invites__section-title">
+        <span class="material-symbols-outlined invites__section-icon" aria-hidden="true">stadium</span>
+        <h2>Invitations de match</h2>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Filtres des invitations de match">
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeMatchTab === 'EN_ATTENTE'"
+        (click)="setMatchTab('EN_ATTENTE', $event)">
+        En Attente
+        <span class="tabs__count">{{ countByStatus('EN_ATTENTE', 'MATCH') }}</span>
+      </a>
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeMatchTab === 'ACCEPTEE'"
+        (click)="setMatchTab('ACCEPTEE', $event)">
+        Acceptée
+        <span class="tabs__count">{{ countByStatus('ACCEPTEE', 'MATCH') }}</span>
+      </a>
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeMatchTab === 'REFUSEE'"
+        (click)="setMatchTab('REFUSEE', $event)">
+        Refusée
+        <span class="tabs__count">{{ countByStatus('REFUSEE', 'MATCH') }}</span>
+      </a>
+      <a
+        class="tabs__item"
+        href="#"
+        [class.tabs__item--active]="activeMatchTab === 'ANNULLEE'"
+        (click)="setMatchTab('ANNULLEE', $event)">
+        Annulée
+        <span class="tabs__count">{{ countByStatus('ANNULLEE', 'MATCH') }}</span>
+      </a>
+    </nav>
+
+    @if (!loading && !error && filteredMatchInvitations.length === 0) {
+      <div class="invites__empty">
+        <div class="invites__empty-card">
+          <div class="invites__empty-icon">{{ countByStatus(activeMatchTab, 'MATCH') }}</div>
+          <div class="invites__empty-content">
+            <strong>Aucune invitation de match {{ tabLabel(activeMatchTab).toLowerCase() }}.</strong>
+            <p>Les invitations de match de cette catégorie apparaîtront ici.</p>
           </div>
-          @if (canRespond(invitation)) {
-            <div class="invite-card__footer">
-              <button
-                type="button"
-                class="btn btn--accept"
-                [disabled]="actionLoadingId === invitation.id"
-                (click)="acceptInvitation(invitation)">
-                Accepter
-              </button>
-              <button
-                type="button"
-                class="btn btn--reject"
-                [disabled]="actionLoadingId === invitation.id"
-                (click)="rejectInvitation(invitation)">
-                Refuser
-              </button>
+        </div>
+      </div>
+    }
+
+    @if (!loading && filteredMatchInvitations.length > 0) {
+      <div class="invites__grid">
+        @for (invitation of filteredMatchInvitations; track invitation.id ?? $index) {
+          <article class="invite-card">
+            <div class="invite-card__header">
+              <div>
+                <h3>{{ invitation.teamName || 'Match' }}</h3>
+                <p class="invite-card__subtitle">Invitation de match</p>
+              </div>
+              <span [class]="invitationBadgeClass(invitation.status)">{{ invitationLabel(invitation.status) }}</span>
             </div>
-          }
-        </article>
-      }
-    </div>
-  }
+
+            <div class="invite-card__details">
+              <div class="invite-card__row">
+                <span class="invite-card__label">Joueur invité</span>
+                <strong>{{ fullName(invitation) }}</strong>
+              </div>
+              <div class="invite-card__row">
+                <span class="invite-card__label">Date</span>
+                <strong>{{ formatDate(invitation.availableDate) }}</strong>
+              </div>
+              <div class="invite-card__row">
+                <span class="invite-card__label">Horaire</span>
+                <strong>{{ formatTime(invitation.startTime) }} - {{ formatTime(invitation.endTime) }}</strong>
+              </div>
+            </div>
+            @if (canRespond(invitation)) {
+              <div class="invite-card__footer">
+                <button
+                  type="button"
+                  class="btn btn--accept"
+                  [disabled]="actionLoadingId === invitation.id"
+                  (click)="acceptInvitation(invitation)">
+                  Accepter
+                </button>
+                <button
+                  type="button"
+                  class="btn btn--reject"
+                  [disabled]="actionLoadingId === invitation.id"
+                  (click)="rejectInvitation(invitation)">
+                  Refuser
+                </button>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    }
+  </section>
 </section>

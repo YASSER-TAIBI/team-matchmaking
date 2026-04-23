@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.yazzer.foot5connect.models.InvitationStatus;
+import com.yazzer.foot5connect.models.InvitationType;
 import com.yazzer.foot5connect.models.TeamInvitation;
 
 public interface TeamInvitationRepository extends JpaRepository<TeamInvitation, Long> {
@@ -19,6 +20,8 @@ public interface TeamInvitationRepository extends JpaRepository<TeamInvitation, 
     List<TeamInvitation> findByInvitedUser_IdAndStatus(Long invitedUserId, InvitationStatus status);
 
     boolean existsByTeam_IdAndInvitedUser_IdAndStatus(Long teamId, Long invitedUserId, InvitationStatus status);
+
+    boolean existsByTeam_IdAndInvitedUser_IdAndStatusAndType(Long teamId, Long invitedUserId, InvitationStatus status, InvitationType type);
 
     List<TeamInvitation> findByTeam_IdOrderByLastModifiedDateDesc(Long teamId);
 

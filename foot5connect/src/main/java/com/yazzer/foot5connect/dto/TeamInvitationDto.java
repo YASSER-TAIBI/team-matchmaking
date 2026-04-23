@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import com.yazzer.foot5connect.models.InvitationStatus;
+import com.yazzer.foot5connect.models.InvitationType;
 import com.yazzer.foot5connect.models.TeamInvitation;
 
 import lombok.AllArgsConstructor;
@@ -28,6 +29,7 @@ public class TeamInvitationDto {
     private String invitedUserFirstName;
     private String invitedUserLastName;
     private String invitedUserLevel;
+    private InvitationType type;
 
     public static TeamInvitationDto fromEntity(TeamInvitation teamInvitation) {
         if (teamInvitation == null) {
@@ -46,6 +48,7 @@ public class TeamInvitationDto {
                 .invitedUserFirstName(teamInvitation.getInvitedUser() != null ? teamInvitation.getInvitedUser().getFirstName() : null)
                 .invitedUserLastName(teamInvitation.getInvitedUser() != null ? teamInvitation.getInvitedUser().getLastName() : null)
                 .invitedUserLevel(teamInvitation.getInvitedUser() != null && teamInvitation.getInvitedUser().getLevel() != null ? teamInvitation.getInvitedUser().getLevel().name() : null)
+                .type(teamInvitation.getType())
                 .build();
     }
 }

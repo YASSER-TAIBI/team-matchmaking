@@ -7,7 +7,9 @@ import com.yazzer.foot5connect.dto.TeamInvitationDto;
 
 public interface TeamInvitationService {
 
-    TeamInvitationDto createInvitation(CreateTeamInvitationRequest request);
+    TeamInvitationDto createInvitationTeam(CreateTeamInvitationRequest request);
+
+    TeamInvitationDto createInvitationMatch(CreateTeamInvitationRequest request);
 
     List<TeamInvitationDto> findMyInvitations();
 

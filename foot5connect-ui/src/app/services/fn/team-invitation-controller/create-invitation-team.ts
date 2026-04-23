@@ -10,12 +10,12 @@ import { RequestBuilder } from '../../request-builder';
 import { CreateTeamInvitationRequest } from '../../models/create-team-invitation-request';
 import { TeamInvitationDto } from '../../models/team-invitation-dto';
 
-export interface CreateInvitation$Params {
+export interface CreateInvitationTeam$Params {
       body: CreateTeamInvitationRequest
 }
 
-export function createInvitation(http: HttpClient, rootUrl: string, params: CreateInvitation$Params, context?: HttpContext): Observable<StrictHttpResponse<TeamInvitationDto>> {
-  const rb = new RequestBuilder(rootUrl, createInvitation.PATH, 'post');
+export function createInvitationTeam(http: HttpClient, rootUrl: string, params: CreateInvitationTeam$Params, context?: HttpContext): Observable<StrictHttpResponse<TeamInvitationDto>> {
+  const rb = new RequestBuilder(rootUrl, createInvitationTeam.PATH, 'post');
   if (params) {
     rb.body(params.body, 'application/json');
   }
@@ -30,4 +30,4 @@ export function createInvitation(http: HttpClient, rootUrl: string, params: Crea
   );
 }
 
-createInvitation.PATH = '/team-invitations';
+createInvitationTeam.PATH = '/team-invitations/team';
