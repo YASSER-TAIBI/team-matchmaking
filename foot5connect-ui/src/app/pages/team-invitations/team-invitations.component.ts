@@ -52,7 +52,7 @@ export class TeamInvitationsComponent implements OnInit {
   }
 
   get teamInvitations(): TeamInvitationDto[] {
-    return this.invitations.filter(invitation => invitation.type === 'TEAM');
+    return this.invitations.filter(invitation => invitation.type === 'PLAYER');
   }
 
   get matchInvitations(): TeamInvitationDto[] {
@@ -135,7 +135,7 @@ export class TeamInvitationsComponent implements OnInit {
     }
   }
 
-  countByStatus(status: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE', type: 'TEAM' | 'MATCH'): number {
+  countByStatus(status: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE', type: 'PLAYER' | 'MATCH'): number {
     return this.invitations.filter(invitation => invitation.type === type && invitation.status === status).length;
   }
 

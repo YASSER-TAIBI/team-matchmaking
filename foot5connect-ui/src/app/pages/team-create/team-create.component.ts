@@ -11,8 +11,10 @@ import { InvitationService } from '../../services/invitations/invitation.service
 import { TeamService } from '../../services/teams/team.service';
 import { TeamDto } from '../../services/models/team-dto';
 import { TeamMemberDto } from '../../services/models/team-member-dto';
+import { UserService } from '../../services/users/user.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { environment } from '../../../environments/environment';
+import { forkJoin } from 'rxjs';
 
 type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation' | 'historique';
 type TeamEditSection = 'identity' | 'formation';
@@ -44,6 +46,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   private helperService = inject(HelperService);
   private invitationService = inject(InvitationService);
   private teamService = inject(TeamService);
+  private userService = inject(UserService);
   private sanitizer = inject(DomSanitizer);
   private document = inject(DOCUMENT);
   private ngZone = inject(NgZone);
@@ -761,26 +764,53 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
 
     if (this.hasLeftTeam) {
       this.teamActionPending = true;
-      this.teamService.rejoinMyTeam().subscribe({
-        next: () => {
-          this.teamService.findMyMemberTeam().subscribe({
-            next: (data) => {
-              this.team = data;
-              this.members = data?.members ?? [];
-              this.syncAvailabilityLevelFromTeam();
-              this.hasLeftTeam = this.members.length === 0;
-              this.showLeaveTeamDialog = false;
-              this.loadMemberInvitations();
-              this.teamActionPending = false;
+      if (this.currentUserId == null) {
+        this.showBlockedRejoinMessage("Impossible de vérifier votre profil pour le moment.");
+        this.teamActionPending = false;
+        return;
+      }
+
+      forkJoin({
+        hasMembership: this.teamService.hasMyTeamMembership(),
+        currentUser: this.userService.findById(this.currentUserId)
+      }).subscribe({
+        next: ({ hasMembership, currentUser }) => {
+          const isCurrentCaptainInDisplayedTeam = this.members.some(member => this.isCurrentMember(member));
+          const isAlreadyInAnotherTeam = !!hasMembership && !isCurrentCaptainInDisplayedTeam;
+          const isMarkedInTeam = currentUser?.availabilityStatus === 'EN_EQUIPE';
+
+          if (isAlreadyInAnotherTeam || isMarkedInTeam) {
+            this.showBlockedRejoinMessage("Tu ne peux pas rejoindre l'équipe en ce moment parce que ton profil est déjà rattaché à une autre équipe.");
+            this.teamActionPending = false;
+            return;
+          }
+
+          this.teamService.rejoinMyTeam().subscribe({
+            next: () => {
+              this.teamService.findMyMemberTeam().subscribe({
+                next: (data) => {
+                  this.team = data;
+                  this.members = data?.members ?? [];
+                  this.syncAvailabilityLevelFromTeam();
+                  this.hasLeftTeam = this.members.length === 0;
+                  this.showLeaveTeamDialog = false;
+                  this.loadMemberInvitations();
+                  this.teamActionPending = false;
+                },
+                error: (err: any) => {
+                  console.error("Erreur lors du rechargement de l'équipe", err);
+                  this.teamActionPending = false;
+                }
+              });
             },
             error: (err: any) => {
-              console.error("Erreur lors du rechargement de l'équipe", err);
+              console.error("Erreur lors de la réintégration de l'équipe", err);
               this.teamActionPending = false;
             }
           });
         },
         error: (err: any) => {
-          console.error("Erreur lors de la réintégration de l'équipe", err);
+          console.error("Erreur lors de la vérification avant réintégration", err);
           this.teamActionPending = false;
         }
       });
@@ -810,6 +840,11 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     }
 
     this.showLeaveTeamDialog = false;
+  }
+
+  private showBlockedRejoinMessage(message: string): void {
+    this.showLeaveTeamDialog = false;
+    this.document.defaultView?.alert(message);
   }
 
   get teamActionLabel(): string {

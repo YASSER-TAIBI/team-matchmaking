@@ -13,5 +13,5 @@ export interface TeamInvitationDto {
   status?: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE';
   teamId?: number;
   teamName?: string;
-  type?: 'TEAM' | 'MATCH';
+  type?: 'PLAYER' | 'MATCH';
 }

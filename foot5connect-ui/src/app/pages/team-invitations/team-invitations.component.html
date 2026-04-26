@@ -19,7 +19,7 @@
         [class.tabs__item--active]="activeTeamTab === 'EN_ATTENTE'"
         (click)="setTeamTab('EN_ATTENTE', $event)">
         En Attente
-        <span class="tabs__count">{{ countByStatus('EN_ATTENTE', 'TEAM') }}</span>
+        <span class="tabs__count">{{ countByStatus('EN_ATTENTE', 'PLAYER') }}</span>
       </a>
       <a
         class="tabs__item"
@@ -27,7 +27,7 @@
         [class.tabs__item--active]="activeTeamTab === 'ACCEPTEE'"
         (click)="setTeamTab('ACCEPTEE', $event)">
         Acceptée
-        <span class="tabs__count">{{ countByStatus('ACCEPTEE', 'TEAM') }}</span>
+        <span class="tabs__count">{{ countByStatus('ACCEPTEE', 'PLAYER') }}</span>
       </a>
       <a
         class="tabs__item"
@@ -35,7 +35,7 @@
         [class.tabs__item--active]="activeTeamTab === 'REFUSEE'"
         (click)="setTeamTab('REFUSEE', $event)">
         Refusée
-        <span class="tabs__count">{{ countByStatus('REFUSEE', 'TEAM') }}</span>
+        <span class="tabs__count">{{ countByStatus('REFUSEE', 'PLAYER') }}</span>
       </a>
       <a
         class="tabs__item"
@@ -43,7 +43,7 @@
         [class.tabs__item--active]="activeTeamTab === 'ANNULLEE'"
         (click)="setTeamTab('ANNULLEE', $event)">
         Annulée
-        <span class="tabs__count">{{ countByStatus('ANNULLEE', 'TEAM') }}</span>
+        <span class="tabs__count">{{ countByStatus('ANNULLEE', 'PLAYER') }}</span>
       </a>
     </nav>
 
@@ -56,7 +56,7 @@
     @if (!loading && !error && filteredTeamInvitations.length === 0) {
       <div class="invites__empty">
         <div class="invites__empty-card">
-          <div class="invites__empty-icon">{{ countByStatus(activeTeamTab, 'TEAM') }}</div>
+          <div class="invites__empty-icon">{{ countByStatus(activeTeamTab, 'PLAYER') }}</div>
           <div class="invites__empty-content">
             <strong>Aucune invitation d'équipe {{ tabLabel(activeTeamTab).toLowerCase() }}.</strong>
             <p>Les invitations d'équipe de cette catégorie apparaîtront ici.</p>

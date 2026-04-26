@@ -81,24 +81,24 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
             throw new IllegalStateException("Ce joueur appartient déjà à une équipe");
         }
 
-        boolean hasPendingInvitation = teamInvitationRepository.existsByTeam_IdAndInvitedUser_IdAndStatusAndType(
+        boolean hasPendingInvitation = teamInvitationRepository.existsBySenderTeam_IdAndInvitedUser_IdAndStatusAndType(
                 myTeam.getId(),
                 invitedUser.getId(),
                 InvitationStatus.EN_ATTENTE,
-                InvitationType.TEAM
+                InvitationType.PLAYER
         );
         if (hasPendingInvitation) {
             throw new IllegalStateException("Une invitation en attente existe déjà pour ce joueur");
         }
 
         TeamInvitation invitation = TeamInvitation.builder()
-                .team(myTeam)
+                .senderTeam(myTeam)
                 .invitedUser(invitedUser)
                 .status(InvitationStatus.EN_ATTENTE)
                 .availableDate(request.getAvailableDate())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
-                .type(InvitationType.TEAM)
+                .type(InvitationType.PLAYER)
                 .build();
 
         TeamInvitation saved = teamInvitationRepository.save(invitation);
@@ -136,9 +136,9 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
             throw new IllegalStateException("L'horaire proposé est invalide");
         }
 
-        boolean hasPendingInvitation = teamInvitationRepository.existsByTeam_IdAndInvitedUser_IdAndStatusAndType(
+        boolean hasPendingInvitation = teamInvitationRepository.existsBySenderTeam_IdAndReceiverTeam_IdAndStatusAndType(
                 myTeam.getId(),
-                request.getInvitedUserId(),
+                invitedTeam.getId(),
                 InvitationStatus.EN_ATTENTE,
                 InvitationType.MATCH
         );
@@ -146,9 +146,12 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
             throw new IllegalStateException("Une invitation en attente existe déjà pour cette equipe");
         }
 
+        User invitedUser = invitedTeam.getCaptain();
+
         TeamInvitation invitation = TeamInvitation.builder()
-                .team(myTeam)
-                .invitedUser(invitedTeam.getCaptain())
+                .senderTeam(myTeam)
+                .receiverTeam(invitedTeam)
+                .invitedUser(invitedUser)
                 .status(InvitationStatus.EN_ATTENTE)
                 .availableDate(request.getAvailableDate())
                 .startTime(request.getStartTime())
@@ -189,8 +192,9 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
         invitation.setStatus(InvitationStatus.ACCEPTEE);
         TeamInvitation saved = teamInvitationRepository.save(invitation);
 
+        if (invitation.getType() == InvitationType.PLAYER) {
         TeamMember newMember = TeamMember.builder()
-                .team(invitation.getTeam())
+                .team(invitation.getSenderTeam())
                 .user(currentUser)
                 .isCaptain(false)
                 .build();
@@ -208,6 +212,10 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
         teamInvitationRepository.saveAll(otherInvitations);
 
         return TeamInvitationDto.fromEntity(saved);
+    }else{
+        // TODO: Handle team invitation
+        return TeamInvitationDto.fromEntity(saved);
+    }
     }
 
     @Override
@@ -218,7 +226,7 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
         Team team = teamRepository.findByCaptain_Id(currentUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Équipe non trouvée"));
 
-        List<TeamInvitation> teamInvitations = teamInvitationRepository.findByTeam_IdOrderByLastModifiedDateDesc(team.getId());
+         List<TeamInvitation> teamInvitations = teamInvitationRepository.findByReceiverTeam_IdOrderByLastModifiedDateDesc(team.getId());
 
         return teamInvitations.stream()
                 .map(TeamInvitationDto::fromEntity)
