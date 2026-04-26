@@ -3,12 +3,14 @@ package com.yazzer.foot5connect.models;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -42,12 +44,18 @@ public class TeamInvitation extends AbstractEntity {
 
     /* ================= RELATIONS ================= */
 
+    // équipe qui envoie l'invitation
     @ManyToOne
-    @JoinColumn(name = "team_id", nullable = false)
-    private Team team;
- 
-    @ManyToOne
-    @JoinColumn(name = "invited_user_id", nullable = false)
-    private User invitedUser;
+    @JoinColumn(name = "sender_team_id", nullable = false)
+    private Team senderTeam;
 
+    // équipe cible (uniquement pour MATCH)
+    @ManyToOne
+    @JoinColumn(name = "receiver_team_id")
+    private Team receiverTeam;
+
+    // joueur invité (uniquement pour PLAYER)
+    @ManyToOne
+    @JoinColumn(name = "invited_user_id")
+    private User invitedUser;
 }

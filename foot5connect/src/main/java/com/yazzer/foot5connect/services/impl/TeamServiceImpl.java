@@ -222,7 +222,7 @@ public class TeamServiceImpl implements TeamService {
         }
         userRepository.saveAll(usersToUpdate);
 
-        List<TeamInvitation> pendingInvitations = teamInvitationRepository.findByTeam_IdAndStatus(teamId, InvitationStatus.EN_ATTENTE);
+        List<TeamInvitation> pendingInvitations = teamInvitationRepository.findBySenderTeam_IdAndStatus(teamId, InvitationStatus.EN_ATTENTE);
         for (TeamInvitation invitation : pendingInvitations) {
             invitation.setStatus(InvitationStatus.ANNULLEE);
         }

@@ -308,7 +308,7 @@ export class MatchesComponent implements OnInit {
       endTime: `${this.proposedEndTime}:00`
     };
 
-    this.invitationService.createInvitationMatch(payload).subscribe({
+    this.invitationService.createInvitationMatch(payload).subscribe({ 
       next: () => {
         this.inviteSubmitting = false;
         this.inviteSuccess = `Invitation de match envoyée à ${this.invitedTeam?.teamName ?? 'l\'équipe'}`;

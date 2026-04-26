@@ -1,6 +1,6 @@
 package com.yazzer.foot5connect.models;
 
 public enum InvitationType {
-TEAM,
+PLAYER,
 MATCH
 }
