@@ -79,7 +79,7 @@
               <span class="material-symbols-outlined card__title-icon">badge</span>
               Identité de l'Équipe
             </h2>
-            @if (!isEditingIdentity) {
+            @if (!isTeamConfirmed && !isEditingIdentity) {
               <span class="update-item__action update-item__action--edit" (click)="startEditIdentity()">
                   <span class="material-symbols-outlined">edit</span>
                   <span class="update-item__label">Modifier les informations</span>
@@ -260,7 +260,8 @@
               <span class="material-symbols-outlined card__title-icon">groups_2</span>
               Effectif actif
             </h2>
-            @if (!isEditingFormation) {
+
+            @if (!isTeamConfirmed && !isEditingFormation) {
               <span class="update-item__action update-item__action--edit" (click)="startEditFormation()">
                 <span class="material-symbols-outlined">edit</span>
                 <span class="update-item__label">Modifier les informations</span>

@@ -30,28 +30,28 @@
 <div class="mobile-drawer">
   <nav class="mobile-nav">
     
-    <button class="mobile-nav__item" routerLink="/user/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeTeamMenu(); closeMobileMenu()">
+    <button class="mobile-nav__item" routerLink="/user/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeTeamMenu(); closeMatchMenu(); closeMobileMenu()">
       <span class="icon"><i class="fa-solid fa-gauge"></i></span>
       Tableau de bord
     </button>
     
-    <button class="mobile-nav__item" routerLink="/user/available-players" routerLinkActive="is-active" (click)="closeTeamMenu(); closeMobileMenu()">
-      <span class="icon"><i class="fa-solid fa-futbol"></i></span>
+    <button class="mobile-nav__item" routerLink="/user/available-players" routerLinkActive="is-active" (click)="closeTeamMenu(); closeMatchMenu(); closeMobileMenu()">
+      <span class="icon"><i class="fa-solid fa-person-circle-check"></i></span>
       Joueurs dispos
     </button>
+
+    <button class="mobile-nav__item" routerLink="/user/available-teams" routerLinkActive="is-active" (click)="closeTeamMenu(); closeMatchMenu(); closeMobileMenu()">
+      <span class="icon"><i class="fa-solid fa-people-group"></i></span>
+      Équipes dispos
+    </button>
     
-    <button class="mobile-nav__item" routerLink="/user/invitations" routerLinkActive="is-active" (click)="closeTeamMenu(); closeMobileMenu()">
+    <button class="mobile-nav__item" routerLink="/user/invitations" routerLinkActive="is-active" (click)="closeTeamMenu(); closeMatchMenu(); closeMobileMenu()">
       <span class="icon"><i class="fa-solid fa-envelope-open-text"></i></span>
       Invitations
     </button>
     
-    <button class="mobile-nav__item" routerLink="/user/matches" routerLinkActive="is-active" (click)="closeTeamMenu(); closeMobileMenu()">
-      <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-      Trouver un match
-    </button>
-    
-    <button class="mobile-nav__item" type="button" (click)="toggleTeamMenu()" [class.is-expanded]="isTeamMenuOpen" [class.is-active]="isTeamRouteActive">
-      <span class="icon"><i class="fa-solid fa-users"></i></span>
+  <button class="mobile-nav__item" type="button" (click)="toggleTeamMenu()" [class.is-expanded]="isTeamMenuOpen" [class.is-active]="isTeamRouteActive">
+      <span class="icon"><i class="fa-solid fa-chalkboard-user"></i></span>
       Mon équipe
       <span class="chevron"><i class="fa-solid" [class.fa-chevron-down]="!isTeamMenuOpen" [class.fa-chevron-up]="isTeamMenuOpen"></i></span>
     </button>
@@ -70,13 +70,32 @@
         }
       </div>
     }
-    
-    <button class="mobile-nav__item" (click)="closeTeamMenu(); closeMobileMenu()">
+
+    <button class="mobile-nav__item" type="button" (click)="toggleMatchMenu()" [class.is-expanded]="isMatchMenuOpen" [class.is-active]="isMatchRouteActive">
+      <span class="icon"><i class="fa-solid fa-futbol"></i></span>
+      Mon match
+      <span class="chevron"><i class="fa-solid" [class.fa-chevron-down]="!isMatchMenuOpen" [class.fa-chevron-up]="isMatchMenuOpen"></i></span>
+    </button>
+
+    @if (isMatchMenuOpen) {
+      <div class="mobile-submenu">
+        <button class="mobile-submenu__item" type="button" routerLink="/user/matches/dual" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
+          <span class="icon"><i class="fa-solid fa-people-arrows"></i></span>
+          Dual Match
+        </button>
+        <button class="mobile-submenu__item" type="button" (click)="closeMobileMenu()">
+          <span class="icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
+          Historique
+        </button>
+      </div>
+    }
+
+    <button class="mobile-nav__item" (click)="closeTeamMenu(); closeMatchMenu(); closeMobileMenu()">
       <span class="icon"><i class="fa-solid fa-trophy"></i></span>
       Ligues
     </button>
     
-    <button class="mobile-nav__item" (click)="closeTeamMenu(); closeMobileMenu()">
+    <button class="mobile-nav__item" (click)="closeTeamMenu(); closeMatchMenu(); closeMobileMenu()">
       <span class="icon"><i class="fa-solid fa-map"></i></span>
       Terrains
     </button>

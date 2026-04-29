@@ -20,6 +20,7 @@ export class SidenavComponent {
   private teamService = inject(TeamService);
 
   isTeamMenuOpen = false;
+  isMatchMenuOpen = false;
   hasTeamMembership = false;
 
   private currentUrl = '';
@@ -39,6 +40,10 @@ export class SidenavComponent {
 
   get isTeamRouteActive(): boolean {
     return this.currentUrl.startsWith('/user/team');
+  }
+
+  get isMatchRouteActive(): boolean {
+    return this.currentUrl.startsWith('/user/matches/');
   }
 
   get fullName(): string {
@@ -76,8 +81,16 @@ export class SidenavComponent {
     this.isTeamMenuOpen = false;
   }
 
+  closeMatchMenu(): void {
+    this.isMatchMenuOpen = false;
+  }
+
   toggleTeamMenu(): void {
     this.isTeamMenuOpen = !this.isTeamMenuOpen;
+  }
+
+  toggleMatchMenu(): void {
+    this.isMatchMenuOpen = !this.isMatchMenuOpen;
   }
 
   async onCreateTeamNav(): Promise<void> {
@@ -96,6 +109,14 @@ export class SidenavComponent {
   private syncTeamMenuWithUrl(): void {
     if (this.isTeamRouteActive && !this.currentUrl.startsWith('/user/team/conditions')) {
       this.isTeamMenuOpen = true;
+    } else {
+      this.isTeamMenuOpen = false;
+    }
+
+    if (this.isMatchRouteActive) {
+      this.isMatchMenuOpen = true;
+    } else {
+      this.isMatchMenuOpen = false;
     }
   }
 

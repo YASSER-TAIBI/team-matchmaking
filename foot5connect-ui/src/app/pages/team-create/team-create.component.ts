@@ -326,7 +326,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   }
 
   get isTeamConfirmed(): boolean {
-    return this.team?.status === 'COMPLETE';
+    return this.team?.status === 'COMPLETE' || this.team?.status === 'IN_MATCH';
   }
 
   get availabilityAlertMessage(): string {

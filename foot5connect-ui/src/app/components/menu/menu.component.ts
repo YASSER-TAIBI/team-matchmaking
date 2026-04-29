@@ -37,6 +37,7 @@ private teamService = inject(TeamService);
   @ViewChild('mobileNavToggle') mobileNavToggle?: ElementRef<HTMLInputElement>;
 
   isTeamMenuOpen = false;
+  isMatchMenuOpen = false;
   hasTeamMembership = false;
 
   private currentUrl = '';
@@ -58,7 +59,9 @@ private teamService = inject(TeamService);
     return this.currentUrl.startsWith('/user/team');
   }
 
-
+  get isMatchRouteActive(): boolean {
+    return this.currentUrl.startsWith('/user/matches/');
+  }
 
   get fullName(): string {
 
@@ -78,8 +81,6 @@ private teamService = inject(TeamService);
 
   }
 
-
-
   get initials(): string {
 
     const value = this.fullName.trim();
@@ -89,8 +90,6 @@ private teamService = inject(TeamService);
       return '';
 
     }
-
-
 
     const parts = value.split(/\s+/).filter(Boolean);
 
@@ -102,15 +101,11 @@ private teamService = inject(TeamService);
 
   }
 
-
-
   get email(): string {
 
     return this.helperService.userEmail ?? '';
 
   }
-
-
 
   logout(): void {
 
@@ -140,8 +135,13 @@ private teamService = inject(TeamService);
     this.isTeamMenuOpen = false;
   }
 
+  closeMatchMenu(): void {
+    this.isMatchMenuOpen = false;
+  }
+
   closeMobileMenu(): void {
     this.closeTeamMenu();
+    this.closeMatchMenu();
     this.mobileNavToggle?.nativeElement && (this.mobileNavToggle.nativeElement.checked = false);
   }
 
@@ -149,9 +149,21 @@ private teamService = inject(TeamService);
     this.isTeamMenuOpen = !this.isTeamMenuOpen;
   }
 
+  toggleMatchMenu(): void {
+    this.isMatchMenuOpen = !this.isMatchMenuOpen;
+  }
+
   private syncTeamMenuWithUrl(): void {
     if (this.isTeamRouteActive) {
       this.isTeamMenuOpen = true;
+    } else {
+      this.isTeamMenuOpen = false;
+    }
+
+    if (this.isMatchRouteActive) {
+      this.isMatchMenuOpen = true;
+    } else {
+      this.isMatchMenuOpen = false;
     }
   }
 

@@ -22,7 +22,7 @@ public class MessageDto {
 
     private Long userId;
 
-    private Long matchRequestId;
+    private Long invitationId;
 
     public static MessageDto fromEntity(Message message) {
         if (message == null) {
@@ -34,7 +34,7 @@ public class MessageDto {
                 .content(message.getContent())
                 .sentAt(message.getSentAt())
                 .userId(message.getSender().getId())
-                .matchRequestId(message.getMatchRequest().getId())
+                .invitationId(message.getInvitation().getId())
                 .build();
     }
 
@@ -52,9 +52,9 @@ public class MessageDto {
                                 .id(messageDto.getUserId())
                                 .build()
                 )
-                .matchRequest(
-                        MatchRequest.builder()
-                                .id(messageDto.getMatchRequestId())
+                .invitation(
+                        TeamInvitation.builder()
+                                .id(messageDto.getInvitationId())
                                 .build()
                 )
                 .build();

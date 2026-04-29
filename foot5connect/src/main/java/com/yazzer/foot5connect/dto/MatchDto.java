@@ -3,6 +3,8 @@ package com.yazzer.foot5connect.dto;
 import com.yazzer.foot5connect.models.Match;
 import com.yazzer.foot5connect.models.MatchStatus;
 import com.yazzer.foot5connect.models.Team;
+import com.yazzer.foot5connect.models.TeamInvitation;
+
 import lombok.*;
 
 import java.time.LocalDate;
@@ -29,7 +31,7 @@ public class MatchDto {
 
     private Set<Long> teamIds;
 
-    private Long matchRequestId;
+    private Long invitationId;
 
     public static MatchDto fromEntity(Match match) {
         if (match == null) {
@@ -47,6 +49,7 @@ public class MatchDto {
                 .teamIds(match.getTeams()
                         .stream().map(Team::getId)
                         .collect(Collectors.toSet()))
+                .invitationId(match.getInvitation().getId())
                 .build();
     }
 
@@ -63,6 +66,11 @@ public class MatchDto {
                 .status(matchDto.getStatus())
                 .scoreTeamA(matchDto.getScoreTeamA())
                 .scoreTeamB(matchDto.getScoreTeamB())
+                .invitation(
+                        TeamInvitation.builder()
+                                .id(matchDto.getInvitationId())
+                                .build()
+                )
                 .build();
     }
 }
