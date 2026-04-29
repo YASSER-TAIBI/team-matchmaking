@@ -58,4 +58,8 @@ public class TeamInvitation extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "invited_user_id")
     private User invitedUser;
+
+    // match créé suite à l’acceptation
+    @OneToOne(mappedBy = "invitation", cascade = CascadeType.ALL)
+    private Match match;
 }

@@ -39,7 +39,8 @@ public class Match extends AbstractEntity{
     )
     private Set<Team> teams;
 
+    // Invitation à l'origine du match
     @OneToOne
-    @JoinColumn(name = "match_request_id", unique = true)
-    private MatchRequest matchRequest;
+    @JoinColumn(name = "invitation_id", unique = true)
+    private TeamInvitation invitation;
 }

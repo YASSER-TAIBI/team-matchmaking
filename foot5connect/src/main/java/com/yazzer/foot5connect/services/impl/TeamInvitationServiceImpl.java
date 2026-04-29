@@ -1,6 +1,7 @@
 package com.yazzer.foot5connect.services.impl;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
@@ -15,11 +16,15 @@ import com.yazzer.foot5connect.models.AvailabilityStatus;
 import com.yazzer.foot5connect.models.DisponibilityDetail;
 import com.yazzer.foot5connect.models.InvitationStatus;
 import com.yazzer.foot5connect.models.InvitationType;
+import com.yazzer.foot5connect.models.Match;
+import com.yazzer.foot5connect.models.MatchStatus;
 import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamInvitation;
 import com.yazzer.foot5connect.models.TeamMember;
+import com.yazzer.foot5connect.models.TeamStatus;
 import com.yazzer.foot5connect.models.User;
 import com.yazzer.foot5connect.repositories.DisponibilityDetailRepository;
+import com.yazzer.foot5connect.repositories.MatchRepository;
 import com.yazzer.foot5connect.repositories.TeamInvitationRepository;
 import com.yazzer.foot5connect.repositories.TeamMemberRepository;
 import com.yazzer.foot5connect.repositories.TeamRepository;
@@ -34,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 public class TeamInvitationServiceImpl implements TeamInvitationService {
 
     private final TeamInvitationRepository teamInvitationRepository;
+    private final MatchRepository matchRepository;
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
@@ -185,8 +191,16 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
             throw new IllegalStateException("Cette invitation n'est plus en attente");
         }
 
-        if (teamMemberRepository.existsByUser_Id(currentUser.getId())) {
+        if (invitation.getType() == InvitationType.PLAYER && teamMemberRepository.existsByUser_Id(currentUser.getId())) {
             throw new IllegalStateException("Vous appartenez déjà à une équipe");
+        }
+
+        if (invitation.getType() == InvitationType.MATCH) {
+            Team receiverTeam = invitation.getReceiverTeam();
+            if (receiverTeam == null || receiverTeam.getCaptain() == null
+                    || !receiverTeam.getCaptain().getId().equals(currentUser.getId())) {
+                throw new IllegalStateException("Seul le capitaine de l'équipe invitée peut accepter cette invitation de match");
+            }
         }
 
         invitation.setStatus(InvitationStatus.ACCEPTEE);
@@ -212,8 +226,29 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
         teamInvitationRepository.saveAll(otherInvitations);
 
         return TeamInvitationDto.fromEntity(saved);
-    }else{
-        // TODO: Handle team invitation
+    } else {
+        Team senderTeam = invitation.getSenderTeam();
+        Team receiverTeam = invitation.getReceiverTeam();
+
+        if (senderTeam == null || receiverTeam == null) {
+            throw new IllegalStateException("Les deux équipes sont obligatoires pour accepter une invitation de match");
+        }
+
+        Match match = Match.builder()
+                .matchDate(invitation.getAvailableDate())
+                .startTime(invitation.getStartTime())
+                .location(receiverTeam.getPitchAddress())
+                .status(MatchStatus.DUAL)
+                .teams(Set.of(senderTeam, receiverTeam))
+                .invitation(saved)
+                .build();
+        matchRepository.save(match);
+
+        senderTeam.setStatus(TeamStatus.IN_MATCH);
+        receiverTeam.setStatus(TeamStatus.IN_MATCH);
+        teamRepository.save(senderTeam);
+        teamRepository.save(receiverTeam);
+
         return TeamInvitationDto.fromEntity(saved);
     }
     }

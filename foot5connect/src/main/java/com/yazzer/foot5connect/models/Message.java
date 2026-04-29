@@ -28,6 +28,7 @@ public class Message extends AbstractEntity{
     private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "match_request_id", nullable = false)
-    private MatchRequest matchRequest;
+    @JoinColumn(name = "invitation_id", nullable = false)
+    private TeamInvitation invitation;
+
 }

@@ -1,0 +1,231 @@
+<section class="matches-page">
+  <header class="matches-page__header">
+    <div class="matches-page__titles">
+      <h1 class="matches-page__title">Trouver une <span>équipe</span></h1>
+      <p class="matches-page__subtitle">
+        Trouvez les équipes disponibles dans votre ville, consultez leur niveau et proposez une rencontre.
+      </p>
+      @if (inviteSuccess) {
+        <p class="matches-page__success">{{ inviteSuccess }}</p>
+      }
+    </div>
+  </header>
+
+  <section class="matches-filters" aria-label="Filtres des matchs">
+    <div class="matches-filters__group">
+      <label class="matches-filters__label" for="available-teams-location">Localisation</label>
+      <div class="matches-filters__control">
+        <i class="fa-solid fa-location-dot"></i>
+        <select id="available-teams-location" disabled>
+          <option>{{ (userCity || '-') + ', ' + (userCountry || '-') }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="matches-filters__group">
+      <label class="matches-filters__label" for="available-teams-date">Disponibilité</label>
+      <div class="matches-filters__control">
+        <i class="fa-solid fa-calendar-day"></i>
+        <input
+          id="available-teams-date"
+          matInput
+          [matDatepicker]="availabilityPicker"
+          (dateChange)="onDateSelected($event.value)"
+          (click)="availabilityPicker.open()"
+          (input)="onAvailabilityInput($event)"
+          placeholder="N'importe quel jour"
+        />
+        <mat-datepicker #availabilityPicker></mat-datepicker>
+      </div>
+    </div>
+
+    <div class="matches-filters__group">
+      <label class="matches-filters__label" for="available-teams-level">Niveau</label>
+      <div class="matches-filters__control">
+        <i class="fa-solid fa-signal"></i>
+        <select id="available-teams-level" [(ngModel)]="selectedLevel">
+          <option value="">Sélectionner tous</option>
+          @for (level of levelOptions; track level.value) {
+            <option [value]="level.value">{{ level.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <button class="matches-filters__refresh" type="button" (click)="resetFilters()">
+      <i class="fa-solid fa-rotate-right"></i>
+    </button>
+
+    <button class="matches-filters__search" type="button" (click)="searchMatches()">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+  </section>
+
+  @if (isLoading) {
+    <article class="matches-empty-state">
+      <div class="matches-empty-state__icon">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+      </div>
+      <h3>Chargement des équipes...</h3>
+    </article>
+  }
+
+  @if (errorMessage) {
+    <article class="matches-empty-state">
+      <div class="matches-empty-state__icon">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3>Erreur</h3>
+      <p>{{ errorMessage }}</p>
+    </article>
+  }
+
+  <div class="matches-grid">
+    @for (card of visibleCards; track trackByCardId($index, card)) {
+      <article class="matches-card">
+        <div class="matches-card__media" [ngClass]="card.heroClass" [style.background-image]="'url(' + card.backgroundImage + ')'">
+          <div class="matches-card__overlay"></div>
+
+          <button class="matches-card__favorite" type="button" aria-label="Ajouter aux favoris">
+            <i class="fa-solid fa-heart"></i>
+          </button>
+        </div>
+
+        <div class="matches-card__body">
+          <div class="matches-card__team">
+            <div class="matches-card__logo-shell">
+              <div class="matches-card__logo-inner" [ngClass]="card.logoClass">
+                <span>{{ card.initials }}</span>
+              </div>
+            </div>
+
+            <div>
+              <h2 class="matches-card__team-name">{{ card.teamName }}</h2>
+              <div class="matches-card__rating">
+                <i class="fa-solid fa-star"></i>
+                <span>{{ card.ratingLabel }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="matches-card__details">
+            <div class="matches-card__detail-item">
+              <div class="matches-card__detail-icon">
+                <i class="fa-solid fa-clock"></i>
+              </div>
+              <div>
+                <p class="matches-card__detail-title">{{ card.dateLabel }}</p>
+                <p class="matches-card__detail-subtitle">{{ card.relativeDateLabel }}</p>
+              </div>
+            </div>
+
+            <div class="matches-card__detail-item">
+              <div class="matches-card__detail-icon">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div>
+                <p class="matches-card__detail-title">{{ card.venueName }}</p>
+                <p class="matches-card__detail-subtitle">{{ card.venueMeta }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="matches-card__tags">
+            <span class="matches-card__tag matches-card__tag--primary">{{ card.level }}</span>
+            <span class="matches-card__tag">{{ card.format }}</span>
+            <span class="matches-card__tag">{{ card.price }}</span>
+          </div>
+
+          <div class="matches-card__actions">
+            <button
+              class="matches-card__accept"
+              type="button"
+              [disabled]="!canUseMatchActionsForCard(card)"
+              [attr.aria-disabled]="!canUseMatchActionsForCard(card)"
+              (click)="onSendChallenge(card)"
+            >
+              Envoyer un défi
+            </button>
+            <button
+              class="matches-card__message"
+              type="button"
+              aria-label="Envoyer un message"
+              [disabled]="!canUseMatchActionsForCard(card)"
+              [attr.aria-disabled]="!canUseMatchActionsForCard(card)"
+              (click)="onMessageTeam(card)"
+            >
+              <i class="fa-solid fa-comment"></i>
+            </button>
+          </div>
+        </div>
+      </article>
+    }
+
+    @if (!isLoading && !errorMessage && visibleCards.length === 0) {
+      <article class="matches-empty-state">
+        <div class="matches-empty-state__icon">
+          <i class="fa-solid fa-futbol"></i>
+        </div>
+        <h3>Aucune équipe trouvée</h3>
+        <p>Aucune équipe COMPLETE n'est disponible pour votre ville pour le moment.</p>
+      </article>
+    }
+  </div>
+
+  @if (canLoadMore) {
+    <div class="matches-page__footer">
+      <button class="matches-page__load-more" type="button" (click)="loadMore()">
+        Charger plus de demandes
+        <i class="fa-solid fa-chevron-down"></i>
+      </button>
+    </div>
+  }
+
+  @if (inviteModalVisible) {
+    <div class="invite-modal-overlay" (click)="closeInviteModal()">
+      <div class="invite-modal" (click)="$event.stopPropagation()">
+        <div class="invite-modal__header">
+          <div>
+            <h3>Proposer un créneau</h3>
+            <p>
+              Invitation pour
+              <strong>{{ invitedTeam?.teamName ?? 'Équipe' }}</strong>
+            </p>
+          </div>
+          <button type="button" class="invite-modal__close" aria-label="Fermer" [disabled]="inviteSubmitting" (click)="closeInviteModal()">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="invite-modal__body">
+          <div class="invite-modal__field invite-modal__field--full">
+            <label>Date du match</label>
+            <input type="date" [(ngModel)]="proposedDate" readonly />
+          </div>
+
+          <div class="invite-modal__times">
+            <div class="invite-modal__field">
+              <label>Début</label>
+              <input type="time" [(ngModel)]="proposedStartTime" />
+            </div>
+            <div class="invite-modal__field">
+              <label>Fin</label>
+              <input type="time" [(ngModel)]="proposedEndTime" />
+            </div>
+          </div>
+        </div>
+
+        @if (inviteError) {
+          <p class="invite-modal__error">{{ inviteError }}</p>
+        }
+
+        <div class="invite-modal__actions">
+          <button type="button" class="matches-card__modal-secondary" [disabled]="inviteSubmitting" (click)="closeInviteModal()">Annuler</button>
+          <button type="button" class="matches-card__modal-primary" [disabled]="inviteSubmitting" (click)="submitInvitation()">
+            {{ inviteSubmitting ? 'Envoi...' : 'Envoyer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

@@ -78,9 +78,6 @@ public class Team extends AbstractEntity {
     @JoinColumn(name = "captain_id", nullable = false)
     private User captain;
 
-    @OneToOne(mappedBy = "team", cascade = CascadeType.ALL)
-    private MatchRequest matchRequest;
-
     @ManyToMany(mappedBy = "teams")
     private Set<Match> matches;
 
