@@ -148,6 +148,225 @@
   opacity: 0.6;
 }
 
+.card--hero-match {
+  min-height: 340px;
+  padding: 0;
+  text-align: left;
+  border-radius: 32px;
+  background: #192b20;
+}
+
+.card--hero-match::before {
+  display: none;
+}
+
+.hero-match__background,
+.hero-match__overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-match__background {
+  background-image: url('https://res.cloudinary.com/ddsabo1fb/image/upload/v1777610917/floodlights-illuminate-the-field-as-the-game-goes-on-into-the-night-photo_qgyw0i.webp');
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.01);
+  transition: transform 0.7s ease;
+}
+
+.card--hero-match:hover .hero-match__background {
+  transform: scale(1.06);
+}
+
+.hero-match__overlay {
+  background: linear-gradient(180deg, rgb(16 34 22 / 40%) 0%, rgb(16 34 22 / 50%) 38%, rgb(16 34 22 / 70%) 100%);
+}
+
+.hero-match__content {
+  position: relative;
+  z-index: 1;
+  min-height: 340px;
+  padding: 18px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.hero-match__topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-match__badge,
+.hero-match__countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.hero-match__badge {
+  padding: 12px 20px;
+  background: var(--neon-green);
+  color: #102216;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  box-shadow: 0 10px 26px rgba(19, 236, 91, 0.24);
+}
+
+.hero-match__countdown {
+  min-width: 130px;
+  padding: 7px 16px 8px;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: #ffffff;
+  background: rgb(35 42 39 / 50%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  text-transform: uppercase;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.24);
+}
+
+.hero-match__countdown strong {
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.hero-match__countdown span {
+  font-size: 12px;
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.hero-match__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 18px;
+  align-items: flex-start;
+  width: 100%;
+  max-width: none;
+  min-height: 240px;
+}
+
+.hero-match__teams {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: 30px;
+  margin-bottom: 15px;
+}
+
+.hero-match__team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-match__team--home {
+  justify-self: start;
+}
+
+.hero-match__team--away {
+  justify-self: end;
+}
+
+.hero-match__team-logo {
+  width: 85px;
+  height: 85px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.22);
+}
+
+.hero-match__team-logo .material-symbols-outlined {
+  font-size: 44px;
+  color: #ffffff;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 48;
+}
+
+.hero-match__team-name {
+  margin: 0;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.hero-match__versus {
+  align-self: center;
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 45px;
+  font-weight: 900;
+  line-height: 1;
+  font-style: italic;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.26);
+}
+
+.hero-match__date-row,
+.hero-match__location {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-match__date-row {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 900;
+  margin: 25px 0 0;
+  text-shadow: 0 8px 22px rgba(19, 236, 91, 0.18);
+}
+
+.hero-match__location {
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 15px;
+}
+
+.hero-match__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.hero-match__primary-action,
+.hero-match__secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 52px;
+  padding-inline: 24px;
+}
+
+.hero-match__primary-action {
+  box-shadow: 0 0 24px rgba(19, 236, 91, 0.28);
+}
+
+.hero-match__secondary-action {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+}
+
 .hero-icon {
   width: 60px;
   height: 60px;
@@ -445,5 +664,99 @@
 
   .card--hero {
     grid-template-columns: 1fr;
+  }
+
+  .hero-match__content {
+    min-height: 300px;
+    padding: 18px 16px 18px;
+  }
+
+  .hero-match__topbar {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .hero-match__badge,
+  .hero-match__countdown {
+    flex-shrink: 0;
+  }
+
+  .hero-match__badge {
+    padding: 9px 14px;
+    font-size: 10px;
+  }
+
+  .hero-match__badge .material-symbols-outlined {
+    font-size: 16px;
+  }
+
+  .hero-match__countdown {
+    min-width: 112px;
+    padding: 8px 12px;
+  }
+
+  .hero-match__countdown strong {
+    font-size: 20px;
+  }
+
+  .hero-match__countdown span {
+    font-size: 10px;
+  }
+
+  .hero-match__date-row {
+    margin-top: 15px;
+    font-size: 16px;
+  }
+
+  .hero-match__teams {
+    justify-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .hero-match__team--home,
+  .hero-match__team--away {
+    justify-self: center;
+  }
+
+  .hero-match__team-logo {
+    width: 86px;
+    height: 86px;
+  }
+
+  .hero-match__team-logo .material-symbols-outlined {
+    font-size: 40px;
+  }
+
+  .hero-match__team-name {
+    font-size: 16px;
+  }
+
+  .hero-match__versus {
+    padding-bottom: 0;
+    font-size: 38px;
+  }
+
+  .hero-match__actions {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .hero-match__primary-action,
+  .hero-match__secondary-action {
+    min-height: 42px;
+    padding-inline: 14px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex: 1 1 0;
+  }
+
+  .hero-match__primary-action .material-symbols-outlined,
+  .hero-match__secondary-action .material-symbols-outlined {
+    font-size: 16px;
   }
 }

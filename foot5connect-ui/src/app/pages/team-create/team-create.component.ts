@@ -6,11 +6,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TeamInvitationDto } from '../../services/models/team-invitation-dto';
-import { HelperService } from '../../services/helper/helper.service';
 import { InvitationService } from '../../services/invitations/invitation.service';
 import { TeamService } from '../../services/teams/team.service';
 import { TeamDto } from '../../services/models/team-dto';
 import { TeamMemberDto } from '../../services/models/team-member-dto';
+import { UserDto } from '../../services/models/user-dto';
 import { UserService } from '../../services/users/user.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { environment } from '../../../environments/environment';
@@ -43,7 +43,6 @@ declare global {
   styleUrl: './team-create.component.scss'
 })
 export class TeamCreateComponent implements OnInit, AfterViewInit {
-  private helperService = inject(HelperService);
   private invitationService = inject(InvitationService);
   private teamService = inject(TeamService);
   private userService = inject(UserService);
@@ -130,8 +129,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   ];
 
   ngOnInit(): void {
-    this.currentUserId = this.helperService.userId;
-    this.initializeAvailabilityLocationFromUser();
+    this.loadCurrentUserContext();
 
     this.teamService.findMyTeam().subscribe({
       next: (data) => {
@@ -146,6 +144,20 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     });
 
     this.loadMemberInvitations();
+  }
+
+  private loadCurrentUserContext(): void {
+    this.userService.findMe().subscribe({
+      next: (user: UserDto | null) => {
+        this.currentUserId = user?.id ?? null;
+        this.initializeAvailabilityLocationFromUser(user);
+      },
+      error: (err) => {
+        console.error('Erreur chargement utilisateur courant', err);
+        this.currentUserId = null;
+        this.initializeAvailabilityLocationFromUser(null);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -472,8 +484,8 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private initializeAvailabilityLocationFromUser(): void {
-    const userCity = this.helperService.userCity?.trim();
+  private initializeAvailabilityLocationFromUser(user: UserDto | null): void {
+    const userCity = user?.city?.trim();
 
     if (!userCity) {
       this.availabilityAddressQuery = '';
@@ -772,7 +784,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
 
       forkJoin({
         hasMembership: this.teamService.hasMyTeamMembership(),
-        currentUser: this.userService.findById(this.currentUserId)
+        currentUser: this.userService.findMe()
       }).subscribe({
         next: ({ hasMembership, currentUser }) => {
           const isCurrentCaptainInDisplayedTeam = this.members.some(member => this.isCurrentMember(member));

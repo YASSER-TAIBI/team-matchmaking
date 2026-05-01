@@ -174,6 +174,10 @@ export class TeamInvitationsComponent implements OnInit {
     return time.length >= 5 ? time.slice(0, 5) : time;
   }
 
+  invitationTeamName(invitation: TeamInvitationDto, fallback: string): string {
+    return invitation.senderTeamName ?? invitation.receiverTeamName ?? fallback;
+  }
+
   fullName(invitation: TeamInvitationDto): string {
     return `${invitation.invitedUserFirstName ?? ''} ${invitation.invitedUserLastName ?? ''}`.trim() || 'Joueur';
   }

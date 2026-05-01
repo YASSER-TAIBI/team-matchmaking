@@ -10,7 +10,6 @@ import { AvailablePlayerDto } from '../../services/models/available-player-dto';
 import { CreateTeamInvitationRequest } from '../../services/models/create-team-invitation-request';
 import { TeamDto } from '../../services/models/team-dto';
 import { UserDto } from '../../services/models/user-dto';
-import { HelperService } from '../../services/helper/helper.service';
 import { InvitationService } from '../../services/invitations/invitation.service';
 import { TeamService } from '../../services/teams/team.service';
 import { UserService } from '../../services/users/user.service';
@@ -26,7 +25,6 @@ export class AvailablePlayersComponent implements OnInit {
 
   private readonly playersBatchSize = 8;
 
-  private helperService = inject(HelperService);
   private userService = inject(UserService);
   private invitationService = inject(InvitationService);
   private teamService = inject(TeamService);
@@ -59,7 +57,6 @@ export class AvailablePlayersComponent implements OnInit {
   missingScheduleDialogVisible = false;
 
   ngOnInit(): void {
-    this.currentUserId = this.helperService.userId;
     this.loadUserLocation();
     this.loadCurrentUserTeam();
     this.loadPlayers();
@@ -70,7 +67,7 @@ export class AvailablePlayersComponent implements OnInit {
       next: (team) => {
         this.currentTeam = team;
         this.currentUserHasTeam = !!team;
-        this.currentUserIsInTeamSelection = !!team?.members?.some(member => member.userId === this.currentUserId);
+        this.updateCurrentUserTeamSelection();
       },
       error: () => {
         this.currentTeam = null;
@@ -81,23 +78,24 @@ export class AvailablePlayersComponent implements OnInit {
   }
 
   private loadUserLocation(): void {
-    const userId = this.helperService.userId;
-    if (!userId) {
-      this.userCountry = null;
-      this.userCity = null;
-      return;
-    }
-
-    this.userService.findById(userId).subscribe({
+    this.userService.findMe().subscribe({
       next: (user: UserDto | null) => {
+        this.currentUserId = user?.id ?? null;
         this.userCountry = user?.country ?? null;
         this.userCity = user?.city ?? null;
+        this.updateCurrentUserTeamSelection();
       },
       error: () => {
+        this.currentUserId = null;
         this.userCountry = null;
         this.userCity = null;
+        this.currentUserIsInTeamSelection = false;
       }
     });
+  }
+
+  private updateCurrentUserTeamSelection(): void {
+    this.currentUserIsInTeamSelection = !!this.currentTeam?.members?.some(member => member.userId === this.currentUserId);
   }
 
   loadPlayers(): void {

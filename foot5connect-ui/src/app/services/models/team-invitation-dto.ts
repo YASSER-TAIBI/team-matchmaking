@@ -9,9 +9,11 @@ export interface TeamInvitationDto {
   invitedUserId?: number;
   invitedUserLastName?: string;
   invitedUserLevel?: string;
+  receiverTeamId?: number;
+  receiverTeamName?: string;
+  senderTeamId?: number;
+  senderTeamName?: string;
   startTime?: string;
   status?: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ANNULLEE';
-  teamId?: number;
-  teamName?: string;
   type?: 'PLAYER' | 'MATCH';
 }

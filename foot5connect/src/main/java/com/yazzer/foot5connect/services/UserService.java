@@ -28,6 +28,10 @@ public interface UserService extends AbstractService <UserDto>{
 
     UserDto setUnavailable(Long userId);
 
+    UserDto findMe();
+
+    boolean isAuthenticatedUserInMatch();
+
     List<AvailablePlayerDto> findAvailablePlayers();
 
     List<AvailablePlayerDto> findAvailablePlayersInMyLocation();

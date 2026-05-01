@@ -24,15 +24,17 @@ export class UserDashboardComponent implements OnInit {
   private dialog = inject(MatDialog);
 
   user: UserDto | null = null;
+  isInMatch = false;
   showConfirmUnavailable = false;
   private unavailableCheckbox: HTMLInputElement | null = null;
 
   ngOnInit(): void {
-    this.findByUserId();
+    this.loadCurrentUser();
+    this.loadInMatchState();
   }
 
-  findByUserId(){
-    this.userService.findById(this.helperService.userId!).subscribe({
+  loadCurrentUser(): void {
+    this.userService.findMe().subscribe({
       next: (res) => {
        this.user = res;
       },
@@ -108,6 +110,18 @@ export class UserDashboardComponent implements OnInit {
       default:
         return String(status);
     }
+  }
+
+  private loadInMatchState(): void {
+    this.userService.isAuthenticatedUserInMatch().subscribe({
+      next: (value) => {
+        this.isInMatch = value;
+      },
+      error: (err) => {
+        console.log(err);
+        this.isInMatch = false;
+      }
+    });
   }
 
   get isAvailabilityChecked(): boolean {

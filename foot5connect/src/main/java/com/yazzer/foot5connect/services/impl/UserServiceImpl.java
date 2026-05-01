@@ -9,9 +9,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,14 +25,18 @@ import com.yazzer.foot5connect.models.DisponibilityDetail;
 import com.yazzer.foot5connect.models.InvitationStatus;
 import com.yazzer.foot5connect.models.PlayerLevel;
 import com.yazzer.foot5connect.models.Role;
+import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamInvitation;
+import com.yazzer.foot5connect.models.TeamStatus;
 import com.yazzer.foot5connect.models.Token;
 import com.yazzer.foot5connect.models.TokenType;
 import com.yazzer.foot5connect.models.User;
 import com.yazzer.foot5connect.repositories.DisponibilityDetailRepository;
 import com.yazzer.foot5connect.repositories.RoleRepository;
+import com.yazzer.foot5connect.repositories.TeamRepository;
 import com.yazzer.foot5connect.repositories.TeamInvitationRepository;
 import com.yazzer.foot5connect.repositories.UserRepository;
+import com.yazzer.foot5connect.services.auth.AuthenticatedUserService;
 import com.yazzer.foot5connect.services.TokenService;
 import com.yazzer.foot5connect.services.UserService;
 import com.yazzer.foot5connect.services.email.EmailService;
@@ -52,6 +53,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final DisponibilityDetailRepository disponibilityDetailRepository;
     private final TeamInvitationRepository teamInvitationRepository;
+    private final TeamRepository teamRepository;
     private static final String ROLE_USER = "ROLE_USER";
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
@@ -60,6 +62,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final TokenService tokenService;
     private final EmailService emailService;
+    private final AuthenticatedUserService authenticatedUserService;
 
 
     @Override
@@ -90,6 +93,24 @@ public class UserServiceImpl implements UserService {
     public void delete(Long id) {
         // TODO check before delete
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public UserDto findMe() {
+        return UserDto.fromEntity(authenticatedUserService.getAuthenticatedUser());
+    }
+
+    @Override
+    public boolean isAuthenticatedUserInMatch() {
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
+
+        Team memberTeam = teamRepository.findByMemberUserIdWithMembers(currentUser.getId()).orElse(null);
+        if (memberTeam != null && memberTeam.getStatus() == TeamStatus.IN_MATCH) {
+            return true;
+        }
+
+        Team captainTeam = teamRepository.findByCaptainIdWithMembers(currentUser.getId()).orElse(null);
+        return captainTeam != null && captainTeam.getStatus() == TeamStatus.IN_MATCH;
     }
 
     @Override
@@ -334,21 +355,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public List<AvailablePlayerDto> findAvailablePlayersInMyLocation() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getPrincipal() == null) {
-            throw new IllegalStateException("User not authenticated");
-        }
-
-        User currentUser;
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof User user) {
-            currentUser = user;
-        } else if (principal instanceof UserDetails userDetails) {
-            currentUser = userRepository.findByEmail(userDetails.getUsername())
-                    .orElseThrow(() -> new EntityNotFoundException("No user was found with the provided email"));
-        } else {
-            throw new IllegalStateException("Unsupported authentication principal");
-        }
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
 
         String country = currentUser.getCountry();
         String city = currentUser.getCity();

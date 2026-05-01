@@ -29,6 +29,16 @@ public class UserController {
         return ResponseEntity.ok(userService.findById(id));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> findMe() {
+        return ResponseEntity.ok(userService.findMe());
+    }
+
+    @GetMapping("/me/in-match")
+    public ResponseEntity<Boolean> isAuthenticatedUserInMatch() {
+        return ResponseEntity.ok(userService.isAuthenticatedUserInMatch());
+    }
+
     @GetMapping("/available")
     public ResponseEntity<List<AvailablePlayerDto>> findAvailablePlayers() {
         return ResponseEntity.ok(userService.findAvailablePlayers());

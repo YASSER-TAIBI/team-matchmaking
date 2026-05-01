@@ -5,6 +5,7 @@ import { map, Observable } from 'rxjs';
 import { findAvailablePlayers, findAvailablePlayersInMyLocation, findById, saveAvailability, setUnavailable } from '../functions';
 import { DisponibilityDetailDto } from '../models';
 import { AvailablePlayerDto } from '../models/available-player-dto';
+import { UserDto } from '../models/user-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,16 @@ export class UserService {
   findById(userId: number) {
     return findById(this.http, this.apiConfig.rootUrl, { 'id': userId })
       .pipe(map(res => res.body ?? null));
+  }
+
+  findMe(): Observable<UserDto | null> {
+    return this.http.get<UserDto>(`${this.apiConfig.rootUrl}/users/me`)
+      .pipe(map(res => res ?? null));
+  }
+
+  isAuthenticatedUserInMatch(): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiConfig.rootUrl}/users/me/in-match`)
+      .pipe(map(res => res ?? false));
   }
 
   saveAvailability(userId: number, payload: DisponibilityDetailDto) {

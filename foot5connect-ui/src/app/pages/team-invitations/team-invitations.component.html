@@ -71,7 +71,7 @@
           <article class="invite-card">
             <div class="invite-card__header">
               <div>
-                <h3>{{ invitation.teamName || 'Équipe' }}</h3>
+                <h3>{{ invitationTeamName(invitation, 'Équipe') }}</h3>
                 <p class="invite-card__subtitle">Invitation d'équipe</p>
               </div>
               <span [class]="invitationBadgeClass(invitation.status)">{{ invitationLabel(invitation.status) }}</span>
@@ -176,7 +176,7 @@
           <article class="invite-card">
             <div class="invite-card__header">
               <div>
-                <h3>{{ invitation.teamName || 'Match' }}</h3>
+                <h3>{{ invitationTeamName(invitation, 'Match') }}</h3>
                 <p class="invite-card__subtitle">Invitation de match</p>
               </div>
               <span [class]="invitationBadgeClass(invitation.status)">{{ invitationLabel(invitation.status) }}</span>
