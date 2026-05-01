@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +27,7 @@ import com.yazzer.foot5connect.repositories.TeamMemberRepository;
 import com.yazzer.foot5connect.repositories.TeamRepository;
 import com.yazzer.foot5connect.repositories.UserRepository;
 import com.yazzer.foot5connect.services.TeamInvitationService;
+import com.yazzer.foot5connect.services.auth.AuthenticatedUserService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -44,11 +42,12 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
     private final DisponibilityDetailRepository disponibilityDetailRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     @Override
     @Transactional
     public TeamInvitationDto createInvitationTeam(CreateTeamInvitationRequest request) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
 
         if (request == null
                 || request.getInvitedUserId() == null
@@ -114,7 +113,7 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
     @Override
     @Transactional
     public TeamInvitationDto createInvitationMatch(CreateTeamInvitationRequest request) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
 
         if (request == null
                 || request.getInvitedUserId() == null
@@ -172,7 +171,7 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
     @Override
     @Transactional(readOnly = true)
     public List<TeamInvitationDto> findMyInvitations() {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
         return teamInvitationRepository.findByInvitedUser_IdOrderByCreatedDateDesc(currentUser.getId())
                 .stream()
                 .map(TeamInvitationDto::fromEntity)
@@ -182,7 +181,7 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
     @Override
     @Transactional
     public TeamInvitationDto acceptInvitation(Long invitationId) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
 
         TeamInvitation invitation = teamInvitationRepository.findByIdAndInvitedUser_Id(invitationId, currentUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Invitation introuvable"));
@@ -256,7 +255,7 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
     @Override
     @Transactional(readOnly = true)
     public List<TeamInvitationDto> findMemberInvitations() {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
 
         Team team = teamRepository.findByCaptain_Id(currentUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Équipe non trouvée"));
@@ -271,7 +270,7 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
     @Override
     @Transactional
     public TeamInvitationDto rejectInvitation(Long invitationId) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
 
         TeamInvitation invitation = teamInvitationRepository.findByIdAndInvitedUser_Id(invitationId, currentUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Invitation introuvable"));
@@ -284,25 +283,5 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
         TeamInvitation saved = teamInvitationRepository.save(invitation);
 
         return TeamInvitationDto.fromEntity(saved);
-    }
-
-    private User getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getPrincipal() == null) {
-            throw new IllegalStateException("User not authenticated");
-        }
-
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof User user) {
-            return user;
-        }
-
-        if (principal instanceof UserDetails userDetails) {
-            return userRepository.findByEmail(userDetails.getUsername())
-                    .orElseThrow(() -> new EntityNotFoundException("No user was found with the provided email"));
-        }
-
-        throw new IllegalStateException("Unsupported authentication principal");
     }
 }

@@ -5,11 +5,12 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MATCHES_IMAGES } from '../../../assets/img/matches/matches-images';
-import { HelperService } from '../../services/helper/helper.service';
 import { InvitationService } from '../../services/invitations/invitation.service';
 import { CreateTeamInvitationRequest } from '../../services/models/create-team-invitation-request';
 import { TeamDto } from '../../services/models/team-dto';
 import { TeamService } from '../../services/teams/team.service';
+import { UserDto } from '../../services/models/user-dto';
+import { UserService } from '../../services/users/user.service';
 
 interface MatchRequestCard {
   id: number;
@@ -43,8 +44,8 @@ interface MatchRequestCard {
 })
 export class AvailableTeamsComponent implements OnInit {
   private readonly teamService = inject(TeamService);
-  private readonly helperService = inject(HelperService);
   private readonly invitationService = inject(InvitationService);
+  private readonly userService = inject(UserService);
 
   cards: MatchRequestCard[] = [];
   hasCompleteTeam = false;
@@ -68,9 +69,9 @@ export class AvailableTeamsComponent implements OnInit {
   appliedDate: Date | null = null;
   appliedLevel: TeamDto['teamLevel'] | '' = '';
 
-  readonly userCity = this.helperService.userCity;
-  readonly userCountry = this.helperService.userCountry;
-  readonly currentUserId = this.helperService.userId;
+  userCity: string | null = null;
+  userCountry: string | null = null;
+  currentUserId: number | null = null;
   readonly levelOptions: Array<{ value: TeamDto['teamLevel']; label: string }> = [
     { value: 'DEBUTANT', label: 'Débutant' },
     { value: 'AMATEUR', label: 'Amateur' },
@@ -95,8 +96,26 @@ export class AvailableTeamsComponent implements OnInit {
   readonly backgroundImages = Object.values(MATCHES_IMAGES);
 
   ngOnInit(): void {
-    this.loadActionPermissions();
-    this.loadCompleteTeams();
+    this.loadCurrentUserContext();
+  }
+
+  private loadCurrentUserContext(): void {
+    this.userService.findMe().subscribe({
+      next: (user: UserDto | null) => {
+        this.currentUserId = user?.id ?? null;
+        this.userCity = user?.city ?? null;
+        this.userCountry = user?.country ?? null;
+        this.loadActionPermissions();
+        this.loadCompleteTeams();
+      },
+      error: () => {
+        this.currentUserId = null;
+        this.userCity = null;
+        this.userCountry = null;
+        this.loadActionPermissions();
+        this.loadCompleteTeams();
+      }
+    });
   }
 
   get filteredCards(): MatchRequestCard[] {

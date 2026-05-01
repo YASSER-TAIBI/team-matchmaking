@@ -424,6 +424,46 @@
         }
       }
     },
+    "/users/me": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "findMe",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/me/in-match": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "isAuthenticatedUserInMatch",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/available": {
       "get": {
         "tags": [
@@ -862,6 +902,13 @@
               "ANNULLEE"
             ]
           },
+          "type": {
+            "type": "string",
+            "enum": [
+              "PLAYER",
+              "MATCH"
+            ]
+          },
           "availableDate": {
             "type": "string",
             "format": "date"
@@ -872,16 +919,23 @@
           "endTime": {
             "type": "string"
           },
-          "teamId": {
+          "senderTeamId": {
             "type": "integer",
             "format": "int64"
           },
-          "teamName": {
-            "type": "string"
+          "receiverTeamId": {
+            "type": "integer",
+            "format": "int64"
           },
           "invitedUserId": {
             "type": "integer",
             "format": "int64"
+          },
+          "senderTeamName": {
+            "type": "string"
+          },
+          "receiverTeamName": {
+            "type": "string"
           },
           "invitedUserFirstName": {
             "type": "string"
@@ -891,13 +945,6 @@
           },
           "invitedUserLevel": {
             "type": "string"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "TEAM",
-              "MATCH"
-            ]
           }
         }
       },
@@ -1020,9 +1067,6 @@
             "type": "string"
           },
           "endTime": {
-            "type": "string"
-          },
-          "type": {
             "type": "string"
           }
         }

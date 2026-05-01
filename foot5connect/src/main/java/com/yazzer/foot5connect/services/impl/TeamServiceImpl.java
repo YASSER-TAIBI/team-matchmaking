@@ -3,9 +3,6 @@ package com.yazzer.foot5connect.services.impl;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +22,7 @@ import com.yazzer.foot5connect.repositories.TeamMemberRepository;
 import com.yazzer.foot5connect.repositories.TeamRepository;
 import com.yazzer.foot5connect.repositories.UserRepository;
 import com.yazzer.foot5connect.services.TeamService;
+import com.yazzer.foot5connect.services.auth.AuthenticatedUserService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -37,11 +35,12 @@ public class TeamServiceImpl implements TeamService {
     private final TeamInvitationRepository teamInvitationRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     @Override
     @Transactional
     public TeamDto createTeam() {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
 
         // Vérifier si l'utilisateur a déjà une équipe
         if (teamRepository.findByCaptain_Id(currentUser.getId()).isPresent()) {
@@ -81,7 +80,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamDto findMyTeam() {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
         return teamRepository.findByCaptainIdWithMembers(currentUser.getId())
                 .map(TeamDto::fromEntity)
                 .orElse(null);
@@ -89,7 +88,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamDto findMyMemberTeam() {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
         return teamRepository.findByMemberUserIdWithMembers(currentUser.getId())
                 .map(TeamDto::fromEntity)
                 .orElse(null);
@@ -97,14 +96,14 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public boolean hasMyTeamMembership() {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
         return teamMemberRepository.existsByUser_Id(currentUser.getId());
     }
 
     @Override
     @Transactional
     public TeamDto updateTeam(TeamDto teamDto) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
 
         Team team = teamRepository.findByCaptain_Id(currentUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Aucune équipe trouvée"));
@@ -178,7 +177,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @Transactional(readOnly = true)
     public List<TeamDto> findCompleteTeamsInMyCity() {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
         String city = currentUser.getCity();
         System.out.println("DEBUG city=[" + city + "]");
 
@@ -198,7 +197,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @Transactional
     public void leaveMyTeam() {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
 
         TeamMember teamMember = teamMemberRepository.findByUser_Id(currentUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Aucun membre d'équipe trouvé pour cet utilisateur"));
@@ -238,7 +237,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @Transactional
     public void rejoinMyTeam() {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
 
         if (teamMemberRepository.existsByUser_Id(currentUser.getId())) {
             throw new IllegalStateException("Cet utilisateur appartient déjà à une équipe");
@@ -267,7 +266,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @Transactional
     public void removeMemberFromMyTeam(Long userId) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
 
         Team team = teamRepository.findByCaptain_Id(currentUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Aucune équipe trouvée"));
@@ -286,23 +285,4 @@ public class TeamServiceImpl implements TeamService {
         userRepository.save(userToUpdate);
     }
 
-    private User getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getPrincipal() == null) {
-            throw new IllegalStateException("User not authenticated");
-        }
-
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof User user) {
-            return user;
-        }
-
-        if (principal instanceof UserDetails userDetails) {
-            return userRepository.findByEmail(userDetails.getUsername())
-                    .orElseThrow(() -> new EntityNotFoundException("No user was found with the provided email"));
-        }
-
-        throw new IllegalStateException("Unsupported authentication principal");
-    }
 }

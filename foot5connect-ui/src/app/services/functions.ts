@@ -37,6 +37,10 @@ export type { SetUnavailable$Params } from './fn/user-controller/set-unavailable
 export { setUnavailable } from './fn/user-controller/set-unavailable';
 export type { FindById$Params } from './fn/user-controller/find-by-id';
 export { findById } from './fn/user-controller/find-by-id';
+export type { FindMe$Params } from './fn/user-controller/find-me';
+export { findMe } from './fn/user-controller/find-me';
+export type { IsAuthenticatedUserInMatch$Params } from './fn/user-controller/is-authenticated-user-in-match';
+export { isAuthenticatedUserInMatch } from './fn/user-controller/is-authenticated-user-in-match';
 export type { FindAvailablePlayers$Params } from './fn/user-controller/find-available-players';
 export { findAvailablePlayers } from './fn/user-controller/find-available-players';
 export type { FindAvailablePlayersInMyLocation$Params } from './fn/user-controller/find-available-players-in-my-location';
