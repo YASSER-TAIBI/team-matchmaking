@@ -11,6 +11,17 @@ import { updateTeam } from '../fn/team-controller/update-team';
 import { map } from 'rxjs';
 import { TeamDto } from '../models/team-dto';
 
+export interface CurrentMatchDto {
+  matchId?: number;
+  matchDate?: string;
+  startTime?: string;
+  location?: string;
+  myTeamId?: number;
+  myTeamName?: string;
+  opponentTeamId?: number;
+  opponentTeamName?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -32,6 +43,11 @@ export class TeamService {
   findMyMemberTeam() {
     return findMyMemberTeam(this.http, this.apiConfig.rootUrl)
       .pipe(map(res => (res.body as TeamDto) ?? null));
+  }
+
+  findMyCurrentMatch(): Observable<CurrentMatchDto | null> {
+    return this.http.get<CurrentMatchDto>(`${this.apiConfig.rootUrl}/teams/me/current-match`)
+      .pipe(map(res => res ?? null));
   }
 
   findCompleteTeamsInMyCity(): Observable<TeamDto[]> {

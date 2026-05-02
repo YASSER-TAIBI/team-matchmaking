@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.Set;
 
 @Data
+@EqualsAndHashCode(callSuper = true, exclude = {"teamMembers", "captain", "matches", "sentInvitations", "receivedInvitations"})
+@ToString(callSuper = true, exclude = {"teamMembers", "captain", "matches", "sentInvitations", "receivedInvitations"})
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder

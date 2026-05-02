@@ -15,9 +15,13 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Data
+@EqualsAndHashCode(callSuper = true, exclude = {"senderTeam", "receiverTeam", "invitedUser", "match"})
+@ToString(callSuper = true, exclude = {"senderTeam", "receiverTeam", "invitedUser", "match"})
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder

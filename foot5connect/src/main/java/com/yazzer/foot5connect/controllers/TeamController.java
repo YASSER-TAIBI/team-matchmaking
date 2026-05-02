@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.yazzer.foot5connect.dto.CurrentMatchDto;
 import com.yazzer.foot5connect.dto.TeamDto;
 import com.yazzer.foot5connect.services.TeamService;
 
@@ -37,6 +38,11 @@ public class TeamController {
     @GetMapping("/me/member-team")
     public ResponseEntity<TeamDto> findMyMemberTeam() {
         return ResponseEntity.ok(teamService.findMyMemberTeam());
+    }
+
+    @GetMapping("/me/current-match")
+    public ResponseEntity<CurrentMatchDto> findMyCurrentMatch() {
+        return ResponseEntity.ok(teamService.findMyCurrentMatch());
     }
 
     @GetMapping("/me/membership")
