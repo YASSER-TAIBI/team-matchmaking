@@ -11,54 +11,54 @@
     <section class="card card--hero" [class.card--hero-match]="isInMatch">
       @if (isInMatch) {
         <div class="hero-match__background"></div>
-<div class="hero-match__overlay"></div>
+        <div class="hero-match__overlay"></div>
 
-<div class="hero-match__content">
-  <div class="hero-match__topbar">
-    <span class="hero-match__badge">
-      <span class="material-symbols-outlined">sports_soccer</span>
-      Prochain match
-    </span>
+        <div class="hero-match__content">
+          <div class="hero-match__topbar">
+            <span class="hero-match__badge">
+              <span class="material-symbols-outlined">sports_soccer</span>
+              Prochain match
+            </span>
 
-    <div class="hero-match__countdown">
-      <strong>20:00</strong>
-      <span>Ce soir</span>
-    </div>
-  </div>
+            <span class="hero-match__badge">
+              <span class="material-symbols-outlined">calendar_today</span>
+              <strong>{{ currentMatchTopbarLabel }}</strong>
+            </span>
+          </div>
 
-  <div class="hero-match__body">
-    <div class="hero-match__date-row">
-      <span class="material-symbols-outlined">stadium</span>
-      <span>Wembley Powerleague</span>
-    </div>
+          <div class="hero-match__body">
+            <div class="hero-match__date-row">
+              <span class="material-symbols-outlined">stadium</span>
+              <span>{{ matchLocation }}</span>
+            </div>
 
-    <div class="hero-match__teams" aria-label="Équipes du match">
-      <div class="hero-match__team hero-match__team--home">
-        <div class="hero-match__team-logo">
-          <span class="material-symbols-outlined">shield</span>
+            <div class="hero-match__teams" aria-label="Équipes du match">
+              <div class="hero-match__team hero-match__team--home">
+                <div class="hero-match__team-logo">
+                  <span>{{ myTeamInitials }}</span>
+                </div>
+                <h2 class="hero-match__team-name">{{ myTeamName }}</h2>
+              </div>
+
+              <div class="hero-match__versus">VS</div>
+
+              <div class="hero-match__team hero-match__team--away">
+                <div class="hero-match__team-logo">
+                  <span>{{ opponentTeamInitials }}</span>
+                </div>
+                <h2 class="hero-match__team-name">{{ opponentTeamName }}</h2>
+              </div>
+            </div>
+
+            <div class="hero-match__actions">
+              <button class="btn btn--primary hero-match__primary-action" [routerLink]="'/user/matches/dual'">
+                <span>Détails du match</span>
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+              <button class="btn btn--ghost hero-match__secondary-action" [routerLink]="'/user/team'">Voir l'équipe</button>
+            </div>
+          </div>
         </div>
-        <h2 class="hero-match__team-name">Underdogs</h2>
-      </div>
-
-      <div class="hero-match__versus">VS</div>
-
-      <div class="hero-match__team hero-match__team--away">
-        <div class="hero-match__team-logo">
-          <span class="material-symbols-outlined">rocket_launch</span>
-        </div>
-        <h2 class="hero-match__team-name">FC Rapid</h2>
-      </div>
-    </div>
-
-    <div class="hero-match__actions">
-      <button class="btn btn--primary hero-match__primary-action">
-        <span>Match details</span>
-        <span class="material-symbols-outlined">arrow_forward</span>
-      </button>
-      <button class="btn btn--ghost hero-match__secondary-action">Voir l'équipe</button>
-    </div>
-  </div>
-</div>
       } @else {
         <div class="hero-icon">
           <i class="fa-solid fa-futbol"></i>

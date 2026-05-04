@@ -138,6 +138,9 @@ public class TeamServiceImpl implements TeamService {
         if (teamDto.getPrix() != null) {
             team.setPrix(teamDto.getPrix());
         }
+        if (teamDto.getFormation() != null) {
+            team.setFormation(teamDto.getFormation());
+        }
         if (teamDto.getTarificationTerrain() != null) {
             team.setTarificationTerrain(teamDto.getTarificationTerrain());
         }

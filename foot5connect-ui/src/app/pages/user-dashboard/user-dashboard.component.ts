@@ -7,7 +7,8 @@ import { UserService } from '../../services/users/user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AvailabilityDialogComponent, AvailabilityDialogResult } from '../../components/availability-dialog/availability-dialog.component';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-
+import { CurrentMatchDto } from '../../services/models/current-match-dto';
+import { MatchService } from '../../services/match/match.service';
 
 
 @Component({
@@ -20,17 +21,20 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 export class UserDashboardComponent implements OnInit {
 
   private userService = inject(UserService);
+  private matchService = inject(MatchService);
   private helperService = inject(HelperService);
   private dialog = inject(MatDialog);
 
   user: UserDto | null = null;
   isInMatch = false;
+  currentMatch: CurrentMatchDto | null = null;
   showConfirmUnavailable = false;
   private unavailableCheckbox: HTMLInputElement | null = null;
 
   ngOnInit(): void {
     this.loadCurrentUser();
     this.loadInMatchState();
+    this.loadCurrentMatch();
   }
 
   loadCurrentUser(): void {
@@ -40,6 +44,18 @@ export class UserDashboardComponent implements OnInit {
       },
       error: (err) => {
         console.log(err);
+      }
+    });
+  }
+
+  private loadCurrentMatch(): void {
+    this.matchService.findMyCurrentMatch().subscribe({
+      next: (match) => {
+        this.currentMatch = match;
+      },
+      error: (err) => {
+        console.log(err);
+        this.currentMatch = null;
       }
     });
   }
@@ -93,6 +109,41 @@ export class UserDashboardComponent implements OnInit {
 
   get goalsCount(): number {
     return this.user?.totalGoals ?? 0;
+  }
+
+  get currentMatchTopbarLabel(): string {
+    if (!this.currentMatch?.matchDate && !this.currentMatch?.startTime) {
+      return '-';
+    }
+
+    const datePart = this.currentMatch?.matchDate
+      ? this.formatDateLabel(this.currentMatch.matchDate)
+      : '';
+    const timePart = this.currentMatch?.startTime
+      ? `À ${this.formatTime(this.currentMatch.startTime)}`
+      : '';
+
+    return [datePart, timePart].filter(Boolean).join(' • ');
+  }
+
+  get matchLocation(): string {
+    return this.currentMatch?.location ?? '-';
+  }
+
+  get myTeamName(): string {
+    return this.currentMatch?.myTeamName ?? 'Mon équipe';
+  }
+
+  get opponentTeamName(): string {
+    return this.currentMatch?.opponentTeamName ?? 'Équipe adverse';
+  }
+
+  get myTeamInitials(): string {
+    return this.getInitials(this.myTeamName);
+  }
+
+  get opponentTeamInitials(): string {
+    return this.getInitials(this.opponentTeamName);
   }
 
   get availabilityLabel(): string {
@@ -235,5 +286,44 @@ export class UserDashboardComponent implements OnInit {
     const month = String(value.getMonth() + 1).padStart(2, '0');
     const day = String(value.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private formatDateLabel(date?: string): string {
+    if (!date) {
+      return '-';
+    }
+
+    const value = new Date(date);
+    if (Number.isNaN(value.getTime())) {
+      return date;
+    }
+
+    const weekday = value.toLocaleDateString('fr-FR', { weekday: 'short' });
+    const day = value.toLocaleDateString('fr-FR', { day: '2-digit' });
+    const month = value.toLocaleDateString('fr-FR', { month: 'short' });
+    const normalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1).replace('.', '');
+    return `${normalizedWeekday} ${day} ${month}`;
+  }
+
+  private formatTime(time?: string): string {
+    if (!time) {
+      return '--:--';
+    }
+
+    return time.length >= 5 ? `${time.slice(0, 2)}h${time.slice(3, 5)}` : time;
+  }
+
+  private getInitials(name: string): string {
+    const parts = name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2);
+
+    if (parts.length === 0) {
+      return '--';
+    }
+
+    return parts.map(part => part.charAt(0).toUpperCase()).join('');
   }
 }

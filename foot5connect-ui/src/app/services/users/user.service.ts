@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ApiConfiguration } from '../api-configuration';
 import { map, Observable } from 'rxjs';
-import { findAvailablePlayers, findAvailablePlayersInMyLocation, findById, saveAvailability, setUnavailable } from '../functions';
+import { findAvailablePlayers, findAvailablePlayersInMyLocation, findById, findMe, isAuthenticatedUserInMatch, saveAvailability, setUnavailable } from '../functions';
 import { DisponibilityDetailDto } from '../models';
 import { AvailablePlayerDto } from '../models/available-player-dto';
 import { UserDto } from '../models/user-dto';
@@ -18,16 +18,6 @@ export class UserService {
   findById(userId: number) {
     return findById(this.http, this.apiConfig.rootUrl, { 'id': userId })
       .pipe(map(res => res.body ?? null));
-  }
-
-  findMe(): Observable<UserDto | null> {
-    return this.http.get<UserDto>(`${this.apiConfig.rootUrl}/users/me`)
-      .pipe(map(res => res ?? null));
-  }
-
-  isAuthenticatedUserInMatch(): Observable<boolean> {
-    return this.http.get<boolean>(`${this.apiConfig.rootUrl}/users/me/in-match`)
-      .pipe(map(res => res ?? false));
   }
 
   saveAvailability(userId: number, payload: DisponibilityDetailDto) {
@@ -48,5 +38,15 @@ export class UserService {
   findAvailablePlayersInMyLocation(): Observable<AvailablePlayerDto[]> {
     return findAvailablePlayersInMyLocation(this.http, this.apiConfig.rootUrl)
       .pipe(map(res => (res.body ?? []) as AvailablePlayerDto[]));
+  }
+
+  findMe(): Observable<UserDto | null> {
+    return findMe(this.http, this.apiConfig.rootUrl)
+      .pipe(map(res => res.body ?? null));
+  }
+
+  isAuthenticatedUserInMatch(): Observable<boolean> {
+    return isAuthenticatedUserInMatch(this.http, this.apiConfig.rootUrl)
+      .pipe(map(res => res.body ?? false));
   }
 }

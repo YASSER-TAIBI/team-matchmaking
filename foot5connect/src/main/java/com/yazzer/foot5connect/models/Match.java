@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
@@ -11,6 +13,8 @@ import java.time.LocalTime;
 import java.util.Set;
 
 @Data
+@EqualsAndHashCode(callSuper = true, exclude = {"teams", "invitation"})
+@ToString(callSuper = true, exclude = {"teams", "invitation"})
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder

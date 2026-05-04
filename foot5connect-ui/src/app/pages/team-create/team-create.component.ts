@@ -396,6 +396,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
       endTime: team.endTime,
       status: 'COMPLETE',
       teamLevel: this.selectedTeamLevelValue,
+      formation: this.formationTitle,
       tarificationTerrain: this.availabilityFieldPricing,
       prix: this.availabilityFieldPricing === 'PAYANT' ? this.availabilityPricePerPerson : undefined,
       pitchAddress: this.availabilitySelectedPlaceId,
@@ -964,10 +965,10 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
 
   get formationTitle(): string {
     const members = this.formationMembers;
-    const goalkeepers = members.filter(member => member.position === 'GOALKEEPER').length;
-    const defenders = members.filter(member => member.position === 'DEFENDER').length;
-    const midfielders = members.filter(member => member.position === 'MIDFIELDER').length;
-    const attackers = members.filter(member => member.position === 'ATTACKER').length;
+    const goalkeepers = members.filter(member => member.position === 'GOALKEEPER' && member.selection === 'STARTER').length;
+    const defenders = members.filter(member => member.position === 'DEFENDER' && member.selection === 'STARTER').length;
+    const midfielders = members.filter(member => member.position === 'MIDFIELDER' && member.selection === 'STARTER').length;
+    const attackers = members.filter(member => member.position === 'ATTACKER' && member.selection === 'STARTER').length;
 
     return `${goalkeepers}-${defenders}-${midfielders}-${attackers}`;
   }
