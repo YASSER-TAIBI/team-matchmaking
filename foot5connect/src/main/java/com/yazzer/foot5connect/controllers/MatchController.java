@@ -1,0 +1,30 @@
+package com.yazzer.foot5connect.controllers;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yazzer.foot5connect.dto.CurrentDualMatchDetailsDto;
+import com.yazzer.foot5connect.dto.CurrentMatchDto;
+import com.yazzer.foot5connect.services.MatchService;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/matches")
+@RequiredArgsConstructor
+public class MatchController {
+
+    private final MatchService matchService;
+
+    @GetMapping("/me/current-match")
+    public ResponseEntity<CurrentMatchDto> findMyCurrentMatch() {
+        return ResponseEntity.ok(matchService.findMyCurrentMatch());
+    }
+
+    @GetMapping("/me/current-dual-match")
+    public ResponseEntity<CurrentDualMatchDetailsDto> findMyCurrentDualMatchDetails() {
+        return ResponseEntity.ok(matchService.findMyCurrentDualMatchDetails());
+    }
+}

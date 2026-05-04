@@ -726,7 +726,11 @@
   .hero-match__badge {
     min-width: 112px;
     padding: 8px 12px;
-    font-size: 10px;
+    font-size: 11px;
+
+    strong {
+      font-size: 11px;
+    }
   }
 
   .hero-match__badge .material-symbols-outlined {

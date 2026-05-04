@@ -8,254 +8,206 @@
     </div>
   </header>
 
-  <section class="match-hero">
-    <div class="match-hero__backdrop"></div>
-    <div class="match-hero__overlay"></div>
+  @if (isLoading) {
+    <section class="matches-empty">
+      <div class="matches-empty__icon material-symbols-outlined">progress_activity</div>
+      <h2 class="matches-empty__title">Chargement du match</h2>
+      <p class="matches-empty__text">Nous récupérons les informations de votre dual match en cours.</p>
+    </section>
+  } @else if (hasCurrentMatch) {
+    <section class="match-hero">
+      <div class="match-hero__backdrop"></div>
+      <div class="match-hero__overlay"></div>
 
-    <div class="match-hero__content">
-      <div class="match-team match-team--home">
-        <div class="match-team__logo match-team__logo--home">
-          <img alt="Neon Strikers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD65AfUZ2BV8w3utMUqEZUKWXdDNs7Gaopv83uiShjDjQqdPmPCDxINsj0-FXpoEgsoMEA0Q-OdfWwi4pHO7HnDGy8QmUvZbM8fzssSYxg4bgXdAAj4kkcSQ76eQWP5GrqFsk6boHurxQ2gWt87W0xl-s3Vl0d25wrBNq1-jETSTargM1HhJXoCKJ8x2TVSo9jBS5abA6IgfmL3bb8CxP80PFwX9K3eiW8pSwt7qCG_a9bw2B0AtlRDE8OfyxYeDHjF259J85bEZg" />
-        </div>
-        <h2 class="match-team__name">Neon Strikers</h2>
-        <span class="match-team__role match-team__role--home">Équipe à domicile</span>
-      </div>
-
-      <div class="match-hero__vs-block">
-        <div class="match-hero__vs">VS</div>
-        <div class="match-hero__round">Championnat R6</div>
-      </div>
-
-      <div class="match-team match-team--away">
-        <div class="match-team__logo match-team__logo--away">
-          <img alt="Dark Knights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHPc6iKiY2aBaFys_mbhZS9m7I8a-uyyoXIwQyxwSp2C-CYPfW9NOtt8CsG-HwD0PzG76HscLfFrskICJhXsYwXQzTO-E9eESS3bjGj_0K3NzPeTET6FP53WziqlJUTjfHqYcb529vHJXutn2eTB8NXBXAk4ngVzd43aFj8Am9LZLoyI6zhEpYxjEJDJZ5wevZf_KYLmcQ3529G3CvtudxqDsmpeHhLdx8Msoi3kRuApoHRFs-XPv-92L5QbVX2TDtivkWP1YudA" />
-        </div>
-        <h2 class="match-team__name">Dark Knights</h2>
-        <span class="match-team__role">Équipe à l'extérieur</span>
-      </div>
-    </div>
-
-    <div class="match-hero__meta">
-      <div class="match-hero__meta-item">
-        <span class="match-hero__meta-icon material-symbols-outlined">calendar_today</span>
-        <span class="match-hero__meta-text">Vendredi 24 oct.</span>
-      </div>
-      <div class="match-hero__meta-item">
-        <span class="match-hero__meta-icon material-symbols-outlined">schedule</span>
-        <span class="match-hero__meta-text">20:00 - 21:00</span>
-      </div>
-      <div class="match-hero__meta-item">
-        <span class="match-hero__meta-icon material-symbols-outlined">stadium</span>
-        <span class="match-hero__meta-text">Pitch 4, Powerleague</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="match-layout">
-    <article class="team-panel">
-      <div class="team-panel__header">
-        <h3 class="team-panel__title">Neon Strikers</h3>
-        <span class="team-panel__badge team-panel__badge--active">Formation 1-2-1-1</span>
-      </div>
-
-      <div class="team-panel__roster">
-        <div class="player-card player-card--accent">
-          <div class="player-card__avatar player-card__avatar--keeper">
-            <img alt="Marcus Chen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNxTRpGEhoT-916gETXxq-HS2yveJ_gJ5a_zq0g49-ekT6XUYmtXNgFYkjGtKqqIR0gl57sDEhV-SmzCzzsbWxhGpdufeHMEkIFwrf0nuhfsKQbRzLcSrcNZ1qx7q8a8W6gIei9n3MilhtqucWWzQvHkqqCtw4EgnJdTlDyVRMxX68YYC9a1fiy5sIzfTkmO35Qcs_IDbX8kGtKGcohpe_SsB9IFPVuke8L_PJMGNAmGCEjjXVnaD-Qu_LHqGqLJ_EFptQn-4pvQ" />
+      <div class="match-hero__content">
+        <div class="match-team match-team--home">
+          <div class="match-team__logo match-team__logo--home">
+            <span class="match-team__logo-text">{{ getTeamInitials(myTeam?.name) }}</span>
           </div>
-          <div class="player-card__body">
-            <p class="player-card__name">Marcus Chen</p>
-            <p class="player-card__role">Gardien</p>
-          </div>
-          <span class="player-card__tag player-card__tag--accent">GK</span>
+          <h2 class="match-team__name">{{ myTeam?.name }}</h2>
+          <span class="match-team__role match-team__role--home">Votre équipe</span>
         </div>
 
-        <div class="team-panel__group">
-          <div class="player-card">
-            <div class="player-card__avatar">
-              <img alt="David Miller" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7m563-pBs6WFYwiXR1DGRGyh6w0uaKXW_ObdbifGIiCskxIXh0xbhrTGcBh7wt-FTkqQPOgroSOWOjN7pz3BUW6-9nrde71Hm2rSp4cUrIJb6i9eWM0twqABpj6NrvCOIOQaNjIsXjT6GHn9qsKXNogHYAxu5TT7Pa_iW-m7lQnsKyj6fMqEE6umailWHBY4pj6Fb9NdLrRJkTVdVZGnzCXtY-rBl3jAzR9zzkO2ZEa5QLaU-fMJjpwcykDuqcfilKnssbJsILw" />
-            </div>
-            <div class="player-card__body">
-              <p class="player-card__name">David Miller</p>
-              <p class="player-card__role">Défenseur</p>
-            </div>
-            <span class="player-card__tag">DEF</span>
-          </div>
-
-          <div class="player-card">
-            <div class="player-card__avatar">
-              <img alt="Liam Rossi" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhmKDlsVJgSEvjyVfMTFUVHGd65ePE18pcfDE9SQ4FUK8ICXtlL0zwy4aOlvZuI6asXcRI2Po8Bi1wBzhK32c3HtHd3FSKa2_rUDkAib0YnjXGT-fQZ7MqvxONJaDpoYcw9IqTpFcr5tRNABLAIeT7XKG01KZTao71DKhf_TrO7WjRpDfa8l53vSZuRQjtLtP0XWCVtl19eMkDrMDDORmc4y4a_lq4U7ooZPB7TIdgkZhyvanwHfugtvkEwLuJJEUYZiokkDQi0g" />
-            </div>
-            <div class="player-card__body">
-              <p class="player-card__name">Liam Rossi</p>
-              <p class="player-card__role">Défenseur</p>
-            </div>
-            <span class="player-card__tag">DEF</span>
-          </div>
+        <div class="match-hero__vs-block">
+          <div class="match-hero__vs">VS</div>
+          <div class="match-hero__round">{{ levelLabel }}</div>
         </div>
 
-        <div class="player-card player-card--accent">
-          <div class="player-card__avatar player-card__avatar--accent">
-            <img alt="Kevin Thorne" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJh8NdVqbRWyxBzJOwhaTZXovFnwUTZAaIQJOD1E-44R9rfMWo_PlITEk8Iir5dG4ByB4LlvpFJ_ke6tjICCTHuz8R_n9jZnmsm1d7c8t8OzNYJO4zn3b7D3H2dXVIk0o_g-KQoZ5NIRuR5U85_Z_6ru4a6GYzF3xnutAmY_Gxwut4lzqMiCGpW4YU_h1Qrzstj5Di8pEXyLAKR63thJjRnWHU8Uht6S-jzJvEObfNIV_c0Bb6xe0meHKIw4KgOjJFibmooGdYvw" />
+        <div class="match-team match-team--away">
+          <div class="match-team__logo match-team__logo--away">
+            <span class="match-team__logo-text">{{ getTeamInitials(opponentTeam?.name) }}</span>
           </div>
-          <div class="player-card__body">
-            <p class="player-card__name">Kevin Thorne (C)</p>
-            <p class="player-card__role">Milieu</p>
-          </div>
-          <span class="player-card__tag player-card__tag--accent">MID</span>
-        </div>
-
-        <div class="player-card">
-          <div class="player-card__avatar">
-            <img alt="Sasha Vane" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIPxt96nFUEQEmQ7PPslrsmrqT_J5piGfaDvU2-HP6xzBWOIvtXspBsGFNKKOpyJBgAoMteWOvCb3E38zKnm_8trkfg2VD64_zOvMygO7zwxPrKAqrdEryFN3ShlyhJGDesMkK0UOSuN_egSbNgvLiECFPRcGuBT6m2x9D2azvKvHCECYlbcLKn9g5VeyJaNJJtNZalzNrA570AVA4Lnqq6tqV24Or8baxWpKw5jq6vfyWRgLbc2BYLCqAwhQcAXa_xUw-1gOU8g" />
-          </div>
-          <div class="player-card__body">
-            <p class="player-card__name">Sasha Vane</p>
-            <p class="player-card__role">Attaquant</p>
-          </div>
-          <span class="player-card__tag">ATT</span>
-        </div>
-
-        <div class="substitutes">
-          <p class="substitutes__label">Remplaçants</p>
-          <div class="substitutes__list">
-            <div class="substitutes__item">
-              <img alt="Substitute player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnYfDF3bM6vkiK1EAPR5gm4L8NQz-UtiQRCxUJmK89SHE0oLj48BJohwYA4md6gMT2X_UEpKOtqvqU2zFtQ7hjZeJOUaSnNZRCh5hiwKMCof8l9Lg_AcnqAw4GOp6VeF8ZSQGUA26YsCS2Zm3rVtk8h9wyn_qAe1j6boMJZvDpWxXr6B6Ran8kFJPJ0v8pc37LWR0yIx1KCiq5fwtCO9VIVxgiZbKU1gODCOV7-B8nWo3zosaLb_yfMkF5VWWSPLfpZOmj7yU4aw" />
-            </div>
-            <div class="substitutes__item">
-              <img alt="Substitute player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6oHP_hLegcLqa2XzQIdnFpfGXxCYd8LKEZvy8GbnginEyb2zOm11AzoGlVyH6c7SBvw8NN4ZNFWt2fM_AwRU39v5Q9wOp2UqAP-w6MG9S3nfjZjRypn5uJXI0gVQEnW47_dFClyYtPwxRbdht7Av0oU5bAhI-zAcUGGDaKaPSFa766GCdvsCTCKnMt08TRru_9i5-penpCBl_HePYRKRGlYr4cqAuglgIS4G11NgQfQpd2ssr5563rbRwcMExe_7n6atPZ38_pg" />
-            </div>
-          </div>
+          <h2 class="match-team__name">{{ opponentTeam?.name ?? 'Équipe adverse' }}</h2>
+          <span class="match-team__role">Équipe adverse</span>
         </div>
       </div>
-    </article>
 
-    <article class="team-panel">
-      <div class="team-panel__header">
-        <h3 class="team-panel__title">Dark Knights</h3>
-        <span class="team-panel__badge">Formation 1-2-1-1</span>
-      </div>
-
-      <div class="team-panel__roster">
-        <div class="player-card">
-          <div class="player-card__avatar player-card__avatar--keeper">
-            <img alt="Elena Petrova" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAY_bwC15NYnm0Ib3WlmhOo265_0atHqFCdZN1PdISi7Vy1_ZF-JwcdfVIxtL2Tkh4MEUdvAfxTBfnqJmcGCm7Zt-vaR6EI2R-5qIbTADK9tAGLvnm2lmPWRtw3Q_4pEtbdiJhiEo6P_Q0a0krZwu5Fq90rQ9bbBusYOmfV3p00qOoDCauM0FUcuCmhk_GCjGM9EQqkec53kY_s6QjzDv8tqt7jeXpHvD6wxVMd4D-s9clfc6JhCpm99QzlXTEHm7tfBz7PC1LeUQ" />
-          </div>
-          <div class="player-card__body">
-            <p class="player-card__name">Elena Petrova</p>
-            <p class="player-card__role">Gardien</p>
-          </div>
-          <span class="player-card__tag">GK</span>
+      <div class="match-hero__meta">
+        <div class="match-hero__meta-item">
+          <span class="match-hero__meta-icon material-symbols-outlined">calendar_today</span>
+          <span class="match-hero__meta-text">{{ matchDateLabel }}</span>
         </div>
-
-        <div class="team-panel__group">
-          <div class="player-card">
-            <div class="player-card__avatar">
-              <img alt="Omar Syed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMq8jvejjPTQc3yzF4WU9iCAoMzO1oGc9m_xZINhRZVRpjBCbaHjvtFGVYlsDgXztR8Qr3gvUQwT4f1I0iA9e1M37odU1hqnE5-dBetvzlFeO6n0axvxXpCa2RjKcWc5fxU8EObyCmbRZqVL5EKbRODyhQ437lN_5LGVVr9eObvhdgIowKeGexiTesxSauCMlCjlL7a-B0DxXoFa_lHsEQnB5f4NiE0Bbf4iiarfhRYwJ24ZzXuClXQ-miHy4NHKilpRoTxkw_kA" />
-            </div>
-            <div class="player-card__body">
-              <p class="player-card__name">Omar Syed</p>
-              <p class="player-card__role">Défenseur</p>
-            </div>
-            <span class="player-card__tag">DEF</span>
-          </div>
-
-          <div class="player-card">
-            <div class="player-card__avatar">
-              <img alt="Toby Wright" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7Mo05CvTUkMQqAtfyepoggsym8l6ilHi0QabeYBP2NTJ2ek8C3nbzg562SNrnHkUpwJPXCwVutAUx2bN7s9jBOk4jPHi-I4owU0G_wAGHorUhzpghSMDsAeobxuPlDUjDDHjh9AlJf_lAEVR6tQHkBpoQ6QwYEs6U2SLOsMFoyyoMua4GKkxnj8VoKwouCkK5xWWZgHYn_29sFyif_dDmHmamZ_65-hzmB8PZc79dRSd3rQqsq81RVVppI2qtqe8-SL4StmP3PA" />
-            </div>
-            <div class="player-card__body">
-              <p class="player-card__name">Toby Wright</p>
-              <p class="player-card__role">Défenseur</p>
-            </div>
-            <span class="player-card__tag">DEF</span>
-          </div>
+        <div class="match-hero__meta-item">
+          <span class="match-hero__meta-icon material-symbols-outlined">schedule</span>
+          <span class="match-hero__meta-text">{{ matchTimeLabel }}</span>
         </div>
-
-        <div class="player-card">
-          <div class="player-card__avatar">
-            <img alt="James Hudson" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACfHpADco51rMU3wgLm4dXvk2AQ-OKa7iN_D7JWg4jOSwBHS6RTsH8Ip-ofaDWJMRvwV_xL1aqhKPxFQtxPbmGlYntiFAIrbyyhJwIhjl5A3HscEn9DyjsbSkCLZdNR8owQDM3V2LJ7hUlQxfYhZQlPhSs0zmfwLK2sjoB75MPCVwAouWG5-oQMLg8L-zIhRq17tQYhvEiyzzXF52wwZgw9wnaQk8WVzl3usI9uK4OHC8QCgecucqKiJ_0SEc3jIczooEwkB0Q7A" />
-          </div>
-          <div class="player-card__body">
-            <p class="player-card__name">James Hudson</p>
-            <p class="player-card__role">Milieu</p>
-          </div>
-          <span class="player-card__tag">MID</span>
-        </div>
-
-        <div class="player-card">
-          <div class="player-card__avatar">
-            <img alt="Leo Grant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWpXwvkJTTINns--A59Ds964MqdH_6FcsxSO4JgPugu6UQjUn1K2uw_O4gpDqOdIuwmY12gKPU6SNb1uZYnq0fwimrMW-UVZyK6kRI0tqLOdUm0lxyVvPJjf9YgIQ3uYkJhwqUDLyap4oQ0KEjC6pDNdLXSynQKcascEem9kQXPT9juFLMMnBMmfH5SySqaXz_NnorQLqPSi5wS3ZZjfDs-N5aNgGWi5JOIkOwuW0Rdgd3Fu05LvEiBdUUJ4FxwgjShWqVArzv9g" />
-          </div>
-          <div class="player-card__body">
-            <p class="player-card__name">Leo Grant (C)</p>
-            <p class="player-card__role">Attaquant</p>
-          </div>
-          <span class="player-card__tag">ATT</span>
-        </div>
-
-        <div class="substitutes">
-          <p class="substitutes__label">Remplaçants</p>
-          <div class="substitutes__list">
-            <div class="substitutes__item">
-              <img alt="Substitute player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzGoo4KCtPQ9Veap7wVbluLC6KYO2BcI9XoYU9GUHMHlfhqExEqZbyOT291CSy6PGCAYxvYMYdE-E_QNj6QcvGWPUUqut3StQLuBW9UC3NS6Yb2jbxrDfv9DKRHQyT1RpcauHhS8PcC-JyIXfNDIlqlEAjuh7VwFKGXOPg0jnOsLmt9tMqP9uZNcARzh3Yzl8T0iPToULDoi0DNbqpLYIAuS8ys2Wb-4C49kI1-uj35lUWfMatY0RSDc3lF5YvDmvUliL-r1qNnw" />
-            </div>
-          </div>
+        <div class="match-hero__meta-item">
+          <span class="match-hero__meta-icon material-symbols-outlined">stadium</span>
+          <span class="match-hero__meta-text">{{ matchLocation }}</span>
         </div>
       </div>
-    </article>
+    </section>
 
-    <aside class="match-sidebar">
-      <section class="intel-card">
-        <h3 class="intel-card__title">
-          <span class="intel-card__title-icon material-symbols-outlined">info</span>
-          Infos du match
-        </h3>
+    <section class="match-layout">
+      <article class="team-panel">
+        <div class="team-panel__header">
+          <h3 class="team-panel__title">{{ myTeam?.name }}</h3>
+          <span class="team-panel__badge team-panel__badge--active">Titulaires {{ myTeam?.formation ?? '--' }}</span>
+        </div>
 
-        <div class="intel-card__body">
-          <div class="intel-map">
-            <img alt="Powerleague Pitch 4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNwcMiYhQIscVl5OjWAuWZ61JOizjsVutjDbK61njpKwHACBycd8CfLFROXTzHwJaieXJVKYoWDfZVnT26nyoibykfaGtZrRliYSbk25L90dtWGW-d8AgZgr9Hy29lZ4Q1Gb3AGPAUiWO32Zch4Fb5prr5a44E4RH2vQAQxPLry9xFe_BvQ6FNrVsz_VP3-KewE_aNf6N2MClj7E0m_lryTDDPNojNhqyCC5wdLDvP76nn1-zb788rusmnjpryUBivhPQiu0v7DQ" />
-            <div class="intel-map__badge">
-              <p class="intel-map__name">Powerleague Pitch 4</p>
-              <p class="intel-map__location">Shoreditch, London</p>
-            </div>
+        <div class="team-panel__roster">
+            <p class="starters__label">Titulaires</p>
+            <div class="starters__list">
+              @for (member of getStarters(myTeam); track member.id ?? $index) {
+                <div class="player-card" [class.player-card--accent]="isAccentMember(member)">
+                  <div class="player-card__avatar"
+                       [class.player-card__avatar--keeper]="member.position === 'GOALKEEPER'"
+                       [class.player-card__avatar--accent]="member.captain">
+                    <span class="player-card__avatar-text">{{ getMemberInitials(member) }}</span>
+                  </div>
+                  <div class="player-card__body">
+                    <p class="player-card__name">
+                      <span>{{ getMemberFullName(member) }}</span>
+                      @if (member.captain) {
+                        <span class="player-card__captain" aria-label="Capitaine">★</span>
+                      }
+                    </p>
+                    <p class="player-card__role">{{ getMemberRole(member) }}</p>
+                  </div>
+                  <span class="player-card__tag">{{ member.jerseyNumber ?? '--' }}</span>
+                </div>
+              }
           </div>
 
-          <div class="intel-stats">
-            <div class="intel-stats__row">
-              <span class="intel-stats__label">Frais d'entrée</span>
-              <span class="intel-stats__value intel-stats__value--accent">12.00 €</span>
-            </div>
-            <div class="intel-stats__row">
-              <span class="intel-stats__label">Capacité</span>
-              <span class="intel-stats__value">12 / 12 (Complet)</span>
-            </div>
-            <div class="intel-stats__row">
-              <span class="intel-stats__label">Surface</span>
-              <span class="intel-stats__value">Pelouse synthétique 4G</span>
-            </div>
-            <div class="intel-stats__row">
-              <span class="intel-stats__label">Intensité</span>
-              <span class="intel-stats__pill">Compétitif</span>
-            </div>
-          </div>
-
-          <div class="weather-card">
-            <span class="weather-card__icon material-symbols-outlined">cloudy_snowing</span>
-            <div>
-              <p class="weather-card__title">Pluie légère attendue</p>
-              <p class="weather-card__subtitle">Temp. moyenne : 8°C</p>
+          <div class="substitutes">
+            <p class="substitutes__label">Remplaçants</p>
+            <div class="substitutes__list">
+              @if (getSubstitutes(myTeam).length > 0) {
+                @for (member of getSubstitutes(myTeam); track member.id ?? $index) {
+                  <div class="substitutes__item" [attr.title]="getMemberFullName(member)">
+                    <span class="substitutes__item-text">{{ getMemberInitials(member) }}</span>
+                  </div>
+                }
+              } @else {
+                <span class="substitutes__empty">Aucun remplaçant</span>
+              }
             </div>
           </div>
         </div>
-      </section>
+      </article>
 
-      <section class="briefing-card">
-        <p class="briefing-card__eyebrow">Briefing tactique</p>
-        <p class="briefing-card__text">
-          "Match à haute intensité prévu sous les projecteurs. Les deux équipes utilisent une structure dense au milieu de terrain. Dark Knights joue avec une ligne défensive haute. Prévoyez des chaussures adaptées à une pelouse synthétique humide."
-        </p>
-      </section>
-    </aside>
-  </section>
+      <article class="team-panel">
+        <div class="team-panel__header">
+          <h3 class="team-panel__title">{{ opponentTeam?.name ?? 'Équipe adverse' }}</h3>
+          <span class="team-panel__badge">Formation {{ opponentTeam?.formation ?? '--' }}</span>
+        </div>
+
+        <div class="team-panel__roster">
+            <p class="starters__label">Titulaires</p>
+            <div class="starters__list">
+              @for (member of getStarters(opponentTeam); track member.id ?? $index) {
+                <div class="player-card" [class.player-card--accent]="isAccentMember(member)">
+                  <div class="player-card__avatar"
+                       [class.player-card__avatar--keeper]="member.position === 'GOALKEEPER'"
+                       [class.player-card__avatar--accent]="member.captain">
+                    <span class="player-card__avatar-text">{{ getMemberInitials(member) }}</span>
+                  </div>
+                  <div class="player-card__body">
+                    <p class="player-card__name">
+                      <span>{{ getMemberFullName(member) }}</span>
+                      @if (member.captain) {
+                        <span class="player-card__captain" aria-label="Capitaine">★</span>
+                      }
+                    </p>
+                    <p class="player-card__role">{{ getMemberRole(member) }}</p>
+                  </div>
+                  <span class="player-card__tag player-card__tag--opponent">{{ member.jerseyNumber ?? '--' }}</span>
+                </div>
+              }
+            </div>
+          
+
+          <div class="substitutes">
+            <p class="substitutes__label">Remplaçants</p>
+            <div class="substitutes__list">
+              @if (getSubstitutes(opponentTeam).length > 0) {
+                @for (member of getSubstitutes(opponentTeam); track member.id ?? $index) {
+                  <div class="substitutes__item" [attr.title]="getMemberFullName(member)">
+                    <span class="substitutes__item-text">{{ getMemberInitials(member) }}</span>
+                  </div>
+                }
+              } @else {
+                <span class="substitutes__empty">Aucun remplaçant</span>
+              }
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="match-sidebar">
+        <section class="intel-card">
+          <h3 class="intel-card__title">
+            <span class="intel-card__title-icon material-symbols-outlined">info</span>
+            Infos du match
+          </h3>
+
+          <div class="intel-card__body">
+            <div class="intel-map">
+              <iframe
+                class="intel-map__frame"
+                [src]="googleMapsEmbedUrl"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="Localisation du match">
+              </iframe>
+            </div>
+
+            <div class="intel-stats">
+              <div class="intel-stats__row">
+                <span class="intel-stats__label">Format</span>
+                <span class="intel-stats__value">5 vs 5</span>
+              </div>
+              <div class="intel-stats__row">
+                <span class="intel-stats__label">Surface</span>
+                <span class="intel-stats__value">{{ tarificationLabel }}</span>
+              </div>
+              <div class="intel-stats__row">
+                <span class="intel-stats__label">Prix par personne</span>
+                <span class="intel-stats__value intel-stats__value--accent">{{ entryFeeLabel }}</span>
+              </div>
+            </div>
+
+            <div class="weather-card">
+              <span class="weather-card__icon material-symbols-outlined">sports_soccer</span>
+              <div>
+                <p class="weather-card__title">Dual match confirmé</p>
+                <p class="weather-card__subtitle">Arrivez 20 min avant le coup d'envoi</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="briefing-card">
+          <p class="briefing-card__eyebrow">Briefing tactique</p>
+          <p class="briefing-card__text">{{ briefingText }}</p>
+        </section>
+      </aside>
+    </section>
+  } @else {
+    <section class="matches-empty">
+      <div class="matches-empty__icon material-symbols-outlined">event_busy</div>
+      <h2 class="matches-empty__title">Aucun match programmé</h2>
+      <p class="matches-empty__text">Vous n'avez actuellement aucun dual match planifié avec votre équipe.</p>
+    </section>
+  }
 </section>

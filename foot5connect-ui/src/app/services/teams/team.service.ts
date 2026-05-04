@@ -45,10 +45,6 @@ export class TeamService {
       .pipe(map(res => (res.body as TeamDto) ?? null));
   }
 
-  findMyCurrentMatch(): Observable<CurrentMatchDto | null> {
-    return this.http.get<CurrentMatchDto>(`${this.apiConfig.rootUrl}/teams/me/current-match`)
-      .pipe(map(res => res ?? null));
-  }
 
   findCompleteTeamsInMyCity(): Observable<TeamDto[]> {
     return findCompleteTeamsInMyCity(this.http, this.apiConfig.rootUrl)

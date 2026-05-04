@@ -68,6 +68,8 @@ public class Team extends AbstractEntity {
     @Column(name = "title_address")
     private String titleAddress;
 
+    private String formation;
+
     private BigDecimal prix;
 
     @Enumerated(EnumType.STRING)

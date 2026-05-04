@@ -570,6 +570,46 @@
         }
       }
     },
+    "/teams/me/current-match": {
+      "get": {
+        "tags": [
+          "team-controller"
+        ],
+        "operationId": "findMyCurrentMatch",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentMatchDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/me/current-dual-match": {
+      "get": {
+        "tags": [
+          "team-controller"
+        ],
+        "operationId": "findMyCurrentDualMatchDetails",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentDualMatchDetailsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/teams/me/complete-in-my-city": {
       "get": {
         "tags": [
@@ -1160,6 +1200,64 @@
           },
           "endTime": {
             "type": "string"
+          }
+        }
+      },
+      "CurrentMatchDto": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "matchDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "myTeamId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "myTeamName": {
+            "type": "string"
+          },
+          "opponentTeamId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "opponentTeamName": {
+            "type": "string"
+          }
+        }
+      },
+      "CurrentDualMatchDetailsDto": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "matchDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "myTeam": {
+            "$ref": "#/components/schemas/TeamDto"
+          },
+          "opponentTeam": {
+            "$ref": "#/components/schemas/TeamDto"
           }
         }
       },

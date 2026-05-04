@@ -13,6 +13,10 @@ export type { HasMyTeamMembership$Params } from './fn/team-controller/has-my-tea
 export { hasMyTeamMembership } from './fn/team-controller/has-my-team-membership';
 export type { FindMyMemberTeam$Params } from './fn/team-controller/find-my-member-team';
 export { findMyMemberTeam } from './fn/team-controller/find-my-member-team';
+export type { FindMyCurrentMatch$Params } from './fn/team-controller/find-my-current-match';
+export { findMyCurrentMatch } from './fn/team-controller/find-my-current-match';
+export type { FindMyCurrentDualMatchDetails$Params } from './fn/team-controller/find-my-current-dual-match-details';
+export { findMyCurrentDualMatchDetails } from './fn/team-controller/find-my-current-dual-match-details';
 export type { FindCompleteTeamsInMyCity$Params } from './fn/team-controller/find-complete-teams-in-my-city';
 export { findCompleteTeamsInMyCity } from './fn/team-controller/find-complete-teams-in-my-city';
 export type { RemoveMemberFromMyTeam$Params } from './fn/team-controller/remove-member-from-my-team';

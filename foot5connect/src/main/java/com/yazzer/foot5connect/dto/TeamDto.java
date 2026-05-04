@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,6 +62,8 @@ public class TeamDto {
 
     private String titleAddress;
 
+    private String formation;
+
     private BigDecimal prix;
 
     private TarificationTerrain tarificationTerrain;
@@ -100,6 +101,7 @@ public class TeamDto {
                 .endTime(team.getEndTime())
                 .pitchAddress(team.getPitchAddress())
                 .titleAddress(team.getTitleAddress())
+                .formation(team.getFormation())
                 .prix(team.getPrix())
                 .tarificationTerrain(team.getTarificationTerrain())
                 .build();
@@ -132,6 +134,7 @@ public class TeamDto {
                 .endTime(teamDto.getEndTime())
                 .pitchAddress(teamDto.getPitchAddress())
                 .titleAddress(teamDto.getTitleAddress())
+                .formation(teamDto.getFormation())
                 .prix(teamDto.getPrix())
                 .tarificationTerrain(teamDto.getTarificationTerrain())
                 .build();

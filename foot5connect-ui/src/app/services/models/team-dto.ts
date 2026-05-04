@@ -22,6 +22,7 @@ export interface TeamDto {
   status?: 'INACTIVE' | 'INCOMPLETE' | 'COMPLETE' | 'IN_MATCH';
   tarificationTerrain?: 'GRATUIT' | 'PAYANT';
   teamLevel?: 'DEBUTANT' | 'AVANCE' | 'AMATEUR';
+  formation?: string;
   titleAddress?: string;
   totalMatches?: number;
 }

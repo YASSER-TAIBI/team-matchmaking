@@ -4,11 +4,11 @@ import { HelperService } from '../../services/helper/helper.service';
 import { RouterLink } from '@angular/router';
 import { UserDto } from '../../services/models/user-dto';
 import { UserService } from '../../services/users/user.service';
-import { CurrentMatchDto, TeamService } from '../../services/teams/team.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AvailabilityDialogComponent, AvailabilityDialogResult } from '../../components/availability-dialog/availability-dialog.component';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-
+import { CurrentMatchDto } from '../../services/models/current-match-dto';
+import { MatchService } from '../../services/match/match.service';
 
 
 @Component({
@@ -21,7 +21,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 export class UserDashboardComponent implements OnInit {
 
   private userService = inject(UserService);
-  private teamService = inject(TeamService);
+  private matchService = inject(MatchService);
   private helperService = inject(HelperService);
   private dialog = inject(MatDialog);
 
@@ -49,7 +49,7 @@ export class UserDashboardComponent implements OnInit {
   }
 
   private loadCurrentMatch(): void {
-    this.teamService.findMyCurrentMatch().subscribe({
+    this.matchService.findMyCurrentMatch().subscribe({
       next: (match) => {
         this.currentMatch = match;
       },

@@ -6,21 +6,17 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.yazzer.foot5connect.dto.CurrentMatchDto;
 import com.yazzer.foot5connect.dto.TeamDto;
 import com.yazzer.foot5connect.dto.TeamMemberDto;
 import com.yazzer.foot5connect.models.AvailabilityStatus;
 import com.yazzer.foot5connect.models.AvailabilityTeamLevel;
 import com.yazzer.foot5connect.models.InvitationStatus;
-import com.yazzer.foot5connect.models.Match;
-import com.yazzer.foot5connect.models.MatchStatus;
 import com.yazzer.foot5connect.models.PlayerSelection;
 import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamInvitation;
 import com.yazzer.foot5connect.models.TeamMember;
 import com.yazzer.foot5connect.models.TeamStatus;
 import com.yazzer.foot5connect.models.User;
-import com.yazzer.foot5connect.repositories.MatchRepository;
 import com.yazzer.foot5connect.repositories.TeamInvitationRepository;
 import com.yazzer.foot5connect.repositories.TeamMemberRepository;
 import com.yazzer.foot5connect.repositories.TeamRepository;
@@ -36,7 +32,6 @@ import lombok.RequiredArgsConstructor;
 public class TeamServiceImpl implements TeamService {
 
     private final TeamRepository teamRepository;
-    private final MatchRepository matchRepository;
     private final TeamInvitationRepository teamInvitationRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
@@ -100,38 +95,6 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public CurrentMatchDto findMyCurrentMatch() {
-        User currentUser = authenticatedUserService.getAuthenticatedUser();
-
-        Optional<TeamMember> teamMember = teamMemberRepository.findByUser_Id(currentUser.getId());
-        if (teamMember.isEmpty() || teamMember.get().getTeam() == null) {
-            return null;
-        }
-
-        Team myTeam = teamMember.get().getTeam();
-        Optional<Match> currentMatch = matchRepository.findByTeamIdAndStatusWithTeams(myTeam.getId(), MatchStatus.DUAL);
-        if (currentMatch.isEmpty()) {
-            return null;
-        }
-
-        Match match = currentMatch.get();
-        Team opponentTeam = matchRepository.findOpponentTeamByMatchIdAndTeamId(match.getId(), myTeam.getId())
-                .orElse(null);
-
-        return CurrentMatchDto.builder()
-                .matchId(match.getId())
-                .matchDate(match.getMatchDate())
-                .startTime(match.getStartTime())
-                .location(myTeam.getTitleAddress())
-                .myTeamId(myTeam.getId())
-                .myTeamName(myTeam.getName())
-                .opponentTeamId(opponentTeam != null ? opponentTeam.getId() : null)
-                .opponentTeamName(opponentTeam != null ? opponentTeam.getName() : null)
-                .build();
-    }
-
-    @Override
     public boolean hasMyTeamMembership() {
         User currentUser = authenticatedUserService.getAuthenticatedUser();
         return teamMemberRepository.existsByUser_Id(currentUser.getId());
@@ -174,6 +137,9 @@ public class TeamServiceImpl implements TeamService {
         }
         if (teamDto.getPrix() != null) {
             team.setPrix(teamDto.getPrix());
+        }
+        if (teamDto.getFormation() != null) {
+            team.setFormation(teamDto.getFormation());
         }
         if (teamDto.getTarificationTerrain() != null) {
             team.setTarificationTerrain(teamDto.getTarificationTerrain());
