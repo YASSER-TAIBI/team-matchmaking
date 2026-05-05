@@ -8,12 +8,14 @@
           <p class="team-create-header__subtitle">Créez votre identité et construisez votre équipe de rêve à 5.</p>
         </div>
 
+        @if (!isTeamConfirmed) {
         <div class="team-create-header__actions">
           <button class="action-btn action-btn--primary" type="button" (click)="onTeamActionClick()">
             <span class="material-symbols-outlined action-btn__icon">{{ teamActionIcon }}</span>
             {{ teamActionLabel }}
           </button>
         </div>
+        }
       </div>
     </div>
   </header>
@@ -229,7 +231,7 @@
                     </div>
 
                     <div class="player-row__actions">
-                      @if (!isCurrentMember(member)) {
+                      @if (!isTeamConfirmed && !isCurrentMember(member)) {
                         <button class="icon-btn icon-btn--danger" type="button" aria-label="Sortir de l'équipe" (click)="openRemoveMemberDialog(member)">
                           <span class="material-symbols-outlined">logout</span>
                         </button>

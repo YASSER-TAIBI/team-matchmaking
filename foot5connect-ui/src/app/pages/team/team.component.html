@@ -45,12 +45,14 @@
         </div>
       </div>
 
+      @if (!isTeamConfirmed) {
       <div class="team-page__actions">
         <button class="action-btn action-btn--primary" type="button">
           <span class="material-symbols-outlined action-btn__icon">logout</span>
           Quitter l'Équipe
         </button>
       </div>
+      }
     </div>
   </header>
 

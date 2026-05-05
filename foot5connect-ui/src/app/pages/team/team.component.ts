@@ -104,6 +104,10 @@ export class TeamComponent implements OnInit {
     return new Date(this.team.createdDate).getFullYear().toString();
   }
 
+  get isTeamConfirmed(): boolean {
+    return this.team?.status === 'COMPLETE' || this.team?.status === 'IN_MATCH';
+  }
+
   get playerCountLabel(): string {
     return `(${this.players.length}/${this.maxPlayers})`;
   }
