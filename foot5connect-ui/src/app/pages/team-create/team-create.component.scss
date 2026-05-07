@@ -354,7 +354,19 @@
   background-position: center;
   background-size: cover;
   opacity: 0.65;
-  background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuABOTe87f4ffCBPRmLKlbPxpXNF6z2ImHiruFhyiNQbvDgFHQovJUNuu2G3qcLoo2L_whb-nboA7aeZ8ANjDh6aUgTJS9abgWF4-AM-5jmGkPR6tLTo9tD3WIadRnpWVqRAAMvbrN3yhPSLf3MS7vmqypQC_kcwnOqK1hqISymvzbli3U8F8isdYc0JOsJ10gYrin5rvot8KPt4IdjRVKJF34FeKDJzQNXiiaPWTArLCiidOY-ZyzOesh8hEkO5gztsVYt7hflLdA");
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-upload__image--empty {
+  background: radial-gradient(circle at top, rgba(19, 236, 91, 0.22), rgba(10, 15, 12, 0.88));
+  opacity: 1;
+}
+
+.logo-upload__placeholder {
+  font-size: 40px;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .logo-upload__overlay {
@@ -2038,6 +2050,217 @@
   letter-spacing: 1.4px;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.45);
+}
+
+.team-logo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.team-logo-modal__dialog {
+  width: min(100%, 680px);
+  max-height: min(88vh, 820px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(17, 24, 19, 0.98), rgba(11, 17, 13, 0.96));
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45);
+}
+
+.team-logo-modal__header,
+.team-logo-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px;
+}
+
+.team-logo-modal__header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.team-logo-modal__footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+  justify-content: flex-end;
+}
+
+.team-logo-modal__title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.team-logo-modal__subtitle {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+}
+
+.team-logo-modal__close {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+}
+
+.team-logo-modal__close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.team-logo-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.team-logo-modal__preview {
+  display: flex;
+  justify-content: center;
+}
+
+.team-logo-modal__preview-circle {
+  width: 126px;
+  height: 126px;
+  border-radius: 999px;
+  border: 2px solid rgba(19, 236, 91, 0.3);
+  background-color: rgba(0, 0, 0, 0.3);
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 0 0 10px rgba(19, 236, 91, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-logo-modal__preview-circle--empty {
+  background: radial-gradient(circle at top, rgba(19, 236, 91, 0.18), rgba(12, 19, 14, 0.96));
+}
+
+.team-logo-modal__preview-placeholder {
+  font-size: 40px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.team-logo-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.team-logo-modal__option {
+  aspect-ratio: 1;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team-logo-modal__option:hover {
+  transform: translateY(-2px);
+  border-color: rgba(19, 236, 91, 0.35);
+  background: rgba(19, 236, 91, 0.06);
+}
+
+.team-logo-modal__option--active {
+  border-color: rgba(19, 236, 91, 0.8);
+  background: rgba(19, 236, 91, 0.1);
+  box-shadow: 0 0 0 3px rgba(19, 236, 91, 0.12);
+}
+
+.team-logo-modal__option-icon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background-position: center;
+  background-size: cover;
+}
+
+.team-logo-modal__option-icon .material-symbols-outlined {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.team-logo-modal__upload {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 164px;
+  border-radius: 24px;
+  border: 2px dashed rgba(19, 236, 91, 0.22);
+  background: linear-gradient(180deg, rgba(19, 236, 91, 0.06), rgba(255, 255, 255, 0.02));
+  text-align: center;
+  cursor: pointer;
+  padding: 24px;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.team-logo-modal__upload:hover {
+  border-color: rgba(19, 236, 91, 0.45);
+  background: linear-gradient(180deg, rgba(19, 236, 91, 0.1), rgba(255, 255, 255, 0.03));
+  transform: translateY(-1px);
+}
+
+.team-logo-modal__upload-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.team-logo-modal__upload-icon {
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(19, 236, 91, 0.16);
+  color: var(--neon-green);
+}
+
+.team-logo-modal__upload-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.team-logo-modal__upload-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.team-logo-modal__action {
+  min-width: 140px;
+  justify-content: center;
 }
 
 @media (min-width: 721px) {
