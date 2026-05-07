@@ -15,6 +15,7 @@ import { UserService } from '../../services/users/user.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { environment } from '../../../environments/environment';
 import { forkJoin } from 'rxjs';
+import { TEAMS_IMAGES } from '../../../assets/img/teams/teams-images';
 
 type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation' | 'historique';
 type TeamEditSection = 'identity' | 'formation';
@@ -26,6 +27,12 @@ type PitchSlot = {
   key: string;
   cssClass: string;
   member?: TeamMemberDto;
+};
+
+type TeamLogoPreset = {
+  icon: string;
+  label: string;
+  url: string;
 };
 
 declare global {
@@ -81,10 +88,12 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   isEditingFormation = false;
   editName = '';
   editLogoUrl = '';
+  selectedLogoUrl = '';
   editAvailableDate = '';
   editStartTime = '';
   editEndTime = '';
   editMembers: TeamMemberDto[] = [];
+  showLogoModal = false;
   showConfirmDialog = false;
   showFormationValidationDialog = false;
   showIdentityScheduleDialog = false;
@@ -126,6 +135,19 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     { label: 'DÉBUTANT', value: 0 },
     { label: 'AMATEUR', value: 50 },
     { label: 'AVANCÉ', value: 100 }
+  ];
+
+  readonly teamLogoPresets: TeamLogoPreset[] = [
+    { icon: 'photo', label: 'Logo 1', url: TEAMS_IMAGES.team_01 },
+    { icon: 'photo', label: 'Logo 2', url: TEAMS_IMAGES.team_02 },
+    { icon: 'photo', label: 'Logo 3', url: TEAMS_IMAGES.team_03 },
+    { icon: 'photo', label: 'Logo 4', url: TEAMS_IMAGES.team_04 },
+    { icon: 'photo', label: 'Logo 5', url: TEAMS_IMAGES.team_05 },
+    { icon: 'photo', label: 'Logo 6', url: TEAMS_IMAGES.team_06 },
+    { icon: 'photo', label: 'Logo 7', url: TEAMS_IMAGES.team_07 },
+    { icon: 'photo', label: 'Logo 8', url: TEAMS_IMAGES.team_08 },
+    { icon: 'photo', label: 'Logo 9', url: TEAMS_IMAGES.team_09 },
+    { icon: 'photo', label: 'Logo 10', url: TEAMS_IMAGES.team_10 }
   ];
 
   ngOnInit(): void {
@@ -700,6 +722,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   startEditIdentity(): void {
     this.editName = this.team?.name ?? '';
     this.editLogoUrl = this.team?.logoUrl ?? '';
+    this.selectedLogoUrl = this.editLogoUrl;
     this.editAvailableDate = (this.team?.availableDate ?? '').slice(0, 10);
     this.editStartTime = this.formatInputTime(this.team?.startTime);
     this.editEndTime = this.formatInputTime(this.team?.endTime);
@@ -707,7 +730,56 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   }
 
   cancelEditIdentity(): void {
+    this.closeLogoModal();
     this.isEditingIdentity = false;
+  }
+
+  openLogoModal(): void {
+    if (!this.isEditingIdentity) {
+      return;
+    }
+
+    this.selectedLogoUrl = this.editLogoUrl || this.team?.logoUrl || '';
+    this.showLogoModal = true;
+  }
+
+  closeLogoModal(): void {
+    this.showLogoModal = false;
+    this.selectedLogoUrl = this.editLogoUrl || this.team?.logoUrl || '';
+  }
+
+  selectLogoPreset(preset: TeamLogoPreset): void {
+    this.selectedLogoUrl = preset.url;
+  }
+
+  confirmLogoSelection(): void {
+    this.editLogoUrl = this.selectedLogoUrl;
+    this.showLogoModal = false;
+  }
+
+  onLogoFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      input.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      if (!result) {
+        return;
+      }
+
+      this.selectedLogoUrl = result;
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
   }
 
   saveIdentity(): void {
@@ -944,6 +1016,16 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     }
 
     return time.length >= 5 ? time.slice(0, 5) : time;
+  }
+
+  get teamLogoPreviewUrl(): string {
+    return this.isEditingIdentity
+      ? (this.editLogoUrl || this.team?.logoUrl || '')
+      : (this.team?.logoUrl || '');
+  }
+
+  isLogoPresetSelected(preset: TeamLogoPreset): boolean {
+    return !!this.selectedLogoUrl && this.selectedLogoUrl === preset.url;
   }
 
   private syncAvailabilityLevelFromTeam(): void {

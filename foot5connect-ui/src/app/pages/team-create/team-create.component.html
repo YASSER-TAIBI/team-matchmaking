@@ -8,12 +8,14 @@
           <p class="team-create-header__subtitle">Créez votre identité et construisez votre équipe de rêve à 5.</p>
         </div>
 
+        @if (!isTeamConfirmed) {
         <div class="team-create-header__actions">
           <button class="action-btn action-btn--primary" type="button" (click)="onTeamActionClick()">
             <span class="material-symbols-outlined action-btn__icon">{{ teamActionIcon }}</span>
             {{ teamActionLabel }}
           </button>
         </div>
+        }
       </div>
     </div>
   </header>
@@ -88,9 +90,13 @@
           </div>
 
           <div class="identity">
-            <button class="logo-upload" type="button" [disabled]="!isEditingIdentity" [class.logo-upload--disabled]="!isEditingIdentity">
+            <button class="logo-upload" type="button" [disabled]="!isEditingIdentity" [class.logo-upload--disabled]="!isEditingIdentity" (click)="openLogoModal()">
               <span class="logo-upload__circle" aria-hidden="true">
-                <span class="logo-upload__image"></span>
+                <span class="logo-upload__image" [style.background-image]="teamLogoPreviewUrl ? 'url(' + teamLogoPreviewUrl + ')' : null" [class.logo-upload__image--empty]="!teamLogoPreviewUrl">
+                  @if (!teamLogoPreviewUrl) {
+                    <span class="material-symbols-outlined logo-upload__placeholder">shield</span>
+                  }
+                </span>
                 @if (isEditingIdentity) {
                   <span class="logo-upload__overlay">
                     <span class="material-symbols-outlined">upload</span>
@@ -229,7 +235,7 @@
                     </div>
 
                     <div class="player-row__actions">
-                      @if (!isCurrentMember(member)) {
+                      @if (!isTeamConfirmed && !isCurrentMember(member)) {
                         <button class="icon-btn icon-btn--danger" type="button" aria-label="Sortir de l'équipe" (click)="openRemoveMemberDialog(member)">
                           <span class="material-symbols-outlined">logout</span>
                         </button>
@@ -840,6 +846,57 @@
     </div>
   </div>
 </div>
+
+@if (showLogoModal) {
+  <div class="team-logo-modal" (click)="closeLogoModal()">
+    <div class="team-logo-modal__dialog" (click)="$event.stopPropagation()">
+      <div class="team-logo-modal__header">
+        <div>
+          <h2 class="team-logo-modal__title">Choisir le logo</h2>
+          <p class="team-logo-modal__subtitle">Sélectionnez une icône ou importez votre propre logo.</p>
+        </div>
+
+        <button class="team-logo-modal__close" type="button" aria-label="Fermer" (click)="closeLogoModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="team-logo-modal__body">
+        <div class="team-logo-modal__preview">
+          <span class="team-logo-modal__preview-circle" [style.background-image]="selectedLogoUrl ? 'url(' + selectedLogoUrl + ')' : null" [class.team-logo-modal__preview-circle--empty]="!selectedLogoUrl">
+            @if (!selectedLogoUrl) {
+              <span class="material-symbols-outlined team-logo-modal__preview-placeholder">image</span>
+            }
+          </span>
+        </div>
+
+        <div class="team-logo-modal__grid">
+          @for (preset of teamLogoPresets; track preset.icon) {
+            <button class="team-logo-modal__option" type="button" [class.team-logo-modal__option--active]="isLogoPresetSelected(preset)" [attr.aria-label]="preset.label" (click)="selectLogoPreset(preset)">
+              <span class="team-logo-modal__option-icon" [style.background-image]="'url(' + preset.url + ')'">
+                <span class="material-symbols-outlined">{{ preset.icon }}</span>
+              </span>
+            </button>
+          }
+        </div>
+
+        <label class="team-logo-modal__upload" for="team-logo-file-input">
+          <input id="team-logo-file-input" class="team-logo-modal__upload-input" type="file" accept="image/png,image/jpeg,image/jpg,image/svg+xml,image/webp" (change)="onLogoFileSelected($event)" />
+          <span class="team-logo-modal__upload-icon">
+            <span class="material-symbols-outlined">cloud_upload</span>
+          </span>
+          <span class="team-logo-modal__upload-title">Importer un logo personnalisé</span>
+          <span class="team-logo-modal__upload-text">PNG, JPG, SVG ou WebP</span>
+        </label>
+      </div>
+
+      <div class="team-logo-modal__footer">
+        <button class="action-btn action-btn--cancel team-logo-modal__action" type="button" (click)="closeLogoModal()">Annuler</button>
+        <button class="action-btn action-btn--save team-logo-modal__action" type="button" (click)="confirmLogoSelection()">Confirmer</button>
+      </div>
+    </div>
+  </div>
+}
 
 <app-confirm-dialog
   [visible]="showFormationValidationDialog"
