@@ -16,6 +16,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 import { environment } from '../../../environments/environment';
 import { forkJoin } from 'rxjs';
 import { TEAMS_IMAGES } from '../../../assets/img/teams/teams-images';
+import { ImageProcessingService } from '../../services/helper/image-processing.service';
 
 type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation' | 'historique';
 type TeamEditSection = 'identity' | 'formation';
@@ -53,6 +54,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   private invitationService = inject(InvitationService);
   private teamService = inject(TeamService);
   private userService = inject(UserService);
+  private imageProcessingService = inject(ImageProcessingService);
   private sanitizer = inject(DomSanitizer);
   private document = inject(DOCUMENT);
   private ngZone = inject(NgZone);
@@ -101,6 +103,8 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   confirmEditSection: TeamEditSection = 'identity';
   showLeaveTeamDialog = false;
   showRemoveMemberDialog = false;
+  isLogoUploading = false;
+  logoUploadError = '';
   hasLeftTeam = false;
   teamActionPending = false;
   teamActionDialogMessage = "";
@@ -746,18 +750,24 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   closeLogoModal(): void {
     this.showLogoModal = false;
     this.selectedLogoUrl = this.editLogoUrl || this.team?.logoUrl || '';
+    this.logoUploadError = '';
   }
 
   selectLogoPreset(preset: TeamLogoPreset): void {
+    this.logoUploadError = '';
     this.selectedLogoUrl = preset.url;
   }
 
   confirmLogoSelection(): void {
+    if (this.isLogoUploading) {
+      return;
+    }
+
     this.editLogoUrl = this.selectedLogoUrl;
     this.showLogoModal = false;
   }
 
-  onLogoFileSelected(event: Event): void {
+  async onLogoFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement | null;
     const file = input?.files?.[0];
     if (!file) {
@@ -765,21 +775,34 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     }
 
     if (!file.type.startsWith('image/')) {
+      this.logoUploadError = 'Veuillez sélectionner un fichier image valide.';
       input.value = '';
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = typeof reader.result === 'string' ? reader.result : '';
-      if (!result) {
-        return;
-      }
+    this.isLogoUploading = true;
+    this.logoUploadError = '';
 
-      this.selectedLogoUrl = result;
-    };
-    reader.readAsDataURL(file);
-    input.value = '';
+    try {
+      const processedLogo = await this.imageProcessingService.processImage(file, {
+        width: 500,
+        height: 500,
+        outputType: 'image/webp',
+        quality: 0.92
+      });
+      const uploadedLogoUrl = await this.imageProcessingService.uploadToCloudinary(processedLogo, {
+        fileName: 'team-logo.webp',
+        folder: 'teams'
+      });
+      this.selectedLogoUrl = uploadedLogoUrl;
+    } catch (error) {
+      this.logoUploadError = error instanceof Error
+        ? error.message
+        : 'Impossible de traiter et envoyer le logo pour le moment.';
+    } finally {
+      this.isLogoUploading = false;
+      input.value = '';
+    }
   }
 
   saveIdentity(): void {
