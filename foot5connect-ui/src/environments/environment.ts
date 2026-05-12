@@ -3,6 +3,11 @@ export const environment = {
   api: {
     rootUrl: 'http://localhost:8080'
   },
+  cloudinary: {
+    cloudName: 'ddsabo1fb',
+    uploadPreset: 'team_logos_unsigned',
+    folder: 'teams'
+  },
   googleMaps: {
     apiKey: 'AIzaSyDh2l1oVsTJNaA9Dl4wQiqXokD3_o11Uak',
     embedPlaceBaseUrl: 'https://www.google.com/maps/embed/v1/place',
