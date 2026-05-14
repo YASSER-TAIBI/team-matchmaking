@@ -14,9 +14,9 @@ import { UserDto } from '../../services/models/user-dto';
 import { UserService } from '../../services/users/user.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { environment } from '../../../environments/environment';
-import { forkJoin } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 import { TEAMS_IMAGES } from '../../../assets/img/teams/teams-images';
-import { ImageProcessingService } from '../../services/helper/image-processing.service';
+import { ImageProcessingService } from '../../shared/image-processing.service';
 
 type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation' | 'historique';
 type TeamEditSection = 'identity' | 'formation';
@@ -723,6 +723,8 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     });
   }
 
+  // Prépare le formulaire d'identité avec les valeurs actuelles de l'équipe,
+  // y compris le logo déjà enregistré pour pouvoir le modifier dans le modal.
   startEditIdentity(): void {
     this.editName = this.team?.name ?? '';
     this.editLogoUrl = this.team?.logoUrl ?? '';
@@ -733,11 +735,14 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     this.isEditingIdentity = true;
   }
 
+  // Annule l'édition d'identité et réinitialise l'état du modal de sélection du logo.
   cancelEditIdentity(): void {
     this.closeLogoModal();
     this.isEditingIdentity = false;
   }
 
+  // Ouvre le modal de choix du logo en affichant soit le logo déjà en cours d'édition,
+  // soit le logo actuellement enregistré sur l'équipe.
   openLogoModal(): void {
     if (!this.isEditingIdentity) {
       return;
@@ -747,17 +752,21 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     this.showLogoModal = true;
   }
 
+  // Ferme le modal de logo et restaure l'aperçu sur le logo en cours d'édition.
   closeLogoModal(): void {
     this.showLogoModal = false;
     this.selectedLogoUrl = this.editLogoUrl || this.team?.logoUrl || '';
     this.logoUploadError = '';
   }
 
+  // Sélectionne un logo prédéfini dans la galerie sans encore l'enregistrer en base.
   selectLogoPreset(preset: TeamLogoPreset): void {
     this.logoUploadError = '';
     this.selectedLogoUrl = preset.url;
   }
 
+  // Valide le choix affiché dans le modal et le copie dans la valeur d'édition,
+  // qui sera ensuite utilisée lors de la sauvegarde de l'identité.
   confirmLogoSelection(): void {
     if (this.isLogoUploading) {
       return;
@@ -767,6 +776,9 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     this.showLogoModal = false;
   }
 
+  // Gère le fichier choisi depuis le PC de l'utilisateur : vérification du type,
+  // traitement en WebP 500x500, upload sur Cloudinary, puis sauvegarde immédiate
+  // du nouveau logo dans la colonne teams.logo_url.
   async onLogoFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement | null;
     const file = input?.files?.[0];
@@ -795,6 +807,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
         folder: 'teams'
       });
       this.selectedLogoUrl = uploadedLogoUrl;
+      this.editLogoUrl = uploadedLogoUrl;
     } catch (error) {
       this.logoUploadError = error instanceof Error
         ? error.message
@@ -805,6 +818,8 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
     }
   }
 
+  // Ouvre la confirmation globale des modifications d'identité,
+  // dont le nom, le logo et les horaires de disponibilité.
   saveIdentity(): void {
     if (!this.editAvailableDate || !this.editStartTime || !this.editEndTime) {
       this.showIdentityScheduleDialog = true;
@@ -989,14 +1004,20 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.teamService.updateTeam({
+    const nextLogoUrl = this.editLogoUrl || this.selectedLogoUrl;
+    const identityPayload: Partial<TeamDto> = {
       name: this.editName,
-      logoUrl: this.editLogoUrl,
       availableDate: this.editAvailableDate,
       startTime: `${this.editStartTime}:00`,
       endTime: `${this.editEndTime}:00`,
       teamLevel: this.selectedTeamLevelValue
-    }).subscribe({
+    };
+
+    if (nextLogoUrl && nextLogoUrl !== (this.team?.logoUrl ?? '')) {
+      identityPayload.logoUrl = nextLogoUrl;
+    }
+
+    this.teamService.updateTeam(identityPayload).subscribe({
       next: (updated: TeamDto) => {
         this.team = updated;
         this.members = updated?.members ?? this.members;

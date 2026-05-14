@@ -3,6 +3,8 @@ package com.yazzer.foot5connect.services.impl;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import com.yazzer.foot5connect.repositories.TeamInvitationRepository;
 import com.yazzer.foot5connect.repositories.TeamMemberRepository;
 import com.yazzer.foot5connect.repositories.TeamRepository;
 import com.yazzer.foot5connect.repositories.UserRepository;
+import com.yazzer.foot5connect.services.CloudinaryMediaService;
 import com.yazzer.foot5connect.services.TeamService;
 import com.yazzer.foot5connect.services.auth.AuthenticatedUserService;
 
@@ -31,11 +34,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TeamServiceImpl implements TeamService {
 
+    private static final Logger log = LoggerFactory.getLogger(TeamServiceImpl.class);
+
     private final TeamRepository teamRepository;
     private final TeamInvitationRepository teamInvitationRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
     private final AuthenticatedUserService authenticatedUserService;
+    private final CloudinaryMediaService cloudinaryMediaService;
 
     @Override
     @Transactional
@@ -100,6 +106,10 @@ public class TeamServiceImpl implements TeamService {
         return teamMemberRepository.existsByUser_Id(currentUser.getId());
     }
 
+    // Met à jour les informations de l'équipe du capitaine connecté.
+    // Pour le logo, le backend lit d'abord l'ancien logo_url en base,
+    // supprime l'ancien asset Cloudinary s'il appartient au dossier teams,
+    // puis enregistre la nouvelle URL du logo dans la table teams.
     @Override
     @Transactional
     public TeamDto updateTeam(TeamDto teamDto) {
@@ -112,7 +122,23 @@ public class TeamServiceImpl implements TeamService {
             team.setName(teamDto.getName());
         }
         if (teamDto.getLogoUrl() != null) {
+            String previousLogoUrl = team.getLogoUrl();
+            String nextLogoUrl = teamDto.getLogoUrl();
+            log.info("Mise à jour logo demandée. previousLogoUrl={}, nextLogoUrl={}", previousLogoUrl, nextLogoUrl);
             team.setLogoUrl(teamDto.getLogoUrl());
+            if (previousLogoUrl != null
+                    && !previousLogoUrl.equals(nextLogoUrl)) {
+                try {
+                    log.info("Tentative de suppression de l'ancien logo Cloudinary. previousLogoUrl={}, nextLogoUrl={}", previousLogoUrl, nextLogoUrl);
+                    cloudinaryMediaService.deleteAssetByUrl(previousLogoUrl);
+                } catch (RuntimeException exception) {
+                    log.warn("La suppression de l'ancien logo a échoué mais la mise à jour de l'équipe continue. previousLogoUrl={}", previousLogoUrl, exception);
+                }
+            } else {
+                log.info("Suppression Cloudinary non déclenchée. previousLogoUrl est null ou identique au nouveau logo. previousLogoUrl={}, nextLogoUrl={}", previousLogoUrl, nextLogoUrl);
+            }
+        } else {
+            log.info("Aucune mise à jour de logo demandée dans cette requête updateTeam.");
         }
         if (teamDto.getStatus() != null) {
             team.setStatus(teamDto.getStatus());
