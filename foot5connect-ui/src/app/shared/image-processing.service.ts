@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../environments/environment';
 
 export type ImageProcessingOptions = {
   width: number;
@@ -22,6 +22,8 @@ export type CloudinaryUploadOptions = {
 export class ImageProcessingService {
   private document = inject(DOCUMENT);
 
+  // Charge l'image sélectionnée, la recadre au centre dans un carré,
+  // la redimensionne selon la taille demandée puis la convertit en Blob.
   async processImage(file: File, options: ImageProcessingOptions): Promise<Blob> {
     const image = await this.loadImageFromFile(file);
     const canvas = this.document.createElement('canvas');
@@ -63,6 +65,8 @@ export class ImageProcessingService {
     return blob;
   }
 
+  // Envoie un Blob déjà traité vers Cloudinary en utilisant la configuration
+  // globale du projet ou des options surchargées pour le nom et le dossier.
   async uploadToCloudinary(blob: Blob, options: CloudinaryUploadOptions = {}): Promise<string> {
     const cloudName = options.cloudName?.trim() || environment.cloudinary?.cloudName?.trim();
     const uploadPreset = options.uploadPreset?.trim() || environment.cloudinary?.uploadPreset?.trim();
@@ -97,6 +101,8 @@ export class ImageProcessingService {
     return payload.secure_url;
   }
 
+  // Transforme un fichier local choisi par l'utilisateur en élément image HTML,
+  // afin de pouvoir le dessiner ensuite dans un canvas côté navigateur.
   private loadImageFromFile(file: File): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
       const objectUrl = URL.createObjectURL(file);
@@ -116,6 +122,8 @@ export class ImageProcessingService {
     });
   }
 
+  // Convertit le contenu du canvas en Blob dans le format demandé,
+  // par exemple WebP avec un niveau de qualité défini.
   private canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob | null> {
     return new Promise(resolve => {
       canvas.toBlob(blob => resolve(blob), type, quality);
