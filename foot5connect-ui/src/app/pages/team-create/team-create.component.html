@@ -20,6 +20,14 @@
     </div>
   </header>
 
+  @if (isLoadingTeamPage) {
+    <section class="team-create-page-loading">
+      <div class="team-create-page-loading__icon material-symbols-outlined">progress_activity</div>
+      <h2 class="team-create-page-loading__title">Chargement de l'équipe</h2>
+      <p class="team-create-page-loading__text">Nous récupérons les informations de votre équipe en cours.</p>
+    </section>
+  } @else {
+
   <nav class="tabs" aria-label="Sections de gestion d'équipe">
     <a
       class="tabs__item"
@@ -56,15 +64,6 @@
     >
       <span class="material-symbols-outlined tabs__icon" aria-hidden="true">mail</span>
       <span class="tabs__label">Invitation</span>
-    </a>
-    <a
-      class="tabs__item"
-      href="#"
-      [class.tabs__item--active]="activeTab === 'historique'"
-      (click)="setTab('historique', $event)"
-    >
-      <span class="material-symbols-outlined tabs__icon" aria-hidden="true">history</span>
-      <span class="tabs__label">Historique</span>
     </a>
   </nav>
 
@@ -845,6 +844,7 @@
     </div>
     </div>
   </div>
+  }
 </div>
 
 @if (showLogoModal) {
@@ -917,6 +917,16 @@
   (confirmed)="closeFormationValidationDialog()"
   (cancelled)="closeFormationValidationDialog()">
 </app-confirm-dialog>
+
+<div class="loading-global" *ngIf="isGlobalLoading">
+  <div class="loading-global__overlay"></div>
+  <div class="loading-global__content">
+    <div class="loading-global__spinner">
+      <div class="loading-global__spinner-circle"></div>
+    </div>
+    <p class="loading-global__text">Chargement...</p>
+  </div>
+</div>
 
 <app-confirm-dialog
   [visible]="showConfirmDialog"

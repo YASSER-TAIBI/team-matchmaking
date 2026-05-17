@@ -41,6 +41,14 @@
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
+.team-page__logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
 .team-page__logo-mark {
   width: 56px;
   height: 56px;
@@ -49,6 +57,12 @@
     radial-gradient(circle at center, rgba(163, 255, 196, 0.45) 0 18%, transparent 19%),
     linear-gradient(135deg, rgba(163, 255, 196, 0.2), rgba(19, 236, 91, 0.05));
   position: relative;
+  display: grid;
+  place-items: center;
+  color: #f4fdf8;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
 }
 
 .team-page__logo-mark::before,

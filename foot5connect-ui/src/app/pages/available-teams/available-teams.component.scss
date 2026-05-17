@@ -336,6 +336,14 @@
   letter-spacing: 1px;
 }
 
+.matches-card__logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px;
+  display: block;
+}
+
 .matches-card__logo-inner--emerald { background: linear-gradient(135deg, #1b5e20, #0f2b1a); }
 .matches-card__logo-inner--violet { background: linear-gradient(135deg, #312e81, #1e1b4b); }
 .matches-card__logo-inner--orange { background: linear-gradient(135deg, #9a3412, #431407); }

@@ -6,6 +6,9 @@ import { TeamMemberDto } from '../../services/models/team-member-dto';
 import { TeamDto } from '../../services/models/team-dto';
 import { MatchService } from '../../services/match/match.service';
 import { CurrentDualMatchDetailsDto } from '../../services/models/current-dual-match-details-dto';
+import { UserService } from '../../services/users/user.service';
+
+type MatchActionTab = 'cancel' | 'finish';
 
 @Component({
   selector: 'app-matches',
@@ -18,12 +21,16 @@ export class MatchesComponent implements OnInit {
 
   private matchService = inject(MatchService);
   private sanitizer = inject(DomSanitizer);
+  private userService = inject(UserService);
 
   currentDualMatch: CurrentDualMatchDetailsDto | null = null;
   isLoading = false;
+  isMatchActionModalOpen = false;
+  activeMatchActionTab: MatchActionTab = 'cancel';
+  currentUserId: number | null = null;
 
   ngOnInit(): void {
-    this.loadCurrentDualMatch();
+    this.loadCurrentUserContext();
   }
 
   get hasCurrentMatch(): boolean {
@@ -101,6 +108,93 @@ export class MatchesComponent implements OnInit {
     return `Match dual programmé entre ${homeTeam} et ${awayTeam}. Rendez-vous à ${place}. Préparez votre onze de départ et vos remplaçants pour un match ${this.levelLabel.toLowerCase()}.`;
   }
 
+  get isCurrentUserCaptain(): boolean {
+    const captainId = this.myTeam?.captainId ?? null;
+    return captainId != null && this.currentUserId != null && captainId === this.currentUserId;
+  }
+
+  get isCancelMatchTabDisabled(): boolean {
+    const matchStart = this.getMatchStartDate();
+
+    if (!matchStart) {
+      return false;
+    }
+
+    return Date.now() >= matchStart.getTime() - (5 * 60 * 60 * 1000);
+  }
+
+  get isFinishMatchTabDisabled(): boolean {
+    const matchStart = this.getMatchStartDate();
+
+    if (!matchStart) {
+      return true;
+    }
+
+    return Date.now() < matchStart.getTime() + (90 * 60 * 1000);
+  }
+
+  get cancelMatchAvailableFromLabel(): string {
+    const matchStart = this.getMatchStartDate();
+
+    if (!matchStart) {
+      return 'Disponible tant que l’horaire du match permet encore une annulation.';
+    }
+
+    const cancelDeadline = new Date(matchStart.getTime() - (5 * 60 * 60 * 1000));
+    return `Disponible jusqu’au ${this.formatDateTimeLabel(cancelDeadline)}.`;
+  }
+
+  get finishMatchAvailableFromLabel(): string {
+    const matchStart = this.getMatchStartDate();
+
+    if (!matchStart) {
+      return 'Disponible 1h30 après le début du match.';
+    }
+
+    const finishAvailableAt = new Date(matchStart.getTime() + (90 * 60 * 1000));
+    return `Disponible à partir du ${this.formatDateTimeLabel(finishAvailableAt)}.`;
+  }
+
+  openMatchActionModal(): void {
+    if (!this.isCurrentUserCaptain) {
+      return;
+    }
+
+    this.isMatchActionModalOpen = true;
+
+    if (!this.isCancelMatchTabDisabled) {
+      this.activeMatchActionTab = 'cancel';
+      return;
+    }
+
+    if (!this.isFinishMatchTabDisabled) {
+      this.activeMatchActionTab = 'finish';
+      return;
+    }
+
+    this.activeMatchActionTab = 'cancel';
+  }
+
+  closeMatchActionModal(): void {
+    this.isMatchActionModalOpen = false;
+  }
+
+  setMatchActionTab(tab: MatchActionTab): void {
+    if (!this.isCurrentUserCaptain) {
+      return;
+    }
+
+    if (tab === 'cancel' && this.isCancelMatchTabDisabled) {
+      return;
+    }
+
+    if (tab === 'finish' && this.isFinishMatchTabDisabled) {
+      return;
+    }
+
+    this.activeMatchActionTab = tab;
+  }
+
   loadCurrentDualMatch(): void {
     this.isLoading = true;
     this.matchService.findMyCurrentDualMatchDetails().subscribe({
@@ -111,6 +205,19 @@ export class MatchesComponent implements OnInit {
       error: () => {
         this.currentDualMatch = null;
         this.isLoading = false;
+      }
+    });
+  }
+
+  private loadCurrentUserContext(): void {
+    this.userService.findMe().subscribe({
+      next: (user) => {
+        this.currentUserId = user?.id ?? null;
+        this.loadCurrentDualMatch();
+      },
+      error: () => {
+        this.currentUserId = null;
+        this.loadCurrentDualMatch();
       }
     });
   }
@@ -212,6 +319,35 @@ export class MatchesComponent implements OnInit {
       default:
         return 'Match privé';
     }
+  }
+
+  private getMatchStartDate(): Date | null {
+    const matchDate = this.currentDualMatch?.matchDate;
+    const startTime = this.currentDualMatch?.startTime;
+
+    if (!matchDate || !startTime) {
+      return null;
+    }
+
+    const normalizedDate = matchDate.length >= 10 ? matchDate.slice(0, 10) : matchDate;
+    const normalizedTime = startTime.length >= 5 ? startTime.slice(0, 5) : startTime;
+    const value = new Date(`${normalizedDate}T${normalizedTime}:00`);
+
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+
+  private formatDateTimeLabel(value: Date): string {
+    const dateLabel = value.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    const timeLabel = value.toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return `${dateLabel} à ${timeLabel}`;
   }
 
   private capitalizeNamePart(value: string): string {

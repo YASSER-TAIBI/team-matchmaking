@@ -85,6 +85,19 @@ export class TeamComponent implements OnInit {
     return this.team?.name?.trim() || this.defaultTeamName;
   }
 
+  get teamLogoUrl(): string | null {
+    return this.team?.logoUrl?.trim() || null;
+  }
+
+  get teamInitials(): string {
+    return this.teamName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('') || 'ME';
+  }
+
   get teamLocation(): string {
     const city = this.team?.city?.trim();
     const country = this.team?.country?.trim();

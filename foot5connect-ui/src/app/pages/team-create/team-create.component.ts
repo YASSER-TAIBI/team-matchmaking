@@ -18,7 +18,7 @@ import { firstValueFrom, forkJoin } from 'rxjs';
 import { TEAMS_IMAGES } from '../../../assets/img/teams/teams-images';
 import { ImageProcessingService } from '../../shared/image-processing.service';
 
-type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation' | 'historique';
+type TeamCreateTab = 'creation' | 'formation' | 'disponibilite' | 'invitation';
 type TeamEditSection = 'identity' | 'formation';
 type AvailabilityLevel = 'DÉBUTANT' | 'AVANCÉ' | 'AMATEUR';
 type TeamLevelValue = NonNullable<TeamDto['teamLevel']>;
@@ -105,6 +105,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   showRemoveMemberDialog = false;
   isLogoUploading = false;
   logoUploadError = '';
+  isLoadingTeamPage = false;
   hasLeftTeam = false;
   teamActionPending = false;
   teamActionDialogMessage = "";
@@ -114,6 +115,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   memberToRemove: TeamMemberDto | null = null;
   formationValidationMessage = '';
   formationValidationDetails: string[] = [];
+  isGlobalLoading = false;
   availabilityAddressQuery = '';
   availabilityFieldName = 'Terrain à confirmer';
   availabilityFieldAddress = 'Non renseignée';
@@ -157,6 +159,7 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.loadCurrentUserContext();
 
+    this.isLoadingTeamPage = true;
     this.teamService.findMyTeam().subscribe({
       next: (data) => {
         this.team = data;
@@ -165,8 +168,12 @@ export class TeamCreateComponent implements OnInit, AfterViewInit {
         this.syncAvailabilityLevelFromTeam();
         this.syncFormationEditMembers();
         this.hasLeftTeam = this.members.length === 0;
+        this.isLoadingTeamPage = false;
       },
-      error: (err) => console.error('Erreur chargement équipe', err)
+      error: (err) => {
+        console.error('Erreur chargement équipe', err);
+        this.isLoadingTeamPage = false;
+      }
     });
 
     this.loadMemberInvitations();

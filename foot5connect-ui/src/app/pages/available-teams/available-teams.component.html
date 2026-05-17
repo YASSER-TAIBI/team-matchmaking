@@ -95,7 +95,11 @@
           <div class="matches-card__team">
             <div class="matches-card__logo-shell">
               <div class="matches-card__logo-inner" [ngClass]="card.logoClass">
-                <span>{{ card.initials }}</span>
+                @if (card.logoUrl) {
+                  <img [src]="card.logoUrl" [alt]="'Logo de ' + card.teamName" class="matches-card__logo-image" />
+                } @else {
+                  <span>{{ card.initials }}</span>
+                }
               </div>
             </div>
 

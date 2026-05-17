@@ -58,8 +58,10 @@ public class MatchServiceImpl implements MatchService {
                 .location(myTeam.getTitleAddress())
                 .myTeamId(myTeam.getId())
                 .myTeamName(myTeam.getName())
+                .myTeamLogoUrl(myTeam.getLogoUrl())
                 .opponentTeamId(opponentTeam != null ? opponentTeam.getId() : null)
                 .opponentTeamName(opponentTeam != null ? opponentTeam.getName() : null)
+                .opponentTeamLogoUrl(opponentTeam != null ? opponentTeam.getLogoUrl() : null)
                 .build();
     }
 

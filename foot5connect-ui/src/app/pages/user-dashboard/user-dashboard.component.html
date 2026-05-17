@@ -6,8 +6,14 @@
     </div>
   </header>
 
+    @if (isLoadingCurrentMatch) {
+    <section class="dashboard-page-loading">
+      <div class="dashboard-page-loading__icon material-symbols-outlined">progress_activity</div>
+      <h2 class="dashboard-page-loading__title">Chargement du tableau de bord</h2>
+      <p class="dashboard-page-loading__text">Nous récupérons les informations de votre dual match en cours.</p>
+    </section>
+  } @else {
   <div class="dashboard__main">
-
     <section class="card card--hero" [class.card--hero-match]="isInMatch">
       @if (isInMatch) {
         <div class="hero-match__background"></div>
@@ -35,7 +41,11 @@
             <div class="hero-match__teams" aria-label="Équipes du match">
               <div class="hero-match__team hero-match__team--home">
                 <div class="hero-match__team-logo">
-                  <span>{{ myTeamInitials }}</span>
+                  @if (myTeamLogoUrl) {
+                    <img class="hero-match__team-logo-image" [src]="myTeamLogoUrl" [alt]="'Logo de ' + myTeamName" />
+                  } @else {
+                    <span>{{ myTeamInitials }}</span>
+                  }
                 </div>
                 <h2 class="hero-match__team-name">{{ myTeamName }}</h2>
               </div>
@@ -44,7 +54,11 @@
 
               <div class="hero-match__team hero-match__team--away">
                 <div class="hero-match__team-logo">
-                  <span>{{ opponentTeamInitials }}</span>
+                  @if (opponentTeamLogoUrl) {
+                    <img class="hero-match__team-logo-image" [src]="opponentTeamLogoUrl" [alt]="'Logo de ' + opponentTeamName" />
+                  } @else {
+                    <span>{{ opponentTeamInitials }}</span>
+                  }
                 </div>
                 <h2 class="hero-match__team-name">{{ opponentTeamName }}</h2>
               </div>
@@ -158,6 +172,7 @@
     </section>
 
   </aside>
+  }
 </section>
 
 <app-confirm-dialog
