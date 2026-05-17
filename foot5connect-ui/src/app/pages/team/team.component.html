@@ -25,7 +25,11 @@
       <div class="team-page__identity">
         <div class="team-page__logo-wrap">
           <div class="team-page__logo">
-            <div class="team-page__logo-mark"></div>
+            @if (teamLogoUrl) {
+              <img class="team-page__logo-image" [src]="teamLogoUrl" [alt]="'Logo de ' + teamName" />
+            } @else {
+              <div class="team-page__logo-mark">{{ teamInitials }}</div>
+            }
           </div>
           <span class="team-page__verified">
             <span class="material-symbols-outlined">check</span>

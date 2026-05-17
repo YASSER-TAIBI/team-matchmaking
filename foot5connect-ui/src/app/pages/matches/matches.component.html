@@ -22,7 +22,11 @@
       <div class="match-hero__content">
         <div class="match-team match-team--home">
           <div class="match-team__logo match-team__logo--home">
-            <span class="match-team__logo-text">{{ getTeamInitials(myTeam?.name) }}</span>
+            @if (myTeam?.logoUrl) {
+              <img [src]="myTeam?.logoUrl" [alt]="'Logo de ' + (myTeam?.name ?? 'Mon équipe')" class="match-team__logo-image" />
+            } @else {
+              <span class="match-team__logo-text">{{ getTeamInitials(myTeam?.name) }}</span>
+            }
           </div>
           <h2 class="match-team__name">{{ myTeam?.name }}</h2>
           <span class="match-team__role match-team__role--home">Votre équipe</span>
@@ -35,7 +39,11 @@
 
         <div class="match-team match-team--away">
           <div class="match-team__logo match-team__logo--away">
-            <span class="match-team__logo-text">{{ getTeamInitials(opponentTeam?.name) }}</span>
+            @if (opponentTeam?.logoUrl) {
+              <img [src]="opponentTeam?.logoUrl" [alt]="'Logo de ' + (opponentTeam?.name ?? 'Équipe adverse')" class="match-team__logo-image" />
+            } @else {
+              <span class="match-team__logo-text">{{ getTeamInitials(opponentTeam?.name) }}</span>
+            }
           </div>
           <h2 class="match-team__name">{{ opponentTeam?.name ?? 'Équipe adverse' }}</h2>
           <span class="match-team__role">Équipe adverse</span>
@@ -155,6 +163,40 @@
       </article>
 
       <aside class="match-sidebar">
+        @if (isCurrentUserCaptain) {
+          <section class="match-status-card">
+            <h3 class="match-status-card__title">
+              <span class="match-status-card__title-icon material-symbols-outlined">task_alt</span>
+              Match terminé
+            </h3>
+
+            <div class="match-status-card__body">
+              <div class="match-status-card__notice">
+                <div class="match-status-card__notice-header">
+                  <span class="match-status-card__notice-icon material-symbols-outlined">warning</span>
+                  <span class="match-status-card__notice-label">Information importante</span>
+                </div>
+
+                <div class="match-status-card__notice-content">
+                  <p class="match-status-card__text">
+                    Une fois le match terminé, l’une des équipes doit le clôturer pour officialiser le résultat dans l’application.
+                  </p>
+                  <p class="match-status-card__text">
+                    Le match peut être annulé uniquement jusqu’à 5 heures avant le début prévu, avec l’accord du capitaine de chaque équipe.
+                  </p>
+                  <p class="match-status-card__text">
+                    Durant les 5 heures qui précèdent le coup d’envoi, l’annulation n’est plus possible.
+                  </p>
+                </div>
+              </div>
+
+              <button type="button" class="match-status-card__button" (click)="openMatchActionModal()">
+                Terminer ou annuler le match
+              </button>
+            </div>
+          </section>
+        }
+
         <section class="intel-card">
           <h3 class="intel-card__title">
             <span class="intel-card__title-icon material-symbols-outlined">info</span>
@@ -203,6 +245,93 @@
         </section>
       </aside>
     </section>
+
+    @if (isMatchActionModalOpen && isCurrentUserCaptain) {
+      <div class="match-action-modal-overlay" (click)="closeMatchActionModal()">
+        <div class="match-action-modal" (click)="$event.stopPropagation()">
+          <div class="match-action-modal__header">
+            <div>
+              <h2 class="match-action-modal__title">Terminer ou annuler le match</h2>
+              <p class="match-action-modal__subtitle">Choisissez l’action à effectuer selon l’horaire du match et les règles de disponibilité.</p>
+            </div>
+
+            <button type="button" class="match-action-modal__close" aria-label="Fermer la fenêtre" (click)="closeMatchActionModal()">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <nav class="match-action-tabs" aria-label="Actions du match">
+            <button
+              type="button"
+              class="match-action-tabs__item"
+              [class.match-action-tabs__item--active]="activeMatchActionTab === 'cancel'"
+              [class.match-action-tabs__item--disabled]="isCancelMatchTabDisabled"
+              [disabled]="isCancelMatchTabDisabled"
+              (click)="setMatchActionTab('cancel')">
+              <span class="material-symbols-outlined match-action-tabs__icon" aria-hidden="true">event_busy</span>
+              <span class="match-action-tabs__label">Annuler le match</span>
+            </button>
+
+            <button
+              type="button"
+              class="match-action-tabs__item"
+              [class.match-action-tabs__item--active]="activeMatchActionTab === 'finish'"
+              [class.match-action-tabs__item--disabled]="isFinishMatchTabDisabled"
+              [disabled]="isFinishMatchTabDisabled"
+              (click)="setMatchActionTab('finish')">
+              <span class="material-symbols-outlined match-action-tabs__icon" aria-hidden="true">flag</span>
+              <span class="match-action-tabs__label">Terminer le match</span>
+            </button>
+          </nav>
+
+          <div class="match-action-modal__panel">
+            @if (activeMatchActionTab === 'cancel') {
+              <div class="match-action-state-card" [class.match-action-state-card--disabled]="isCancelMatchTabDisabled">
+                <div class="match-action-state-card__header">
+                  <span class="material-symbols-outlined match-action-state-card__icon">event_busy</span>
+                  <div>
+                    <h3 class="match-action-state-card__title">Annuler le match</h3>
+                    <p class="match-action-state-card__subtitle">L’annulation reste possible jusqu’à 5 heures avant le coup d’envoi, avec l’accord du capitaine de chaque équipe.</p>
+                  </div>
+                </div>
+
+                <div class="match-action-state-card__notice">
+                  <span class="material-symbols-outlined match-action-state-card__notice-icon">schedule</span>
+                  <p class="match-action-state-card__notice-text">{{ cancelMatchAvailableFromLabel }}</p>
+                </div>
+
+                <div class="match-action-state-card__footer">
+                  <button type="button" class="match-action-cta match-action-cta--danger" [disabled]="isCancelMatchTabDisabled">
+                    Confirmer l’annulation du match
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="match-action-state-card" [class.match-action-state-card--disabled]="isFinishMatchTabDisabled">
+                <div class="match-action-state-card__header">
+                  <span class="material-symbols-outlined match-action-state-card__icon match-action-state-card__icon--finish">sports_score</span>
+                  <div>
+                    <h3 class="match-action-state-card__title">Terminer le match</h3>
+                    <p class="match-action-state-card__subtitle">Le match peut être marqué comme terminé à partir de 1h30 après le début de la rencontre.</p>
+                  </div>
+                </div>
+
+                <div class="match-action-state-card__notice">
+                  <span class="material-symbols-outlined match-action-state-card__notice-icon">schedule</span>
+                  <p class="match-action-state-card__notice-text">{{ finishMatchAvailableFromLabel }}</p>
+                </div>
+
+                <div class="match-action-state-card__footer">
+                  <button type="button" class="match-action-cta" [disabled]="isFinishMatchTabDisabled">
+                    Confirmer la fin du match
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
   } @else {
     <section class="matches-empty">
       <div class="matches-empty__icon material-symbols-outlined">event_busy</div>

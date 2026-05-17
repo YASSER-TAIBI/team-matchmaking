@@ -6,6 +6,38 @@
   min-height: 100%;
 }
 
+.team-create-page-loading {
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 36px 24px;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(25, 43, 32, 0.92);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.22);
+  text-align: center;
+}
+
+.team-create-page-loading__icon {
+  font-size: 42px;
+  color: var(--neon-green);
+}
+
+.team-create-page-loading__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.team-create-page-loading__text {
+  margin: 0;
+  max-width: 520px;
+  color: rgba(255, 255, 255, 0.68);
+}
+
 .team-create-header {
   position: relative;
   top: 0;

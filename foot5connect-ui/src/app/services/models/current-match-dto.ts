@@ -6,8 +6,10 @@ export interface CurrentMatchDto {
   matchDate?: string;
   matchId?: number;
   myTeamId?: number;
+  myTeamLogoUrl?: string;
   myTeamName?: string;
   opponentTeamId?: number;
+  opponentTeamLogoUrl?: string;
   opponentTeamName?: string;
   startTime?: string;
 }

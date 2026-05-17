@@ -28,6 +28,7 @@ export class UserDashboardComponent implements OnInit {
   user: UserDto | null = null;
   isInMatch = false;
   currentMatch: CurrentMatchDto | null = null;
+  isLoadingCurrentMatch = false;
   showConfirmUnavailable = false;
   private unavailableCheckbox: HTMLInputElement | null = null;
 
@@ -49,13 +50,16 @@ export class UserDashboardComponent implements OnInit {
   }
 
   private loadCurrentMatch(): void {
+    this.isLoadingCurrentMatch = true;
     this.matchService.findMyCurrentMatch().subscribe({
       next: (match) => {
         this.currentMatch = match;
+        this.isLoadingCurrentMatch = false;
       },
       error: (err) => {
         console.log(err);
         this.currentMatch = null;
+        this.isLoadingCurrentMatch = false;
       }
     });
   }
@@ -134,8 +138,16 @@ export class UserDashboardComponent implements OnInit {
     return this.currentMatch?.myTeamName ?? 'Mon équipe';
   }
 
+  get myTeamLogoUrl(): string | null {
+    return this.currentMatch?.myTeamLogoUrl?.trim() || null;
+  }
+
   get opponentTeamName(): string {
     return this.currentMatch?.opponentTeamName ?? 'Équipe adverse';
+  }
+
+  get opponentTeamLogoUrl(): string | null {
+    return this.currentMatch?.opponentTeamLogoUrl?.trim() || null;
   }
 
   get myTeamInitials(): string {

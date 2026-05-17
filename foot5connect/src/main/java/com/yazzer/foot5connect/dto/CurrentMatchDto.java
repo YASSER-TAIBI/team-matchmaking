@@ -20,6 +20,8 @@ public class CurrentMatchDto {
     private String location;
     private Long myTeamId;
     private String myTeamName;
+    private String myTeamLogoUrl;
     private Long opponentTeamId;
     private String opponentTeamName;
+    private String opponentTeamLogoUrl;
 }

@@ -16,6 +16,7 @@ interface MatchRequestCard {
   id: number;
   captainId: number | null;
   teamName: string;
+  logoUrl: string | null;
   ratingLabel: string;
   availableDateOnly: string | null;
   levelCode: TeamDto['teamLevel'] | null;
@@ -276,6 +277,7 @@ export class AvailableTeamsComponent implements OnInit {
       id: team.id ?? index + 1,
       captainId: team.captainId ?? null,
       teamName: team.name ?? 'Équipe sans nom',
+      logoUrl: team.logoUrl?.trim() || null,
       ratingLabel: `${matchesWon}V • ${matchesDrawn}N • ${matchesLost}P`,
       availableDateOnly: (team.availableDate ?? '').slice(0, 10) || null,
       levelCode: team.teamLevel ?? null,
