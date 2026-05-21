@@ -10,6 +10,27 @@ import { UserService } from '../../services/users/user.service';
 
 type MatchActionTab = 'cancel' | 'finish';
 
+interface FinishMatchPlayerEntry {
+  memberId: number | string;
+  team: 'my' | 'opponent';
+  fullName: string;
+  initials: string;
+  role: string;
+  played: boolean;
+  goals: number;
+  captain: boolean;
+}
+
+interface CancelConfirmationCaptain {
+  team: 'my' | 'opponent';
+  teamName: string;
+  captainName: string;
+  captainInitials: string;
+  confirmed: boolean;
+  isCurrentUserCaptain: boolean;
+  canToggle: boolean;
+}
+
 @Component({
   selector: 'app-matches',
   standalone: true,
@@ -26,8 +47,15 @@ export class MatchesComponent implements OnInit {
   currentDualMatch: CurrentDualMatchDetailsDto | null = null;
   isLoading = false;
   isMatchActionModalOpen = false;
+  isFinishResultModalOpen = false;
+  isCancelConfirmationModalOpen = false;
   activeMatchActionTab: MatchActionTab = 'cancel';
   currentUserId: number | null = null;
+  myTeamFinalScore = 0;
+  opponentTeamFinalScore = 0;
+  finishMatchNotes = '';
+  finishMatchPlayers: FinishMatchPlayerEntry[] = [];
+  cancelConfirmationCaptains: CancelConfirmationCaptain[] = [];
 
   ngOnInit(): void {
     this.loadCurrentUserContext();
@@ -113,6 +141,18 @@ export class MatchesComponent implements OnInit {
     return captainId != null && this.currentUserId != null && captainId === this.currentUserId;
   }
 
+  get myTeamFinishPlayers(): FinishMatchPlayerEntry[] {
+    return this.finishMatchPlayers.filter(player => player.team === 'my');
+  }
+
+  get opponentTeamFinishPlayers(): FinishMatchPlayerEntry[] {
+    return this.finishMatchPlayers.filter(player => player.team === 'opponent');
+  }
+
+  get canConfirmCancellation(): boolean {
+    return this.cancelConfirmationCaptains.length === 2 && this.cancelConfirmationCaptains.every(captain => captain.confirmed);
+  }
+
   get isCancelMatchTabDisabled(): boolean {
     const matchStart = this.getMatchStartDate();
 
@@ -179,6 +219,60 @@ export class MatchesComponent implements OnInit {
     this.isMatchActionModalOpen = false;
   }
 
+  openFinishResultModal(): void {
+    if (!this.isCurrentUserCaptain || this.isFinishMatchTabDisabled) {
+      return;
+    }
+
+    this.isMatchActionModalOpen = false;
+    this.initializeFinishMatchForm();
+    this.isFinishResultModalOpen = true;
+  }
+
+  closeFinishResultModal(): void {
+    this.isFinishResultModalOpen = false;
+  }
+
+  openCancelConfirmationModal(): void {
+    if (!this.isCurrentUserCaptain || this.isCancelMatchTabDisabled) {
+      return;
+    }
+
+    this.isMatchActionModalOpen = false;
+    this.initializeCancelConfirmationState();
+    this.isCancelConfirmationModalOpen = true;
+  }
+
+  closeCancelConfirmationModal(): void {
+    this.isCancelConfirmationModalOpen = false;
+  }
+
+  toggleCancelCaptainConfirmation(captain: CancelConfirmationCaptain): void {
+    if (!captain.canToggle) {
+      return;
+    }
+
+    captain.confirmed = !captain.confirmed;
+  }
+
+  incrementPlayerGoal(player: FinishMatchPlayerEntry): void {
+    if (!player.played) {
+      player.played = true;
+    }
+
+    player.goals += 1;
+  }
+
+  decrementPlayerGoal(player: FinishMatchPlayerEntry): void {
+    player.goals = Math.max(0, player.goals - 1);
+  }
+
+  onPlayerParticipationChange(player: FinishMatchPlayerEntry): void {
+    if (!player.played) {
+      player.goals = 0;
+    }
+  }
+
   setMatchActionTab(tab: MatchActionTab): void {
     if (!this.isCurrentUserCaptain) {
       return;
@@ -200,10 +294,14 @@ export class MatchesComponent implements OnInit {
     this.matchService.findMyCurrentDualMatchDetails().subscribe({
       next: (match) => {
         this.currentDualMatch = match;
+        this.initializeFinishMatchForm();
+        this.initializeCancelConfirmationState();
         this.isLoading = false;
       },
       error: () => {
         this.currentDualMatch = null;
+        this.finishMatchPlayers = [];
+        this.cancelConfirmationCaptains = [];
         this.isLoading = false;
       }
     });
@@ -319,6 +417,56 @@ export class MatchesComponent implements OnInit {
       default:
         return 'Match privé';
     }
+  }
+
+  private initializeFinishMatchForm(): void {
+    this.myTeamFinalScore = 0;
+    this.opponentTeamFinalScore = 0;
+    this.finishMatchNotes = '';
+    this.finishMatchPlayers = [
+      ...this.buildFinishMatchEntries(this.myTeam, 'my'),
+      ...this.buildFinishMatchEntries(this.opponentTeam, 'opponent')
+    ];
+  }
+
+  private initializeCancelConfirmationState(): void {
+    this.cancelConfirmationCaptains = [
+      this.buildCancelCaptain(this.myTeam, 'my', this.isCurrentUserCaptain),
+      this.buildCancelCaptain(this.opponentTeam, 'opponent', false)
+    ].filter((captain): captain is CancelConfirmationCaptain => captain !== null);
+  }
+
+  private buildFinishMatchEntries(team: TeamDto | null, side: 'my' | 'opponent'): FinishMatchPlayerEntry[] {
+    return (team?.members ?? []).map((member, index) => ({
+      memberId: member.id ?? `${side}-${index}`,
+      team: side,
+      fullName: this.getMemberFullName(member),
+      initials: this.getMemberInitials(member),
+      role: this.getMemberRole(member),
+      played: member.selection === 'STARTER',
+      goals: 0,
+      captain: !!member.captain
+    }));
+  }
+
+  private buildCancelCaptain(team: TeamDto | null, side: 'my' | 'opponent', confirmed: boolean): CancelConfirmationCaptain | null {
+    if (!team) {
+      return null;
+    }
+
+    const captain = (team.members ?? []).find(member => !!member.captain) ?? null;
+    const captainName = captain ? this.getMemberFullName(captain) : 'Capitaine en attente';
+    const captainInitials = captain ? this.getMemberInitials(captain) : '--';
+
+    return {
+      team: side,
+      teamName: team.name ?? (side === 'my' ? 'Votre équipe' : 'Équipe adverse'),
+      captainName,
+      captainInitials,
+      confirmed,
+      isCurrentUserCaptain: side === 'my' && this.isCurrentUserCaptain,
+      canToggle: side === 'my' && this.isCurrentUserCaptain
+    };
   }
 
   private getMatchStartDate(): Date | null {

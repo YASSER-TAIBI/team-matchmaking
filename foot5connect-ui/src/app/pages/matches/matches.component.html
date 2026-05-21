@@ -301,7 +301,7 @@
                 </div>
 
                 <div class="match-action-state-card__footer">
-                  <button type="button" class="match-action-cta match-action-cta--danger" [disabled]="isCancelMatchTabDisabled">
+                  <button type="button" class="match-action-cta match-action-cta--danger" [disabled]="isCancelMatchTabDisabled" (click)="openCancelConfirmationModal()">
                     Confirmer l’annulation du match
                   </button>
                 </div>
@@ -322,12 +322,189 @@
                 </div>
 
                 <div class="match-action-state-card__footer">
-                  <button type="button" class="match-action-cta" [disabled]="isFinishMatchTabDisabled">
+                  <button type="button" class="match-action-cta" [disabled]="isFinishMatchTabDisabled" (click)="openFinishResultModal()">
                     Confirmer la fin du match
                   </button>
                 </div>
               </div>
             }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (isCancelConfirmationModalOpen && isCurrentUserCaptain) {
+      <div class="cancel-confirmation-modal-overlay" (click)="closeCancelConfirmationModal()">
+        <div class="cancel-confirmation-modal" (click)="$event.stopPropagation()">
+          <div class="cancel-confirmation-modal__header">
+            <div>
+              <h2 class="cancel-confirmation-modal__title">Annuler le match</h2>
+              <p class="cancel-confirmation-modal__subtitle">L’annulation nécessite la confirmation des deux capitaines. Cette action reste irréversible une fois validée.</p>
+            </div>
+
+            <button type="button" class="cancel-confirmation-modal__close" aria-label="Fermer la fenêtre" (click)="closeCancelConfirmationModal()">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div class="cancel-confirmation-modal__captains">
+            @for (captain of cancelConfirmationCaptains; track captain.team) {
+              <button
+                type="button"
+                class="cancel-captain-card"
+                [class.cancel-captain-card--confirmed]="captain.confirmed"
+                [class.cancel-captain-card--interactive]="captain.canToggle"
+                [disabled]="!captain.canToggle"
+                (click)="toggleCancelCaptainConfirmation(captain)">
+                <div class="cancel-captain-card__identity">
+                  <span class="cancel-captain-card__avatar">{{ captain.captainInitials }}</span>
+
+                  <div>
+                    <p class="cancel-captain-card__name">{{ captain.captainName }}</p>
+                    <p class="cancel-captain-card__team">{{ captain.teamName }} - capitaine</p>
+                  </div>
+                </div>
+
+                <div class="cancel-captain-card__status" [class.cancel-captain-card__status--confirmed]="captain.confirmed">
+                  @if (captain.confirmed) {
+                    <span class="material-symbols-outlined">check_circle</span>
+                  } @else {
+                    <span class="material-symbols-outlined">radio_button_unchecked</span>
+                  }
+                </div>
+              </button>
+            }
+          </div>
+
+          <div class="cancel-confirmation-modal__footer">
+            <button type="button" class="match-action-cta match-action-cta--danger cancel-confirmation-modal__submit" [disabled]="!canConfirmCancellation">
+              Confirmer l’annulation
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (isFinishResultModalOpen && isCurrentUserCaptain) {
+      <div class="finish-result-modal-overlay" (click)="closeFinishResultModal()">
+        <div class="finish-result-modal" (click)="$event.stopPropagation()">
+          <div class="finish-result-modal__header">
+            <div>
+              <h2 class="finish-result-modal__title">Saisir le résultat final</h2>
+              <p class="finish-result-modal__subtitle">Renseignez le score, les joueurs ayant participé et les buteurs pour finaliser la rencontre.</p>
+            </div>
+
+            <button type="button" class="finish-result-modal__close" aria-label="Fermer la fenêtre" (click)="closeFinishResultModal()">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div class="finish-result-modal__section">
+            <p class="finish-result-modal__section-label">Score final</p>
+
+            <div class="finish-scoreboard">
+              <div class="finish-scoreboard__team">
+                <span class="finish-scoreboard__team-name">{{ myTeam?.name ?? 'Votre équipe' }}</span>
+                <input type="number" min="0" class="finish-scoreboard__input" [(ngModel)]="myTeamFinalScore" [ngModelOptions]="{ standalone: true }" />
+              </div>
+
+              <div class="finish-scoreboard__divider">-</div>
+
+              <div class="finish-scoreboard__team">
+                <span class="finish-scoreboard__team-name">{{ opponentTeam?.name ?? 'Équipe adverse' }}</span>
+                <input type="number" min="0" class="finish-scoreboard__input" [(ngModel)]="opponentTeamFinalScore" [ngModelOptions]="{ standalone: true }" />
+              </div>
+            </div>
+          </div>
+
+          <div class="finish-result-modal__section">
+            <p class="finish-result-modal__section-label">Participation et buteurs</p>
+
+            <div class="finish-player-columns">
+              <section class="finish-player-group">
+                <div class="finish-player-group__header">
+                  <h3 class="finish-player-group__title">{{ myTeam?.name ?? 'Votre équipe' }}</h3>
+                  <span class="finish-player-group__meta">{{ myTeamFinishPlayers.length }} joueurs</span>
+                </div>
+
+                <div class="finish-player-group__list">
+                  @for (player of myTeamFinishPlayers; track player.memberId) {
+                    <div class="finish-player-card" [class.finish-player-card--inactive]="!player.played">
+                      <div class="finish-player-card__identity">
+                        <span class="finish-player-card__avatar">{{ player.initials }}</span>
+                        <div>
+                          <p class="finish-player-card__name">
+                            <span>{{ player.fullName }}</span>
+                            @if (player.captain) {
+                              <span class="finish-player-card__captain">★</span>
+                            }
+                          </p>
+                          <p class="finish-player-card__role">{{ player.role }}</p>
+                        </div>
+                      </div>
+
+                      <div class="finish-player-card__actions">
+                        <label class="finish-player-toggle">
+                          <input type="checkbox" [(ngModel)]="player.played" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onPlayerParticipationChange(player)" />
+                          <span>A joué</span>
+                        </label>
+
+                        <div class="finish-goals-stepper">
+                          <button type="button" class="finish-goals-stepper__btn" (click)="decrementPlayerGoal(player)">-</button>
+                          <span class="finish-goals-stepper__value">{{ player.goals }}</span>
+                          <button type="button" class="finish-goals-stepper__btn" (click)="incrementPlayerGoal(player)">+</button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </section>
+
+              <section class="finish-player-group finish-player-group--opponent">
+                <div class="finish-player-group__header">
+                  <h3 class="finish-player-group__title">{{ opponentTeam?.name ?? 'Équipe adverse' }}</h3>
+                  <span class="finish-player-group__meta">{{ opponentTeamFinishPlayers.length }} joueurs</span>
+                </div>
+
+                <div class="finish-player-group__list">
+                  @for (player of opponentTeamFinishPlayers; track player.memberId) {
+                    <div class="finish-player-card finish-player-card--opponent" [class.finish-player-card--inactive]="!player.played">
+                      <div class="finish-player-card__identity">
+                        <span class="finish-player-card__avatar finish-player-card__avatar--opponent">{{ player.initials }}</span>
+                        <div>
+                          <p class="finish-player-card__name">
+                            <span>{{ player.fullName }}</span>
+                            @if (player.captain) {
+                              <span class="finish-player-card__captain">★</span>
+                            }
+                          </p>
+                          <p class="finish-player-card__role">{{ player.role }}</p>
+                        </div>
+                      </div>
+
+                      <div class="finish-player-card__actions">
+                        <label class="finish-player-toggle">
+                          <input type="checkbox" [(ngModel)]="player.played" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onPlayerParticipationChange(player)" />
+                          <span>A joué</span>
+                        </label>
+
+                        <div class="finish-goals-stepper">
+                          <button type="button" class="finish-goals-stepper__btn" (click)="decrementPlayerGoal(player)">-</button>
+                          <span class="finish-goals-stepper__value">{{ player.goals }}</span>
+                          <button type="button" class="finish-goals-stepper__btn" (click)="incrementPlayerGoal(player)">+</button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <div class="finish-result-modal__footer">
+            <button type="button" class="match-action-cta finish-result-modal__submit">
+              Valider les résultats et finaliser
+            </button>
           </div>
         </div>
       </div>
