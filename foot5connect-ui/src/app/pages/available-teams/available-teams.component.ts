@@ -271,6 +271,7 @@ export class AvailableTeamsComponent implements OnInit {
     const matchesWon = team.matchesWon ?? 0;
     const matchesLost = team.matchesLost ?? 0;
     const matchesDrawn = team.matchesDrawn ?? 0;
+    const matchesCanceled = team.matchesCanceled ?? 0;
     const tarification = team.tarificationTerrain === 'GRATUIT' ? 'Gratuit' : 'Payant';
 
     return {
@@ -278,7 +279,7 @@ export class AvailableTeamsComponent implements OnInit {
       captainId: team.captainId ?? null,
       teamName: team.name ?? 'Équipe sans nom',
       logoUrl: team.logoUrl?.trim() || null,
-      ratingLabel: `${matchesWon}V • ${matchesDrawn}N • ${matchesLost}P`,
+      ratingLabel: `${matchesWon}V • ${matchesDrawn}N • ${matchesLost}P • ${matchesCanceled}A`,
       availableDateOnly: (team.availableDate ?? '').slice(0, 10) || null,
       levelCode: team.teamLevel ?? null,
       dateLabel: this.formatDate(team.availableDate),

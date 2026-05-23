@@ -570,46 +570,6 @@
         }
       }
     },
-    "/teams/me/current-match": {
-      "get": {
-        "tags": [
-          "team-controller"
-        ],
-        "operationId": "findMyCurrentMatch",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CurrentMatchDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/teams/me/current-dual-match": {
-      "get": {
-        "tags": [
-          "team-controller"
-        ],
-        "operationId": "findMyCurrentDualMatchDetails",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CurrentDualMatchDetailsDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/teams/me/complete-in-my-city": {
       "get": {
         "tags": [
@@ -672,6 +632,46 @@
                   "items": {
                     "$ref": "#/components/schemas/TeamInvitationDto"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/matches/me/current-match": {
+      "get": {
+        "tags": [
+          "match-controller"
+        ],
+        "operationId": "findMyCurrentMatch",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentMatchDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/matches/me/current-dual-match": {
+      "get": {
+        "tags": [
+          "match-controller"
+        ],
+        "operationId": "findMyCurrentDualMatchDetails",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentDualMatchDetailsDto"
                 }
               }
             }
@@ -837,6 +837,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "matchesCanceled": {
+            "type": "integer",
+            "format": "int32"
+          },
           "teamLevel": {
             "type": "string",
             "enum": [
@@ -861,8 +865,14 @@
           "titleAddress": {
             "type": "string"
           },
+          "formation": {
+            "type": "string"
+          },
           "prix": {
             "type": "number"
+          },
+          "isAnnuleMatch": {
+            "type": "boolean"
           },
           "tarificationTerrain": {
             "type": "string",
@@ -1227,11 +1237,17 @@
           "myTeamName": {
             "type": "string"
           },
+          "myTeamLogoUrl": {
+            "type": "string"
+          },
           "opponentTeamId": {
             "type": "integer",
             "format": "int64"
           },
           "opponentTeamName": {
+            "type": "string"
+          },
+          "opponentTeamLogoUrl": {
             "type": "string"
           }
         }

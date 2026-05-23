@@ -9,8 +9,11 @@ export interface TeamDto {
   country?: string;
   createdDate?: string;
   endTime?: string;
+  formation?: string;
   id?: number;
+  isAnnuleMatch?: boolean;
   logoUrl?: string;
+  matchesCanceled?: number;
   matchesDrawn?: number;
   matchesLost?: number;
   matchesWon?: number;
@@ -22,7 +25,6 @@ export interface TeamDto {
   status?: 'INACTIVE' | 'INCOMPLETE' | 'COMPLETE' | 'IN_MATCH';
   tarificationTerrain?: 'GRATUIT' | 'PAYANT';
   teamLevel?: 'DEBUTANT' | 'AVANCE' | 'AMATEUR';
-  formation?: string;
   titleAddress?: string;
   totalMatches?: number;
 }

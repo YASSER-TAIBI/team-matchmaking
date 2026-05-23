@@ -64,7 +64,9 @@ public class TeamServiceImpl implements TeamService {
                 .matchesWon(0)
                 .matchesLost(0)
                 .matchesDrawn(0)
+                .matchesCanceled(0)
                 .teamLevel(AvailabilityTeamLevel.AMATEUR)
+                .isAnnuleMatch(false)
                 .build();
         team = teamRepository.save(team);
 
@@ -169,6 +171,9 @@ public class TeamServiceImpl implements TeamService {
         }
         if (teamDto.getTarificationTerrain() != null) {
             team.setTarificationTerrain(teamDto.getTarificationTerrain());
+        }
+        if (teamDto.getIsAnnuleMatch() != null) {
+            team.setIsAnnuleMatch(teamDto.getIsAnnuleMatch());
         }
         if (teamDto.getMembers() != null) {
             List<TeamMember> teamMembers = teamMemberRepository.findByTeam_Id(team.getId());
