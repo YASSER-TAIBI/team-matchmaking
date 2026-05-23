@@ -50,6 +50,9 @@ public class Team extends AbstractEntity {
     @Column(nullable = false)
     private Integer matchesDrawn;
 
+    @Column(nullable = false)
+    private Integer matchesCanceled;
+
     @Enumerated(EnumType.STRING)
     private AvailabilityTeamLevel teamLevel;
 
@@ -71,6 +74,8 @@ public class Team extends AbstractEntity {
     private String formation;
 
     private BigDecimal prix;
+
+    private Boolean isAnnuleMatch;
 
     @Enumerated(EnumType.STRING)
     private TarificationTerrain tarificationTerrain;

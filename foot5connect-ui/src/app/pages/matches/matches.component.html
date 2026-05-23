@@ -354,7 +354,7 @@
                 class="cancel-captain-card"
                 [class.cancel-captain-card--confirmed]="captain.confirmed"
                 [class.cancel-captain-card--interactive]="captain.canToggle"
-                [disabled]="!captain.canToggle"
+                [disabled]="!captain.canToggle || cancelTogglePending"
                 (click)="toggleCancelCaptainConfirmation(captain)">
                 <div class="cancel-captain-card__identity">
                   <span class="cancel-captain-card__avatar">{{ captain.captainInitials }}</span>
@@ -375,15 +375,21 @@
               </button>
             }
           </div>
-
-          <div class="cancel-confirmation-modal__footer">
-            <button type="button" class="match-action-cta match-action-cta--danger cancel-confirmation-modal__submit" [disabled]="!canConfirmCancellation">
-              Confirmer l’annulation
-            </button>
-          </div>
         </div>
       </div>
     }
+
+    <app-confirm-dialog
+      [visible]="showCancelToggleConfirmDialog"
+      [title]="cancelToggleDialogTitle"
+      [message]="cancelToggleDialogMessage"
+      [details]="cancelToggleDialogDetails"
+      [confirmText]="cancelToggleDialogConfirmText"
+      cancelText="Annuler"
+      icon="warning"
+      (confirmed)="confirmCancelCaptainConfirmation()"
+      (cancelled)="cancelCancelCaptainConfirmation()">
+    </app-confirm-dialog>
 
     @if (isFinishResultModalOpen && isCurrentUserCaptain) {
       <div class="finish-result-modal-overlay" (click)="closeFinishResultModal()">

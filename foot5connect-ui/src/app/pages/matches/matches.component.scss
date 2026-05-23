@@ -786,8 +786,8 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.68);
-  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
 }
 
 .match-action-modal {
@@ -1032,8 +1032,8 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.74);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
 }
 
 .cancel-confirmation-modal {
@@ -1187,14 +1187,6 @@
   background: rgba(19, 236, 91, 0.12);
 }
 
-.cancel-confirmation-modal__footer {
-  display: flex;
-}
-
-.cancel-confirmation-modal__submit {
-  width: 100%;
-}
-
 .finish-result-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1203,8 +1195,8 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.76);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
 }
 
 .finish-result-modal {

@@ -50,6 +50,8 @@ public class TeamDto {
     
     private Integer matchesDrawn;
 
+    private Integer matchesCanceled;
+
     private AvailabilityTeamLevel teamLevel;
 
     private LocalDate availableDate;
@@ -65,6 +67,8 @@ public class TeamDto {
     private String formation;
 
     private BigDecimal prix;
+
+    private Boolean isAnnuleMatch;
 
     private TarificationTerrain tarificationTerrain;
 
@@ -95,6 +99,7 @@ public class TeamDto {
                 .matchesWon(team.getMatchesWon())
                 .matchesLost(team.getMatchesLost())
                 .matchesDrawn(team.getMatchesDrawn())
+                .matchesCanceled(team.getMatchesCanceled())
                 .teamLevel(team.getTeamLevel())
                 .availableDate(team.getAvailableDate())
                 .startTime(team.getStartTime())
@@ -103,6 +108,7 @@ public class TeamDto {
                 .titleAddress(team.getTitleAddress())
                 .formation(team.getFormation())
                 .prix(team.getPrix())
+                .isAnnuleMatch(team.getIsAnnuleMatch())
                 .tarificationTerrain(team.getTarificationTerrain())
                 .build();
     }
@@ -128,6 +134,7 @@ public class TeamDto {
                 .matchesWon(teamDto.getMatchesWon())
                 .matchesLost(teamDto.getMatchesLost())
                 .matchesDrawn(teamDto.getMatchesDrawn())
+                .matchesCanceled(teamDto.getMatchesCanceled())
                 .teamLevel(teamDto.getTeamLevel())
                 .availableDate(teamDto.getAvailableDate())
                 .startTime(teamDto.getStartTime())
@@ -136,6 +143,7 @@ public class TeamDto {
                 .titleAddress(teamDto.getTitleAddress())
                 .formation(teamDto.getFormation())
                 .prix(teamDto.getPrix())
+                .isAnnuleMatch(teamDto.getIsAnnuleMatch())
                 .tarificationTerrain(teamDto.getTarificationTerrain())
                 .build();
     }

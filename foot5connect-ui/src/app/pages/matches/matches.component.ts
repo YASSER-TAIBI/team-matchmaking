@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { TeamService } from '../../services/teams/team.service';
 import { TeamMemberDto } from '../../services/models/team-member-dto';
 import { TeamDto } from '../../services/models/team-dto';
 import { MatchService } from '../../services/match/match.service';
@@ -34,13 +36,14 @@ interface CancelConfirmationCaptain {
 @Component({
   selector: 'app-matches',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmDialogComponent],
   templateUrl: './matches.component.html',
   styleUrls: ['./matches.component.scss']
 })
 export class MatchesComponent implements OnInit {
 
   private matchService = inject(MatchService);
+  private teamService = inject(TeamService);
   private sanitizer = inject(DomSanitizer);
   private userService = inject(UserService);
 
@@ -56,6 +59,9 @@ export class MatchesComponent implements OnInit {
   finishMatchNotes = '';
   finishMatchPlayers: FinishMatchPlayerEntry[] = [];
   cancelConfirmationCaptains: CancelConfirmationCaptain[] = [];
+  showCancelToggleConfirmDialog = false;
+  cancelTogglePending = false;
+  cancelToggleTarget: CancelConfirmationCaptain | null = null;
 
   ngOnInit(): void {
     this.loadCurrentUserContext();
@@ -147,10 +153,6 @@ export class MatchesComponent implements OnInit {
 
   get opponentTeamFinishPlayers(): FinishMatchPlayerEntry[] {
     return this.finishMatchPlayers.filter(player => player.team === 'opponent');
-  }
-
-  get canConfirmCancellation(): boolean {
-    return this.cancelConfirmationCaptains.length === 2 && this.cancelConfirmationCaptains.every(captain => captain.confirmed);
   }
 
   get isCancelMatchTabDisabled(): boolean {
@@ -248,11 +250,77 @@ export class MatchesComponent implements OnInit {
   }
 
   toggleCancelCaptainConfirmation(captain: CancelConfirmationCaptain): void {
-    if (!captain.canToggle) {
+    if (!captain.canToggle || this.cancelTogglePending) {
       return;
     }
 
-    captain.confirmed = !captain.confirmed;
+    this.cancelToggleTarget = captain;
+    this.isCancelConfirmationModalOpen = false;
+    this.showCancelToggleConfirmDialog = true;
+  }
+
+  confirmCancelCaptainConfirmation(): void {
+    const captain = this.cancelToggleTarget;
+    if (!captain || this.cancelTogglePending) {
+      return;
+    }
+
+    const nextValue = !captain.confirmed;
+
+    this.cancelTogglePending = true;
+    this.showCancelToggleConfirmDialog = false;
+
+    this.teamService.updateTeam({ isAnnuleMatch: nextValue }).subscribe({
+      next: (updatedTeam) => {
+        if (this.currentDualMatch?.myTeam) {
+          this.currentDualMatch = {
+            ...this.currentDualMatch,
+            myTeam: updatedTeam
+          };
+        }
+
+        this.initializeCancelConfirmationState();
+        this.cancelTogglePending = false;
+        this.cancelToggleTarget = null;
+        this.isCancelConfirmationModalOpen = true;
+      },
+      error: (err: any) => {
+        console.error('Erreur lors de la mise à jour de la demande d’annulation', err);
+        this.cancelTogglePending = false;
+        this.cancelToggleTarget = null;
+        this.isCancelConfirmationModalOpen = true;
+      }
+    });
+  }
+
+  cancelCancelCaptainConfirmation(): void {
+    if (this.cancelTogglePending) {
+      return;
+    }
+
+    this.showCancelToggleConfirmDialog = false;
+    this.isCancelConfirmationModalOpen = true;
+    this.cancelToggleTarget = null;
+  }
+
+  get cancelToggleDialogTitle(): string {
+    return this.cancelToggleTarget?.confirmed ? 'Retirer la demande d’annulation' : 'Confirmer la demande d’annulation';
+  }
+
+  get cancelToggleDialogMessage(): string {
+    return this.cancelToggleTarget?.confirmed
+      ? 'Voulez-vous vraiment retirer votre demande d’annulation du match ?'
+      : 'Voulez-vous vraiment annuler le match ?';
+  }
+
+  get cancelToggleDialogDetails(): string[] {
+    return this.cancelToggleTarget?.confirmed
+      ? ['Votre équipe ne sera plus marquée comme demandeuse de l’annulation.', 'La confirmation de l’autre capitaine reste inchangée.']
+      : ['Votre équipe sera marquée comme demandeuse de l’annulation.', 'Le match ne pourra être annulé que lorsque les deux capitaines auront confirmé.'];
+  }
+
+  get cancelToggleDialogConfirmText(): string {
+    return this.cancelToggleTarget?.confirmed ? 'Retirer la demande' : 'Confirmer';
   }
 
   incrementPlayerGoal(player: FinishMatchPlayerEntry): void {
@@ -302,6 +370,9 @@ export class MatchesComponent implements OnInit {
         this.currentDualMatch = null;
         this.finishMatchPlayers = [];
         this.cancelConfirmationCaptains = [];
+        this.cancelToggleTarget = null;
+        this.showCancelToggleConfirmDialog = false;
+        this.cancelTogglePending = false;
         this.isLoading = false;
       }
     });
@@ -431,8 +502,8 @@ export class MatchesComponent implements OnInit {
 
   private initializeCancelConfirmationState(): void {
     this.cancelConfirmationCaptains = [
-      this.buildCancelCaptain(this.myTeam, 'my', this.isCurrentUserCaptain),
-      this.buildCancelCaptain(this.opponentTeam, 'opponent', false)
+      this.buildCancelCaptain(this.myTeam, 'my'),
+      this.buildCancelCaptain(this.opponentTeam, 'opponent')
     ].filter((captain): captain is CancelConfirmationCaptain => captain !== null);
   }
 
@@ -449,7 +520,7 @@ export class MatchesComponent implements OnInit {
     }));
   }
 
-  private buildCancelCaptain(team: TeamDto | null, side: 'my' | 'opponent', confirmed: boolean): CancelConfirmationCaptain | null {
+  private buildCancelCaptain(team: TeamDto | null, side: 'my' | 'opponent'): CancelConfirmationCaptain | null {
     if (!team) {
       return null;
     }
@@ -457,6 +528,7 @@ export class MatchesComponent implements OnInit {
     const captain = (team.members ?? []).find(member => !!member.captain) ?? null;
     const captainName = captain ? this.getMemberFullName(captain) : 'Capitaine en attente';
     const captainInitials = captain ? this.getMemberInitials(captain) : '--';
+    const confirmed = !!team.isAnnuleMatch;
 
     return {
       team: side,
