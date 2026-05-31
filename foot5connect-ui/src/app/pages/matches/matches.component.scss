@@ -996,7 +996,6 @@
   cursor: pointer;
   font-weight: 800;
   font-size: 13px;
-  box-shadow: 0 0 30px rgba(19, 236, 91, 0.25);
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
@@ -1435,7 +1434,15 @@
   font-weight: 800;
 }
 
+.finish-player-card__avatar--goalkeeper {
+  border-color: #facc15;
+}
+
 .finish-player-card__avatar--opponent {
+  border-color: var(--neon-green);
+}
+
+.finish-player-card__avatar--opponent-goalkeeper {
   border-color: #facc15;
 }
 

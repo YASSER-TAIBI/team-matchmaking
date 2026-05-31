@@ -60,6 +60,8 @@ export class MatchesComponent implements OnInit {
   showCancelToggleConfirmDialog = false;
   cancelTogglePending = false;
   cancelToggleTarget: CancelConfirmationCaptain | null = null;
+  showFinishValidationWarningDialog = false;
+  showFinishConfirmationDialog = false;
 
   ngOnInit(): void {
     this.loadCurrentUserContext();
@@ -153,6 +155,14 @@ export class MatchesComponent implements OnInit {
     return this.finishMatchPlayers.filter(player => player.team === 'opponent');
   }
 
+  get myTeamPlayedCount(): number {
+    return this.myTeamFinishPlayers.filter(player => player.played).length;
+  }
+
+  get opponentTeamPlayedCount(): number {
+    return this.opponentTeamFinishPlayers.filter(player => player.played).length;
+  }
+
   get isCancelMatchTabDisabled(): boolean {
     const matchStart = this.getMatchStartDate();
 
@@ -231,6 +241,8 @@ export class MatchesComponent implements OnInit {
 
   closeFinishResultModal(): void {
     this.isFinishResultModalOpen = false;
+    this.showFinishValidationWarningDialog = false;
+    this.showFinishConfirmationDialog = false;
   }
 
   openCancelConfirmationModal(): void {
@@ -344,6 +356,54 @@ export class MatchesComponent implements OnInit {
     }
   }
 
+  submitFinishResult(): void {
+    this.isFinishResultModalOpen = false;
+
+    const hasMinimumPlayersPerTeam = this.myTeamPlayedCount >= 5 && this.opponentTeamPlayedCount >= 5;
+
+    if (!hasMinimumPlayersPerTeam) {
+      this.showFinishConfirmationDialog = false;
+      this.showFinishValidationWarningDialog = true;
+      return;
+    }
+
+    this.showFinishValidationWarningDialog = false;
+    this.showFinishConfirmationDialog = true;
+  }
+
+  cancelFinishValidationWarning(): void {
+    this.showFinishValidationWarningDialog = false;
+  }
+
+  confirmFinishValidationWarning(): void {
+    this.showFinishValidationWarningDialog = false;
+    this.isFinishResultModalOpen = true;
+  }
+
+  cancelFinishConfirmation(): void {
+    this.showFinishConfirmationDialog = false;
+  }
+
+  confirmFinishResult(): void {
+    this.showFinishConfirmationDialog = false;
+  }
+
+  get finishValidationWarningDetails(): string[] {
+    return [
+      `${this.myTeam?.name ?? 'Votre équipe'} : ${this.myTeamPlayedCount} joueur(s) sélectionné(s).`,
+      `${this.opponentTeam?.name ?? 'Équipe adverse'} : ${this.opponentTeamPlayedCount} joueur(s) sélectionné(s).`,
+      'Vous devez sélectionner minimum 5 joueurs par équipe.'
+    ];
+  }
+
+  get finishConfirmationDetails(): string[] {
+    return [
+      'Les informations saisies pour le résultat final du match seront bien prises en compte après votre confirmation.',
+      'Le score du match, les joueurs ayant participé sur le terrain ainsi que les buteurs enregistrés seront sauvegardés.',
+      'Vous pourrez ensuite consulter ces informations dans l’onglet Historique.'
+    ];
+  }
+
   setMatchActionTab(tab: MatchActionTab): void {
     if (!this.isCurrentUserCaptain) {
       return;
@@ -375,6 +435,8 @@ export class MatchesComponent implements OnInit {
         this.cancelConfirmationCaptains = [];
         this.cancelToggleTarget = null;
         this.showCancelToggleConfirmDialog = false;
+        this.showFinishValidationWarningDialog = false;
+        this.showFinishConfirmationDialog = false;
         this.cancelTogglePending = false;
         this.isLoading = false;
       }

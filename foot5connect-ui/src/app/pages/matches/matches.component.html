@@ -391,6 +391,30 @@
       (cancelled)="cancelCancelCaptainConfirmation()">
     </app-confirm-dialog>
 
+    <app-confirm-dialog
+      [visible]="showFinishValidationWarningDialog"
+      title="Sélection incomplète des joueurs"
+      message="Vous devez sélectionner minimum 5 joueurs par équipe avant de finaliser le match."
+      [details]="finishValidationWarningDetails"
+      confirmText="Compris"
+      cancelText="Fermer"
+      icon="warning"
+      (confirmed)="confirmFinishValidationWarning()"
+      (cancelled)="cancelFinishValidationWarning()">
+    </app-confirm-dialog>
+
+    <app-confirm-dialog
+      [visible]="showFinishConfirmationDialog"
+      title="Confirmer la fin du match"
+      message="Voulez-vous vraiment confirmer la fin du match ?"
+      [details]="finishConfirmationDetails"
+      confirmText="Confirmer"
+      cancelText="Annuler"
+      icon="flag"
+      (confirmed)="confirmFinishResult()"
+      (cancelled)="cancelFinishConfirmation()">
+    </app-confirm-dialog>
+
     @if (isFinishResultModalOpen && isCurrentUserCaptain) {
       <div class="finish-result-modal-overlay" (click)="closeFinishResultModal()">
         <div class="finish-result-modal" (click)="$event.stopPropagation()">
@@ -439,7 +463,7 @@
                     @for (player of myTeamFinishPlayers; track player.memberId) {
                       <div class="finish-player-card" [class.finish-player-card--inactive]="!player.played">
                         <div class="finish-player-card__identity">
-                          <span class="finish-player-card__avatar">{{ player.initials }}</span>
+                          <span class="finish-player-card__avatar" [class.finish-player-card__avatar--goalkeeper]="player.role === 'Gardien'">{{ player.initials }}</span>
                           <div>
                             <p class="finish-player-card__name">
                               <span>{{ player.fullName }}</span>
@@ -478,7 +502,7 @@
                     @for (player of opponentTeamFinishPlayers; track player.memberId) {
                       <div class="finish-player-card finish-player-card--opponent" [class.finish-player-card--inactive]="!player.played">
                         <div class="finish-player-card__identity">
-                          <span class="finish-player-card__avatar finish-player-card__avatar--opponent">{{ player.initials }}</span>
+                          <span class="finish-player-card__avatar finish-player-card__avatar--opponent" [class.finish-player-card__avatar--opponent-goalkeeper]="player.role === 'Gardien'">{{ player.initials }}</span>
                           <div>
                             <p class="finish-player-card__name">
                               <span>{{ player.fullName }}</span>
@@ -510,7 +534,7 @@
             </div>
 
             <div class="finish-result-modal__footer">
-              <button type="button" class="match-action-cta finish-result-modal__submit">
+              <button type="button" class="match-action-cta finish-result-modal__submit" (click)="submitFinishResult()">
                 Valider les résultats et finaliser
               </button>
             </div>
