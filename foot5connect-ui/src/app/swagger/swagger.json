@@ -108,6 +108,36 @@
         }
       }
     },
+    "/matches/me/current-dual-match/cancel-confirmation": {
+      "put": {
+        "tags": [
+          "match-controller"
+        ],
+        "operationId": "confirmCurrentDualMatchCancellation",
+        "parameters": [
+          {
+            "name": "confirmed",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentDualMatchDetailsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/{id}/availability": {
       "post": {
         "tags": [
@@ -998,6 +1028,31 @@
           }
         }
       },
+      "CurrentDualMatchDetailsDto": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "matchDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "myTeam": {
+            "$ref": "#/components/schemas/TeamDto"
+          },
+          "opponentTeam": {
+            "$ref": "#/components/schemas/TeamDto"
+          }
+        }
+      },
       "DisponibilityDetailDto": {
         "type": "object",
         "properties": {
@@ -1249,31 +1304,6 @@
           },
           "opponentTeamLogoUrl": {
             "type": "string"
-          }
-        }
-      },
-      "CurrentDualMatchDetailsDto": {
-        "type": "object",
-        "properties": {
-          "matchId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "matchDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "startTime": {
-            "type": "string"
-          },
-          "location": {
-            "type": "string"
-          },
-          "myTeam": {
-            "$ref": "#/components/schemas/TeamDto"
-          },
-          "opponentTeam": {
-            "$ref": "#/components/schemas/TeamDto"
           }
         }
       },

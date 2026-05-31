@@ -2,6 +2,8 @@ package com.yazzer.foot5connect.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,5 +28,11 @@ public class MatchController {
     @GetMapping("/me/current-dual-match")
     public ResponseEntity<CurrentDualMatchDetailsDto> findMyCurrentDualMatchDetails() {
         return ResponseEntity.ok(matchService.findMyCurrentDualMatchDetails());
+    }
+
+    @PutMapping("/me/current-dual-match/cancel-confirmation")
+    public ResponseEntity<CurrentDualMatchDetailsDto> confirmCurrentDualMatchCancellation(@RequestParam boolean confirmed) {
+        // Cet endpoint centralise toute la logique métier d'annulation pour éviter de faire de simples updates isolés côté frontend.
+        return ResponseEntity.ok(matchService.confirmCurrentDualMatchCancellation(confirmed));
     }
 }

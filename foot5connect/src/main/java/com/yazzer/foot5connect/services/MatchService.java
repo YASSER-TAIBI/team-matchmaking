@@ -8,4 +8,6 @@ public interface MatchService {
     CurrentMatchDto findMyCurrentMatch();
 
     CurrentDualMatchDetailsDto findMyCurrentDualMatchDetails();
+
+    CurrentDualMatchDetailsDto confirmCurrentDualMatchCancellation(boolean confirmed);
 }

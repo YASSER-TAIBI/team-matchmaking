@@ -3,7 +3,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { TeamService } from '../../services/teams/team.service';
 import { TeamMemberDto } from '../../services/models/team-member-dto';
 import { TeamDto } from '../../services/models/team-dto';
 import { MatchService } from '../../services/match/match.service';
@@ -43,7 +42,6 @@ interface CancelConfirmationCaptain {
 export class MatchesComponent implements OnInit {
 
   private matchService = inject(MatchService);
-  private teamService = inject(TeamService);
   private sanitizer = inject(DomSanitizer);
   private userService = inject(UserService);
 
@@ -270,15 +268,20 @@ export class MatchesComponent implements OnInit {
     this.cancelTogglePending = true;
     this.showCancelToggleConfirmDialog = false;
 
-    this.teamService.updateTeam({ isAnnuleMatch: nextValue }).subscribe({
-      next: (updatedTeam) => {
-        if (this.currentDualMatch?.myTeam) {
-          this.currentDualMatch = {
-            ...this.currentDualMatch,
-            myTeam: updatedTeam
-          };
+    this.matchService.confirmCurrentDualMatchCancellation(nextValue).subscribe({
+      next: (updatedMatch) => {
+        // Si le backend renvoie null, cela veut dire que la seconde confirmation a déclenché l'annulation complète du match.
+        if (!updatedMatch) {
+          this.currentDualMatch = null;
+          this.cancelConfirmationCaptains = [];
+          this.cancelTogglePending = false;
+          this.cancelToggleTarget = null;
+          this.isCancelConfirmationModalOpen = false;
+          return;
         }
 
+        // Sinon, on reste dans l'état intermédiaire : seule la confirmation courante a été mémorisée.
+        this.currentDualMatch = updatedMatch;
         this.initializeCancelConfirmationState();
         this.cancelTogglePending = false;
         this.cancelToggleTarget = null;
