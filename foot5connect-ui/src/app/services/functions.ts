@@ -31,6 +31,14 @@ export type { FindMemberInvitations$Params } from './fn/team-invitation-controll
 export { findMemberInvitations } from './fn/team-invitation-controller/find-member-invitations';
 export type { FindMyInvitations$Params } from './fn/team-invitation-controller/find-my-invitations';
 export { findMyInvitations } from './fn/team-invitation-controller/find-my-invitations';
+export type { FinishCurrentDualMatch$Params } from './fn/match-controller/finish-current-dual-match';
+export { finishCurrentDualMatch } from './fn/match-controller/finish-current-dual-match';
+export type { ConfirmCurrentDualMatchCancellation$Params } from './fn/match-controller/confirm-current-dual-match-cancellation';
+export { confirmCurrentDualMatchCancellation } from './fn/match-controller/confirm-current-dual-match-cancellation';
+export type { FindMyCurrentMatch$Params } from './fn/match-controller/find-my-current-match';
+export { findMyCurrentMatch } from './fn/match-controller/find-my-current-match';
+export type { FindMyCurrentDualMatchDetails$Params } from './fn/match-controller/find-my-current-dual-match-details';
+export { findMyCurrentDualMatchDetails } from './fn/match-controller/find-my-current-dual-match-details';
 export type { SaveAvailability$Params } from './fn/user-controller/save-availability';
 export { saveAvailability } from './fn/user-controller/save-availability';
 export type { SetUnavailable$Params } from './fn/user-controller/set-unavailable';
@@ -57,7 +65,3 @@ export type { ValidatePasswordResetToken$Params } from './fn/authentication-cont
 export { validatePasswordResetToken } from './fn/authentication-controller/validate-password-reset-token';
 export type { ConfirmToken$Params } from './fn/authentication-controller/confirm-token';
 export { confirmToken } from './fn/authentication-controller/confirm-token';
-export type { FindMyCurrentMatch$Params } from './fn/match-controller/find-my-current-match';
-export { findMyCurrentMatch } from './fn/match-controller/find-my-current-match';
-export type { FindMyCurrentDualMatchDetails$Params } from './fn/match-controller/find-my-current-dual-match-details';
-export { findMyCurrentDualMatchDetails } from './fn/match-controller/find-my-current-dual-match-details';

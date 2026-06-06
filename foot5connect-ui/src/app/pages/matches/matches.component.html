@@ -391,6 +391,30 @@
       (cancelled)="cancelCancelCaptainConfirmation()">
     </app-confirm-dialog>
 
+    <app-confirm-dialog
+      [visible]="showFinishValidationWarningDialog"
+      title="Sélection incomplète des joueurs"
+      message="Vous devez sélectionner minimum 5 joueurs par équipe avant de finaliser le match."
+      [details]="finishValidationWarningDetails"
+      confirmText="Compris"
+      cancelText="Annuler"
+      icon="warning"
+      (confirmed)="confirmFinishValidationWarning()"
+      (cancelled)="cancelFinishValidationWarning()">
+    </app-confirm-dialog>
+
+    <app-confirm-dialog
+      [visible]="showFinishConfirmationDialog"
+      title="Confirmer la fin du match"
+      message="Voulez-vous vraiment confirmer la fin du match ?"
+      [details]="finishConfirmationDetails"
+      confirmText="Confirmer"
+      cancelText="Annuler"
+      icon="flag"
+      (confirmed)="confirmFinishResult()"
+      (cancelled)="cancelFinishConfirmation()">
+    </app-confirm-dialog>
+
     @if (isFinishResultModalOpen && isCurrentUserCaptain) {
       <div class="finish-result-modal-overlay" (click)="closeFinishResultModal()">
         <div class="finish-result-modal" (click)="$event.stopPropagation()">
@@ -405,112 +429,115 @@
             </button>
           </div>
 
-          <div class="finish-result-modal__section">
-            <p class="finish-result-modal__section-label">Score final</p>
+          <div class="finish-result-modal__scroll">
 
-            <div class="finish-scoreboard">
-              <div class="finish-scoreboard__team">
-                <span class="finish-scoreboard__team-name">{{ myTeam?.name ?? 'Votre équipe' }}</span>
-                <input type="number" min="0" class="finish-scoreboard__input" [(ngModel)]="myTeamFinalScore" [ngModelOptions]="{ standalone: true }" />
-              </div>
+            <div class="finish-result-modal__section">
+              <p class="finish-result-modal__section-label">Score final</p>
 
-              <div class="finish-scoreboard__divider">-</div>
+              <div class="finish-scoreboard">
+                <div class="finish-scoreboard__team">
+                  <span class="finish-scoreboard__team-name">{{ myTeam?.name ?? 'Votre équipe' }}</span>
+                  <input type="number" min="0" class="finish-scoreboard__input" [(ngModel)]="myTeamFinalScore" [ngModelOptions]="{ standalone: true }" />
+                </div>
 
-              <div class="finish-scoreboard__team">
-                <span class="finish-scoreboard__team-name">{{ opponentTeam?.name ?? 'Équipe adverse' }}</span>
-                <input type="number" min="0" class="finish-scoreboard__input" [(ngModel)]="opponentTeamFinalScore" [ngModelOptions]="{ standalone: true }" />
+                <div class="finish-scoreboard__divider">-</div>
+
+                <div class="finish-scoreboard__team">
+                  <span class="finish-scoreboard__team-name">{{ opponentTeam?.name ?? 'Équipe adverse' }}</span>
+                  <input type="number" min="0" class="finish-scoreboard__input" [(ngModel)]="opponentTeamFinalScore" [ngModelOptions]="{ standalone: true }" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="finish-result-modal__section">
-            <p class="finish-result-modal__section-label">Participation et buteurs</p>
+            <div class="finish-result-modal__section">
+              <p class="finish-result-modal__section-label">Participation et buteurs</p>
 
-            <div class="finish-player-columns">
-              <section class="finish-player-group">
-                <div class="finish-player-group__header">
-                  <h3 class="finish-player-group__title">{{ myTeam?.name ?? 'Votre équipe' }}</h3>
-                  <span class="finish-player-group__meta">{{ myTeamFinishPlayers.length }} joueurs</span>
-                </div>
+              <div class="finish-player-columns">
+                <section class="finish-player-group">
+                  <div class="finish-player-group__header">
+                    <h3 class="finish-player-group__title">{{ myTeam?.name ?? 'Votre équipe' }}</h3>
+                    <span class="finish-player-group__meta">{{ myTeamFinishPlayers.length }} joueurs</span>
+                  </div>
 
-                <div class="finish-player-group__list">
-                  @for (player of myTeamFinishPlayers; track player.memberId) {
-                    <div class="finish-player-card" [class.finish-player-card--inactive]="!player.played">
-                      <div class="finish-player-card__identity">
-                        <span class="finish-player-card__avatar">{{ player.initials }}</span>
-                        <div>
-                          <p class="finish-player-card__name">
-                            <span>{{ player.fullName }}</span>
-                            @if (player.captain) {
-                              <span class="finish-player-card__captain">★</span>
-                            }
-                          </p>
-                          <p class="finish-player-card__role">{{ player.role }}</p>
+                  <div class="finish-player-group__list">
+                    @for (player of myTeamFinishPlayers; track player.memberId) {
+                      <div class="finish-player-card" [class.finish-player-card--inactive]="!player.played">
+                        <div class="finish-player-card__identity">
+                          <span class="finish-player-card__avatar" [class.finish-player-card__avatar--goalkeeper]="player.role === 'Gardien'">{{ player.initials }}</span>
+                          <div>
+                            <p class="finish-player-card__name">
+                              <span>{{ player.fullName }}</span>
+                              @if (player.captain) {
+                                <span class="finish-player-card__captain">★</span>
+                              }
+                            </p>
+                            <p class="finish-player-card__role">{{ player.role }}</p>
+                          </div>
+                        </div>
+
+                        <div class="finish-player-card__actions">
+                          <label class="finish-player-toggle">
+                            <input type="checkbox" [(ngModel)]="player.played" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onPlayerParticipationChange(player)" />
+                            <span>A joué</span>
+                          </label>
+
+                          <div class="finish-goals-stepper">
+                            <button type="button" class="finish-goals-stepper__btn" (click)="decrementPlayerGoal(player)">-</button>
+                            <span class="finish-goals-stepper__value">{{ player.goals }}</span>
+                            <button type="button" class="finish-goals-stepper__btn" (click)="incrementPlayerGoal(player)">+</button>
+                          </div>
                         </div>
                       </div>
+                    }
+                  </div>
+                </section>
 
-                      <div class="finish-player-card__actions">
-                        <label class="finish-player-toggle">
-                          <input type="checkbox" [(ngModel)]="player.played" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onPlayerParticipationChange(player)" />
-                          <span>A joué</span>
-                        </label>
+                <section class="finish-player-group finish-player-group--opponent">
+                  <div class="finish-player-group__header">
+                    <h3 class="finish-player-group__title">{{ opponentTeam?.name ?? 'Équipe adverse' }}</h3>
+                    <span class="finish-player-group__meta">{{ opponentTeamFinishPlayers.length }} joueurs</span>
+                  </div>
 
-                        <div class="finish-goals-stepper">
-                          <button type="button" class="finish-goals-stepper__btn" (click)="decrementPlayerGoal(player)">-</button>
-                          <span class="finish-goals-stepper__value">{{ player.goals }}</span>
-                          <button type="button" class="finish-goals-stepper__btn" (click)="incrementPlayerGoal(player)">+</button>
+                  <div class="finish-player-group__list">
+                    @for (player of opponentTeamFinishPlayers; track player.memberId) {
+                      <div class="finish-player-card finish-player-card--opponent" [class.finish-player-card--inactive]="!player.played">
+                        <div class="finish-player-card__identity">
+                          <span class="finish-player-card__avatar finish-player-card__avatar--opponent" [class.finish-player-card__avatar--opponent-goalkeeper]="player.role === 'Gardien'">{{ player.initials }}</span>
+                          <div>
+                            <p class="finish-player-card__name">
+                              <span>{{ player.fullName }}</span>
+                              @if (player.captain) {
+                                <span class="finish-player-card__captain">★</span>
+                              }
+                            </p>
+                            <p class="finish-player-card__role">{{ player.role }}</p>
+                          </div>
+                        </div>
+
+                        <div class="finish-player-card__actions">
+                          <label class="finish-player-toggle">
+                            <input type="checkbox" [(ngModel)]="player.played" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onPlayerParticipationChange(player)" />
+                            <span>A joué</span>
+                          </label>
+
+                          <div class="finish-goals-stepper">
+                            <button type="button" class="finish-goals-stepper__btn" (click)="decrementPlayerGoal(player)">-</button>
+                            <span class="finish-goals-stepper__value">{{ player.goals }}</span>
+                            <button type="button" class="finish-goals-stepper__btn" (click)="incrementPlayerGoal(player)">+</button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  }
-                </div>
-              </section>
-
-              <section class="finish-player-group finish-player-group--opponent">
-                <div class="finish-player-group__header">
-                  <h3 class="finish-player-group__title">{{ opponentTeam?.name ?? 'Équipe adverse' }}</h3>
-                  <span class="finish-player-group__meta">{{ opponentTeamFinishPlayers.length }} joueurs</span>
-                </div>
-
-                <div class="finish-player-group__list">
-                  @for (player of opponentTeamFinishPlayers; track player.memberId) {
-                    <div class="finish-player-card finish-player-card--opponent" [class.finish-player-card--inactive]="!player.played">
-                      <div class="finish-player-card__identity">
-                        <span class="finish-player-card__avatar finish-player-card__avatar--opponent">{{ player.initials }}</span>
-                        <div>
-                          <p class="finish-player-card__name">
-                            <span>{{ player.fullName }}</span>
-                            @if (player.captain) {
-                              <span class="finish-player-card__captain">★</span>
-                            }
-                          </p>
-                          <p class="finish-player-card__role">{{ player.role }}</p>
-                        </div>
-                      </div>
-
-                      <div class="finish-player-card__actions">
-                        <label class="finish-player-toggle">
-                          <input type="checkbox" [(ngModel)]="player.played" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onPlayerParticipationChange(player)" />
-                          <span>A joué</span>
-                        </label>
-
-                        <div class="finish-goals-stepper">
-                          <button type="button" class="finish-goals-stepper__btn" (click)="decrementPlayerGoal(player)">-</button>
-                          <span class="finish-goals-stepper__value">{{ player.goals }}</span>
-                          <button type="button" class="finish-goals-stepper__btn" (click)="incrementPlayerGoal(player)">+</button>
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </section>
+                    }
+                  </div>
+                </section>
+              </div>
             </div>
-          </div>
 
-          <div class="finish-result-modal__footer">
-            <button type="button" class="match-action-cta finish-result-modal__submit">
-              Valider les résultats et finaliser
-            </button>
+            <div class="finish-result-modal__footer">
+              <button type="button" class="match-action-cta finish-result-modal__submit" (click)="submitFinishResult()">
+                Valider les résultats et finaliser
+              </button>
+            </div>
           </div>
         </div>
       </div>

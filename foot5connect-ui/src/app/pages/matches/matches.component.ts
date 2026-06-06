@@ -3,17 +3,18 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { TeamService } from '../../services/teams/team.service';
 import { TeamMemberDto } from '../../services/models/team-member-dto';
 import { TeamDto } from '../../services/models/team-dto';
 import { MatchService } from '../../services/match/match.service';
 import { CurrentDualMatchDetailsDto } from '../../services/models/current-dual-match-details-dto';
 import { UserService } from '../../services/users/user.service';
+import { TeamService } from '../../services/teams/team.service';
 
 type MatchActionTab = 'cancel' | 'finish';
 
 interface FinishMatchPlayerEntry {
   memberId: number | string;
+  userId: number | null;
   team: 'my' | 'opponent';
   fullName: string;
   initials: string;
@@ -43,9 +44,9 @@ interface CancelConfirmationCaptain {
 export class MatchesComponent implements OnInit {
 
   private matchService = inject(MatchService);
-  private teamService = inject(TeamService);
   private sanitizer = inject(DomSanitizer);
   private userService = inject(UserService);
+  private teamService = inject(TeamService);
 
   currentDualMatch: CurrentDualMatchDetailsDto | null = null;
   isLoading = false;
@@ -62,6 +63,9 @@ export class MatchesComponent implements OnInit {
   showCancelToggleConfirmDialog = false;
   cancelTogglePending = false;
   cancelToggleTarget: CancelConfirmationCaptain | null = null;
+  showFinishValidationWarningDialog = false;
+  showFinishConfirmationDialog = false;
+  finishResultPending = false;
 
   ngOnInit(): void {
     this.loadCurrentUserContext();
@@ -155,6 +159,14 @@ export class MatchesComponent implements OnInit {
     return this.finishMatchPlayers.filter(player => player.team === 'opponent');
   }
 
+  get myTeamPlayedCount(): number {
+    return this.myTeamFinishPlayers.filter(player => player.played).length;
+  }
+
+  get opponentTeamPlayedCount(): number {
+    return this.opponentTeamFinishPlayers.filter(player => player.played).length;
+  }
+
   get isCancelMatchTabDisabled(): boolean {
     const matchStart = this.getMatchStartDate();
 
@@ -233,6 +245,8 @@ export class MatchesComponent implements OnInit {
 
   closeFinishResultModal(): void {
     this.isFinishResultModalOpen = false;
+    this.showFinishValidationWarningDialog = false;
+    this.showFinishConfirmationDialog = false;
   }
 
   openCancelConfirmationModal(): void {
@@ -270,15 +284,21 @@ export class MatchesComponent implements OnInit {
     this.cancelTogglePending = true;
     this.showCancelToggleConfirmDialog = false;
 
-    this.teamService.updateTeam({ isAnnuleMatch: nextValue }).subscribe({
-      next: (updatedTeam) => {
-        if (this.currentDualMatch?.myTeam) {
-          this.currentDualMatch = {
-            ...this.currentDualMatch,
-            myTeam: updatedTeam
-          };
+    this.matchService.confirmCurrentDualMatchCancellation(nextValue).subscribe({
+      next: (updatedMatch) => {
+        // Si le backend renvoie null, cela veut dire que la seconde confirmation a déclenché l'annulation complète du match.
+        if (!updatedMatch) {
+          this.currentDualMatch = null;
+          this.cancelConfirmationCaptains = [];
+          this.cancelTogglePending = false;
+          this.cancelToggleTarget = null;
+          this.isCancelConfirmationModalOpen = false;
+          this.teamService.notifyTeamMembershipChanged();
+          return;
         }
 
+        // Sinon, on reste dans l'état intermédiaire : seule la confirmation courante a été mémorisée.
+        this.currentDualMatch = updatedMatch;
         this.initializeCancelConfirmationState();
         this.cancelTogglePending = false;
         this.cancelToggleTarget = null;
@@ -341,6 +361,96 @@ export class MatchesComponent implements OnInit {
     }
   }
 
+  submitFinishResult(): void {
+    this.isFinishResultModalOpen = false;
+
+    const hasMinimumPlayersPerTeam = this.myTeamPlayedCount >= 5 && this.opponentTeamPlayedCount >= 5;
+
+    if (!hasMinimumPlayersPerTeam) {
+      this.showFinishConfirmationDialog = false;
+      this.showFinishValidationWarningDialog = true;
+      return;
+    }
+
+    this.showFinishValidationWarningDialog = false;
+    this.showFinishConfirmationDialog = true;
+  }
+
+  cancelFinishValidationWarning(): void {
+    this.showFinishValidationWarningDialog = false;
+  }
+
+  confirmFinishValidationWarning(): void {
+    this.showFinishValidationWarningDialog = false;
+    this.isFinishResultModalOpen = true;
+  }
+
+  cancelFinishConfirmation(): void {
+    if (this.finishResultPending) {
+      return;
+    }
+
+    this.showFinishConfirmationDialog = false;
+  }
+
+  confirmFinishResult(): void {
+    if (this.finishResultPending || !this.myTeam?.id || !this.opponentTeam?.id) {
+      return;
+    }
+
+    const request = {
+      myTeamId: this.myTeam.id,
+      opponentTeamId: this.opponentTeam.id,
+      myTeamScore: Math.max(0, Number(this.myTeamFinalScore) || 0),
+      opponentTeamScore: Math.max(0, Number(this.opponentTeamFinalScore) || 0),
+      players: this.finishMatchPlayers
+        .filter(player => player.userId != null)
+        .map(player => ({
+          userId: player.userId as number,
+          played: player.played,
+          goals: Math.max(0, Number(player.goals) || 0)
+        }))
+    };
+
+    this.finishResultPending = true;
+
+    this.matchService.finishCurrentDualMatch(request).subscribe({
+      next: () => {
+        this.currentDualMatch = null;
+        this.finishMatchPlayers = [];
+        this.cancelConfirmationCaptains = [];
+        this.finishResultPending = false;
+        this.showFinishConfirmationDialog = false;
+        this.isFinishResultModalOpen = false;
+        this.teamService.notifyTeamMembershipChanged();
+      },
+      error: (err: any) => {
+        console.error('Erreur lors de la finalisation du match', err);
+        this.finishResultPending = false;
+        this.showFinishConfirmationDialog = false;
+        this.isFinishResultModalOpen = true;
+      }
+    });
+
+    this.showFinishConfirmationDialog = false;
+  }
+
+  get finishValidationWarningDetails(): string[] {
+    return [
+      `${this.myTeam?.name ?? 'Votre équipe'} : ${this.myTeamPlayedCount} joueur(s) sélectionné(s).`,
+      `${this.opponentTeam?.name ?? 'Équipe adverse'} : ${this.opponentTeamPlayedCount} joueur(s) sélectionné(s).`,
+      'Vous devez sélectionner minimum 5 joueurs par équipe.'
+    ];
+  }
+
+  get finishConfirmationDetails(): string[] {
+    return [
+      'Les informations saisies pour le résultat final du match seront bien prises en compte après votre confirmation.',
+      'Le score du match, les joueurs ayant participé sur le terrain ainsi que les buteurs enregistrés seront sauvegardés.',
+      'Vous pourrez ensuite consulter ces informations dans l’onglet Historique.'
+    ];
+  }
+
   setMatchActionTab(tab: MatchActionTab): void {
     if (!this.isCurrentUserCaptain) {
       return;
@@ -372,7 +482,10 @@ export class MatchesComponent implements OnInit {
         this.cancelConfirmationCaptains = [];
         this.cancelToggleTarget = null;
         this.showCancelToggleConfirmDialog = false;
+        this.showFinishValidationWarningDialog = false;
+        this.showFinishConfirmationDialog = false;
         this.cancelTogglePending = false;
+        this.finishResultPending = false;
         this.isLoading = false;
       }
     });
@@ -510,6 +623,7 @@ export class MatchesComponent implements OnInit {
   private buildFinishMatchEntries(team: TeamDto | null, side: 'my' | 'opponent'): FinishMatchPlayerEntry[] {
     return (team?.members ?? []).map((member, index) => ({
       memberId: member.id ?? `${side}-${index}`,
+      userId: member.userId ?? null,
       team: side,
       fullName: this.getMemberFullName(member),
       initials: this.getMemberInitials(member),

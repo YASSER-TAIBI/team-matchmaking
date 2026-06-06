@@ -8,6 +8,8 @@ export type { CreateTeamInvitationRequest } from './models/create-team-invitatio
 export type { CurrentDualMatchDetailsDto } from './models/current-dual-match-details-dto';
 export type { CurrentMatchDto } from './models/current-match-dto';
 export type { DisponibilityDetailDto } from './models/disponibility-detail-dto';
+export type { FinishCurrentDualMatchRequest } from './models/finish-current-dual-match-request';
+export type { FinishMatchPlayerResultDto } from './models/finish-match-player-result-dto';
 export type { PasswordResetDto } from './models/password-reset-dto';
 export type { PasswordResetRequest } from './models/password-reset-request';
 export type { TeamDto } from './models/team-dto';
