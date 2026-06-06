@@ -108,6 +108,29 @@
         }
       }
     },
+    "/matches/me/current-dual-match/finish": {
+      "put": {
+        "tags": [
+          "match-controller"
+        ],
+        "operationId": "finishCurrentDualMatch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinishCurrentDualMatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/matches/me/current-dual-match/cancel-confirmation": {
       "put": {
         "tags": [
@@ -1025,6 +1048,49 @@
           },
           "invitedUserLevel": {
             "type": "string"
+          }
+        }
+      },
+      "FinishCurrentDualMatchRequest": {
+        "type": "object",
+        "properties": {
+          "myTeamId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "opponentTeamId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "myTeamScore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "opponentTeamScore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "players": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinishMatchPlayerResultDto"
+            }
+          }
+        }
+      },
+      "FinishMatchPlayerResultDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "played": {
+            "type": "boolean"
+          },
+          "goals": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

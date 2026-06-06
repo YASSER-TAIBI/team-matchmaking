@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { ApiConfiguration } from '../api-configuration';
 import { createTeam, findCompleteTeamsInMyCity, findMyMemberTeam, hasMyTeamMembership } from '../functions';
 import { findMyTeam } from '../functions';
@@ -29,6 +29,13 @@ export class TeamService {
 
   private http = inject(HttpClient);
   private apiConfig = inject(ApiConfiguration);
+  private teamMembershipChangedSubject = new Subject<void>();
+
+  teamMembershipChanged$ = this.teamMembershipChangedSubject.asObservable();
+
+  notifyTeamMembershipChanged(): void {
+    this.teamMembershipChangedSubject.next();
+  }
 
   createTeam() {
     return createTeam(this.http, this.apiConfig.rootUrl)

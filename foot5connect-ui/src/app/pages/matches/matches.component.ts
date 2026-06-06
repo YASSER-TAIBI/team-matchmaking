@@ -8,11 +8,13 @@ import { TeamDto } from '../../services/models/team-dto';
 import { MatchService } from '../../services/match/match.service';
 import { CurrentDualMatchDetailsDto } from '../../services/models/current-dual-match-details-dto';
 import { UserService } from '../../services/users/user.service';
+import { TeamService } from '../../services/teams/team.service';
 
 type MatchActionTab = 'cancel' | 'finish';
 
 interface FinishMatchPlayerEntry {
   memberId: number | string;
+  userId: number | null;
   team: 'my' | 'opponent';
   fullName: string;
   initials: string;
@@ -44,6 +46,7 @@ export class MatchesComponent implements OnInit {
   private matchService = inject(MatchService);
   private sanitizer = inject(DomSanitizer);
   private userService = inject(UserService);
+  private teamService = inject(TeamService);
 
   currentDualMatch: CurrentDualMatchDetailsDto | null = null;
   isLoading = false;
@@ -62,6 +65,7 @@ export class MatchesComponent implements OnInit {
   cancelToggleTarget: CancelConfirmationCaptain | null = null;
   showFinishValidationWarningDialog = false;
   showFinishConfirmationDialog = false;
+  finishResultPending = false;
 
   ngOnInit(): void {
     this.loadCurrentUserContext();
@@ -289,6 +293,7 @@ export class MatchesComponent implements OnInit {
           this.cancelTogglePending = false;
           this.cancelToggleTarget = null;
           this.isCancelConfirmationModalOpen = false;
+          this.teamService.notifyTeamMembershipChanged();
           return;
         }
 
@@ -381,10 +386,52 @@ export class MatchesComponent implements OnInit {
   }
 
   cancelFinishConfirmation(): void {
+    if (this.finishResultPending) {
+      return;
+    }
+
     this.showFinishConfirmationDialog = false;
   }
 
   confirmFinishResult(): void {
+    if (this.finishResultPending || !this.myTeam?.id || !this.opponentTeam?.id) {
+      return;
+    }
+
+    const request = {
+      myTeamId: this.myTeam.id,
+      opponentTeamId: this.opponentTeam.id,
+      myTeamScore: Math.max(0, Number(this.myTeamFinalScore) || 0),
+      opponentTeamScore: Math.max(0, Number(this.opponentTeamFinalScore) || 0),
+      players: this.finishMatchPlayers
+        .filter(player => player.userId != null)
+        .map(player => ({
+          userId: player.userId as number,
+          played: player.played,
+          goals: Math.max(0, Number(player.goals) || 0)
+        }))
+    };
+
+    this.finishResultPending = true;
+
+    this.matchService.finishCurrentDualMatch(request).subscribe({
+      next: () => {
+        this.currentDualMatch = null;
+        this.finishMatchPlayers = [];
+        this.cancelConfirmationCaptains = [];
+        this.finishResultPending = false;
+        this.showFinishConfirmationDialog = false;
+        this.isFinishResultModalOpen = false;
+        this.teamService.notifyTeamMembershipChanged();
+      },
+      error: (err: any) => {
+        console.error('Erreur lors de la finalisation du match', err);
+        this.finishResultPending = false;
+        this.showFinishConfirmationDialog = false;
+        this.isFinishResultModalOpen = true;
+      }
+    });
+
     this.showFinishConfirmationDialog = false;
   }
 
@@ -438,6 +485,7 @@ export class MatchesComponent implements OnInit {
         this.showFinishValidationWarningDialog = false;
         this.showFinishConfirmationDialog = false;
         this.cancelTogglePending = false;
+        this.finishResultPending = false;
         this.isLoading = false;
       }
     });
@@ -575,6 +623,7 @@ export class MatchesComponent implements OnInit {
   private buildFinishMatchEntries(team: TeamDto | null, side: 'my' | 'opponent'): FinishMatchPlayerEntry[] {
     return (team?.members ?? []).map((member, index) => ({
       memberId: member.id ?? `${side}-${index}`,
+      userId: member.userId ?? null,
       team: side,
       fullName: this.getMemberFullName(member),
       initials: this.getMemberInitials(member),

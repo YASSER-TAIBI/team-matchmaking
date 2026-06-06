@@ -30,6 +30,10 @@ export class SidenavComponent {
     this.loadTeamMembership();
     this.syncTeamMenuWithUrl();
 
+    this.teamService.teamMembershipChanged$.subscribe(() => {
+      this.loadTeamMembership();
+    });
+
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event) => {

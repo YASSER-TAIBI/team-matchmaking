@@ -31,6 +31,8 @@ export type { FindMemberInvitations$Params } from './fn/team-invitation-controll
 export { findMemberInvitations } from './fn/team-invitation-controller/find-member-invitations';
 export type { FindMyInvitations$Params } from './fn/team-invitation-controller/find-my-invitations';
 export { findMyInvitations } from './fn/team-invitation-controller/find-my-invitations';
+export type { FinishCurrentDualMatch$Params } from './fn/match-controller/finish-current-dual-match';
+export { finishCurrentDualMatch } from './fn/match-controller/finish-current-dual-match';
 export type { ConfirmCurrentDualMatchCancellation$Params } from './fn/match-controller/confirm-current-dual-match-cancellation';
 export { confirmCurrentDualMatchCancellation } from './fn/match-controller/confirm-current-dual-match-cancellation';
 export type { FindMyCurrentMatch$Params } from './fn/match-controller/find-my-current-match';

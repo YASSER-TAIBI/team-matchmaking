@@ -7,7 +7,7 @@ import { ApiConfiguration } from '../api-configuration';
 import { map } from 'rxjs';
 
 import { confirmCurrentDualMatchCancellation, findMyCurrentDualMatchDetails, findMyCurrentMatch } from '../functions';
-
+import { FinishCurrentDualMatchRequest } from '../models';
 
 
 @Injectable({
@@ -49,6 +49,12 @@ export class MatchService {
     return confirmCurrentDualMatchCancellation(this.http, this.apiConfig.rootUrl, { confirmed })
 
     .pipe(map(res => res.body ?? null));
+
+  }
+
+  finishCurrentDualMatch(request: FinishCurrentDualMatchRequest) {
+
+    return this.http.put<void>(`${this.apiConfig.rootUrl}/matches/me/current-dual-match/finish`, request);
 
   }
 

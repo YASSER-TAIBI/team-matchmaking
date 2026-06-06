@@ -2,7 +2,9 @@ package com.yazzer.foot5connect.services.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -10,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.yazzer.foot5connect.dto.CurrentDualMatchDetailsDto;
 import com.yazzer.foot5connect.dto.CurrentMatchDto;
+import com.yazzer.foot5connect.dto.FinishCurrentDualMatchRequest;
+import com.yazzer.foot5connect.dto.FinishMatchPlayerResultDto;
 import com.yazzer.foot5connect.dto.TeamDto;
 import com.yazzer.foot5connect.models.AvailabilityStatus;
 import com.yazzer.foot5connect.models.Match;
@@ -173,6 +177,108 @@ public class MatchServiceImpl implements MatchService {
                 .build();
     }
 
+    @Override
+    @Transactional
+    public void finishCurrentDualMatch(FinishCurrentDualMatchRequest request) {
+        // On récupère l'utilisateur connecté pour identifier son équipe et vérifier qu'il finalise bien son match courant.
+        User currentUser = authenticatedUserService.getAuthenticatedUser();
+
+        // L'équipe courante est chargée avec ses membres afin de valider que l'utilisateur appartient à une équipe en match.
+        Team myTeam = teamRepository.findByMemberUserIdWithMembers(currentUser.getId())
+                .orElseThrow(() -> new IllegalStateException("Votre équipe courante est introuvable"));
+
+        if (myTeam.getStatus() != TeamStatus.IN_MATCH) {
+            throw new IllegalStateException("Votre équipe n'est pas dans un match en cours");
+        }
+
+        // Les ids des deux équipes sont obligatoires pour éviter d'associer un score à la mauvaise équipe.
+        if (request == null || request.getMyTeamId() == null || request.getOpponentTeamId() == null) {
+            throw new IllegalArgumentException("Les équipes du match sont obligatoires");
+        }
+
+        // On empêche un utilisateur de finaliser un match en envoyant l'id d'une autre équipe que la sienne.
+        if (!myTeam.getId().equals(request.getMyTeamId())) {
+            throw new IllegalStateException("L'équipe courante ne correspond pas aux données envoyées");
+        }
+
+        // Le match est verrouillé en écriture pour éviter deux finalisations simultanées du même match.
+        Match match = matchRepository.findByTeamIdAndStatusWithTeamsForUpdate(myTeam.getId(), MatchStatus.DUAL)
+                .orElseThrow(() -> new IllegalStateException("Aucun match dual en cours n'a été trouvé"));
+
+        // Un match dual doit contenir exactement deux équipes : l'équipe courante et l'équipe adverse.
+        List<Team> teams = new ArrayList<>(match.getTeams());
+        if (teams.size() != 2) {
+            throw new IllegalStateException("Le match courant doit contenir exactement deux équipes");
+        }
+
+        // On récupère l'équipe courante depuis le match verrouillé pour travailler sur les entités persistées.
+        Team persistedMyTeam = teams.stream()
+                .filter(team -> team.getId().equals(request.getMyTeamId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Votre équipe n'est pas rattachée au match courant"));
+
+        // On vérifie aussi que l'équipe adverse envoyée par le frontend appartient bien au même match.
+        Team opponentTeam = teams.stream()
+                .filter(team -> team.getId().equals(request.getOpponentTeamId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("L'équipe adverse n'est pas rattachée au match courant"));
+
+        // Les membres des deux équipes sont chargés avant suppression pour pouvoir mettre à jour les statistiques des users.
+        List<Long> teamIds = teams.stream()
+                .map(Team::getId)
+                .collect(Collectors.toList());
+        List<TeamMember> teamMembers = teamMemberRepository.findByTeam_IdIn(teamIds);
+
+        // Les résultats joueurs envoyés par le frontend sont indexés par userId pour retrouver rapidement buts et participation.
+        Map<Long, FinishMatchPlayerResultDto> submittedPlayersByUserId = Optional.ofNullable(request.getPlayers())
+                .orElseGet(List::of)
+                .stream()
+                .filter(player -> player.getUserId() != null)
+                .collect(Collectors.toMap(FinishMatchPlayerResultDto::getUserId, Function.identity(), (first, second) -> second));
+
+        // Les scores null sont sécurisés à 0 pour éviter une valeur invalide en base.
+        int myTeamScore = Optional.ofNullable(request.getMyTeamScore()).orElse(0);
+        int opponentTeamScore = Optional.ofNullable(request.getOpponentTeamScore()).orElse(0);
+
+        // Comme Match.teams est un Set sans ordre fiable, scoreTeamA correspond à l'équipe avec le plus petit id.
+        boolean myTeamIsTeamA = persistedMyTeam.getId().compareTo(opponentTeam.getId()) < 0;
+
+        // Le match est marqué comme terminé et les scores sont sauvegardés selon le mapping déterministe teamA/teamB.
+        match.setStatus(MatchStatus.TERMINE);
+        match.setScoreTeamA(myTeamIsTeamA ? myTeamScore : opponentTeamScore);
+        match.setScoreTeamB(myTeamIsTeamA ? opponentTeamScore : myTeamScore);
+        matchRepository.save(match);
+
+        // Les statistiques des deux équipes sont incrémentées selon le résultat : victoire, défaite ou nul.
+        applyFinishedTeamResult(persistedMyTeam, myTeamScore, opponentTeamScore);
+        applyFinishedTeamResult(opponentTeam, opponentTeamScore, myTeamScore);
+        teamRepository.saveAll(teams);
+
+        // On récupère tous les utilisateurs concernés pour remettre leur disponibilité et cumuler leurs statistiques.
+        List<User> impactedUsers = teamMembers.stream()
+                .map(TeamMember::getUser)
+                .filter(user -> user != null)
+                .toList();
+
+        for (User user : impactedUsers) {
+            // Si le joueur existe dans le payload, ses buts et son état "A joué" sont pris en compte.
+            FinishMatchPlayerResultDto playerResult = submittedPlayersByUserId.get(user.getId());
+            int goals = playerResult != null && playerResult.getGoals() != null ? Math.max(0, playerResult.getGoals()) : 0;
+            boolean played = playerResult != null && playerResult.isPlayed();
+
+            // Les compteurs sont cumulés : on ajoute les nouvelles valeurs sans écraser l'historique.
+            user.setAvailabilityStatus(AvailabilityStatus.INDISPONIBLE);
+            user.setTotalGoals(safeInteger(user.getTotalGoals()) + goals);
+            if (played) {
+                user.setTotalMatches(safeInteger(user.getTotalMatches()) + 1);
+            }
+        }
+        userRepository.saveAll(impactedUsers);
+
+        // Une fois les statistiques sauvegardées, les compositions du match terminé sont supprimées des deux équipes.
+        teamMemberRepository.deleteAllInBatch(teamMembers);
+    }
+
     private void cancelMatchAndResetTeams(Match match, List<Team> teams) {
         // On prépare la liste des ids d'équipes pour appliquer les suppressions et sélections en masse.
         List<Long> teamIds = teams.stream()
@@ -214,5 +320,32 @@ public class MatchServiceImpl implements MatchService {
 
         impactedUsers.forEach(user -> user.setAvailabilityStatus(AvailabilityStatus.INDISPONIBLE));
         userRepository.saveAll(impactedUsers);
+    }
+
+    private void applyFinishedTeamResult(Team team, int teamScore, int opponentScore) {
+        team.setStatus(TeamStatus.INACTIVE);
+        team.setIsAnnuleMatch(false);
+        team.setTotalMatches(safeInteger(team.getTotalMatches()) + 1);
+
+        if (teamScore > opponentScore) {
+            team.setMatchesWon(safeInteger(team.getMatchesWon()) + 1);
+        } else if (teamScore < opponentScore) {
+            team.setMatchesLost(safeInteger(team.getMatchesLost()) + 1);
+        } else {
+            team.setMatchesDrawn(safeInteger(team.getMatchesDrawn()) + 1);
+        }
+
+        team.setFormation(null);
+        team.setTarificationTerrain(null);
+        team.setTitleAddress(null);
+        team.setPitchAddress(null);
+        team.setPrix(null);
+        team.setStartTime(null);
+        team.setEndTime(null);
+        team.setAvailableDate(null);
+    }
+
+    private int safeInteger(Integer value) {
+        return value != null ? value : 0;
     }
 }
