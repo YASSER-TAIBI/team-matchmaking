@@ -83,7 +83,7 @@
           <span class="icon"><i class="fa-solid fa-people-arrows"></i></span>
           Dual Match
         </button>
-        <button class="mobile-submenu__item" type="button" (click)="closeMobileMenu()">
+        <button class="mobile-submenu__item" type="button" routerLink="/user/matches/history" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
           <span class="icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
           Historique
         </button>

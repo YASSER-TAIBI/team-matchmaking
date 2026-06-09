@@ -13,6 +13,7 @@ import { TeamConditionsComponent } from './pages/team-conditions/team-conditions
 import { TeamInvitationsComponent } from './pages/team-invitations/team-invitations.component';
 import { MatchesComponent } from './pages/matches/matches.component';
 import { AvailableTeamsComponent } from './pages/available-teams/available-teams.component';
+import { MatchHistoryComponent } from './pages/match-history/match-history.component';
 
 export const routes: Routes = [
   {
@@ -62,6 +63,10 @@ export const routes: Routes = [
       {
         path: 'matches/dual',
         component: MatchesComponent
+      },
+      {
+        path: 'matches/history',
+        component: MatchHistoryComponent
       },
       {
         path: 'invitations',
