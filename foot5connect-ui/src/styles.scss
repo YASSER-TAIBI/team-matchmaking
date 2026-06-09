@@ -28,6 +28,152 @@ input {
   --shadow-glow: 0 16px 32px rgba(53, 255, 122, 0.18);
 }
 
+:where(
+  .match-history-page__header,
+  .matches-page__header,
+  .players__header,
+  .invites__header,
+  .dashboard__header,
+  .team-page__header,
+  .team-create-header__top
+) {
+  display: flex !important;
+  // align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 20px !important;
+  margin: 0 !important;
+  padding-bottom: 10px !important;
+  text-align: left !important;
+}
+
+:where(
+  .match-history-page__titles,
+  .matches-page__titles,
+  .players__header > div,
+  .invites__header,
+  .dashboard__header > div,
+  .team-page__titles,
+  .team-create-header__titles
+) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+:where(
+  .match-history-page__title,
+  .matches-page__title,
+  .players__header h1,
+  .invites__header h1,
+  .dashboard__header h1,
+  .team-page__title,
+  .team-create-header__title
+) {
+  margin: 0 !important;
+  color: #f4fdf8 !important;
+  font-size: 34px !important;
+  font-weight: 900 !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.04em !important;
+  text-transform: uppercase !important;
+}
+
+:where(
+  .match-history-page__title,
+  .matches-page__title,
+  .players__header h1,
+  .invites__header h1,
+  .dashboard__header h1,
+  .team-page__title,
+  .team-create-header__title
+) span {
+  color: var(--neon-green) !important;
+}
+
+:where(
+  .match-history-page__subtitle,
+  .matches-page__subtitle,
+  .players__header p:not(.invite-success),
+  .invites__header p,
+  .dashboard__header p,
+  .team-create-header__subtitle
+) {
+  margin: 0 !important;
+  max-width: 760px !important;
+  color: var(--text-muted) !important;
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+}
+
+@media (max-width: 900px) {
+  :where(
+    .match-history-page__header,
+    .matches-page__header,
+    .players__header,
+    .invites__header,
+    .dashboard__header,
+    .team-page__header,
+    .team-create-header__top
+  ) {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  :where(
+    .match-history-page__title,
+    .matches-page__title,
+    .players__header h1,
+    .invites__header h1,
+    .dashboard__header h1,
+    .team-page__title,
+    .team-create-header__title
+  ) {
+    font-size: 30px !important;
+    line-height: 1.1 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  :where(
+    .match-history-page__header,
+    .matches-page__header,
+    .players__header,
+    .invites__header,
+    .dashboard__header,
+    .team-page__header,
+    .team-create-header__top
+  ) {
+    gap: 12px !important;
+  }
+
+  :where(
+    .match-history-page__title,
+    .matches-page__title,
+    .players__header h1,
+    .invites__header h1,
+    .dashboard__header h1,
+    .team-page__title,
+    .team-create-header__title
+  ) {
+    font-size: 25px !important;
+    line-height: 1.12 !important;
+  }
+
+  :where(
+    .match-history-page__subtitle,
+    .matches-page__subtitle,
+    .players__header p:not(.invite-success),
+    .invites__header p,
+    .dashboard__header p,
+    .team-create-header__subtitle
+  ) {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
+}
+
 .cdk-overlay-dark-backdrop {
     background: rgb(0 0 0 / 62%);
 }

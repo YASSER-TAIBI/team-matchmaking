@@ -1,0 +1,157 @@
+<section class="match-history-page">
+  <header class="match-history-page__header">
+    <div class="match-history-page__titles">
+      <h1 class="match-history-page__title">Historique des <span>matchs</span></h1>
+      <p class="match-history-page__subtitle">
+        Consultez rapidement vos derniers matchs, les scores, votre participation et les détails importants de chaque rencontre.
+      </p>
+    </div>
+  </header>
+
+  <section class="history-toolbar" aria-label="Filtres de l'historique des matchs">
+    <div class="history-toolbar__group history-toolbar__group--search">
+      <label class="history-toolbar__label" for="history-search">Recherche</label>
+      <div class="history-toolbar__control">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="history-search" class="history-toolbar__input" type="text" placeholder="Équipe, date, terrain..." />
+      </div>
+    </div>
+
+    <div class="history-toolbar__group history-toolbar__group--results">
+      <span class="history-toolbar__label">Résultat</span>
+      <div class="history-filters">
+        @for (filter of filters; track filter.value) {
+          <button
+            type="button"
+            class="history-filters__item"
+            [class.history-filters__item--active]="activeFilter === filter.value"
+            (click)="setFilter(filter.value)">
+            {{ filter.label }}
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+
+  <div class="history-list">
+    @for (match of filteredMatches; track match.id) {
+      <section class="history-section">
+        <h2 class="history-section__title">
+          <span class="history-section__dot"></span>
+          {{ match.period }}
+        </h2>
+
+        <article class="history-card" [class.history-card--expanded]="match.expanded">
+          <button type="button" class="history-card__summary" (click)="toggleMatch(match)">
+            <div class="history-card__badges">
+              <span class="history-card__relation">{{ match.relation }}</span>
+              <span
+                class="history-card__result"
+                [class.history-card__result--won]="match.result === 'won'"
+                [class.history-card__result--lost]="match.result === 'lost'"
+                [class.history-card__result--draw]="match.result === 'draw'">
+                <span class="material-symbols-outlined">{{ getResultIcon(match.result) }}</span>
+                {{ match.statusLabel }}
+              </span>
+            </div>
+
+            <div class="history-scoreboard">
+              <div class="history-team history-team--home">
+                <div class="history-team__crest history-team__crest--accent">{{ match.myTeam.initials }}</div>
+                <p class="history-team__name">{{ match.myTeam.name }}</p>
+              </div>
+
+              <div class="history-score">
+                <div class="history-score__numbers">
+                  <span class="history-score__value history-score__value--accent">{{ match.myTeam.score }}</span>
+                  <span class="history-score__vs">vs</span>
+                  <span class="history-score__value">{{ match.opponent.score }}</span>
+                </div>
+                <span class="history-score__state">FT</span>
+              </div>
+
+              <div class="history-team history-team--away">
+                <div class="history-team__crest">{{ match.opponent.initials }}</div>
+                <p class="history-team__name history-team__name--muted">{{ match.opponent.name }}</p>
+              </div>
+            </div>
+
+            <span class="history-card__chevron material-symbols-outlined" [class.history-card__chevron--open]="match.expanded">expand_more</span>
+          </button>
+
+          @if (match.expanded) {
+            <div class="history-card__details">
+              <div class="history-meta-grid">
+                <div class="history-meta">
+                  <span class="history-meta__label">Lieu</span>
+                  <span class="history-meta__value"><i class="fa-solid fa-location-dot"></i>{{ match.location }}</span>
+                </div>
+                <div class="history-meta">
+                  <span class="history-meta__label">Terrain</span>
+                  <span class="history-meta__value">{{ match.pitchType }}</span>
+                </div>
+                <div class="history-meta">
+                  <span class="history-meta__label">Frais</span>
+                  <span class="history-meta__value">{{ match.fee }}</span>
+                </div>
+                <div class="history-meta">
+                  <span class="history-meta__label">Participation</span>
+                  <span class="history-meta__value history-meta__value--accent"><i class="fa-solid fa-person-running"></i>{{ match.participation }}</span>
+                </div>
+              </div>
+
+              <div class="history-details-grid">
+                <section class="history-stats">
+                  <h3 class="history-stats__title">{{ match.myTeam.name }} Stats</h3>
+                  <p class="history-stats__label">Buteurs</p>
+                  <ul class="history-stats__list">
+                    @for (player of match.myTeam.goals; track player.name) {
+                      <li>
+                        <span>{{ player.name }} @if (player.isCaptain) { <small>(C)</small> }</span>
+                        <strong>{{ player.goals }}</strong>
+                      </li>
+                    }
+                  </ul>
+
+                  <p class="history-stats__label">Effectif</p>
+                  <div class="history-roster">
+                    @for (player of match.myTeam.roster; track player.name) {
+                      <span class="history-roster__pill" [class.history-roster__pill--you]="player.isCurrentUser" [class.history-roster__pill--sub]="player.isSubstitute">
+                        {{ player.name }}@if (player.isCaptain) { <small> (C)</small> }@if (player.isSubstitute) { <small> (Sub)</small> }
+                      </span>
+                    }
+                  </div>
+                </section>
+
+                <section class="history-stats history-stats--opponent">
+                  <h3 class="history-stats__title">{{ match.opponent.name }} Stats</h3>
+                  <p class="history-stats__label">Buteurs</p>
+                  <ul class="history-stats__list">
+                    @for (player of match.opponent.goals; track player.name) {
+                      <li>
+                        <span>{{ player.name }} @if (player.isCaptain) { <small>(C)</small> }</span>
+                        <strong>{{ player.goals }}</strong>
+                      </li>
+                    }
+                  </ul>
+
+                  <p class="history-stats__label">Capitaine</p>
+                  <div class="history-roster">
+                    @for (player of match.opponent.roster; track player.name) {
+                      <span class="history-roster__pill">{{ player.name }}@if (player.isCaptain) { <small> (C)</small> }</span>
+                    }
+                  </div>
+                </section>
+              </div>
+
+              <div class="history-notes">
+                <span class="history-notes__label">Notes du match</span>
+                <p>{{ match.notes }}</p>
+              </div>
+            </div>
+          }
+        </article>
+      </section>
+    }
+  </div>
+</section>
