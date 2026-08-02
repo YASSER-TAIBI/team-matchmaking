@@ -17,11 +17,15 @@ import com.yazzer.foot5connect.dto.FinishMatchPlayerResultDto;
 import com.yazzer.foot5connect.dto.TeamDto;
 import com.yazzer.foot5connect.models.AvailabilityStatus;
 import com.yazzer.foot5connect.models.Match;
+import com.yazzer.foot5connect.models.MatchPlayerResult;
 import com.yazzer.foot5connect.models.MatchStatus;
+import com.yazzer.foot5connect.models.MatchTeam;
+import com.yazzer.foot5connect.models.MatchTeamResult;
 import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamMember;
 import com.yazzer.foot5connect.models.TeamStatus;
 import com.yazzer.foot5connect.models.User;
+import com.yazzer.foot5connect.repositories.MatchPlayerResultRepository;
 import com.yazzer.foot5connect.repositories.MatchRepository;
 import com.yazzer.foot5connect.repositories.TeamMemberRepository;
 import com.yazzer.foot5connect.repositories.TeamRepository;
@@ -36,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 public class MatchServiceImpl implements MatchService {
 
     private final MatchRepository matchRepository;
+    private final MatchPlayerResultRepository matchPlayerResultRepository;
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
@@ -130,7 +135,7 @@ public class MatchServiceImpl implements MatchService {
         }
 
         // Un dual match valide doit toujours avoir exactement deux équipes.
-        List<Team> teams = new ArrayList<>(match.getTeams());
+        List<Team> teams = extractTeams(match);
         if (teams.size() != 2) {
             throw new IllegalStateException("Le match courant doit contenir exactement deux équipes");
         }
@@ -206,7 +211,7 @@ public class MatchServiceImpl implements MatchService {
                 .orElseThrow(() -> new IllegalStateException("Aucun match dual en cours n'a été trouvé"));
 
         // Un match dual doit contenir exactement deux équipes : l'équipe courante et l'équipe adverse.
-        List<Team> teams = new ArrayList<>(match.getTeams());
+        List<Team> teams = extractTeams(match);
         if (teams.size() != 2) {
             throw new IllegalStateException("Le match courant doit contenir exactement deux équipes");
         }
@@ -240,13 +245,9 @@ public class MatchServiceImpl implements MatchService {
         int myTeamScore = Optional.ofNullable(request.getMyTeamScore()).orElse(0);
         int opponentTeamScore = Optional.ofNullable(request.getOpponentTeamScore()).orElse(0);
 
-        // Comme Match.teams est un Set sans ordre fiable, scoreTeamA correspond à l'équipe avec le plus petit id.
-        boolean myTeamIsTeamA = persistedMyTeam.getId().compareTo(opponentTeam.getId()) < 0;
-
-        // Le match est marqué comme terminé et les scores sont sauvegardés selon le mapping déterministe teamA/teamB.
         match.setStatus(MatchStatus.TERMINE);
-        match.setScoreTeamA(myTeamIsTeamA ? myTeamScore : opponentTeamScore);
-        match.setScoreTeamB(myTeamIsTeamA ? opponentTeamScore : myTeamScore);
+        applyMatchTeamResult(match, persistedMyTeam.getId(), myTeamScore, opponentTeamScore);
+        applyMatchTeamResult(match, opponentTeam.getId(), opponentTeamScore, myTeamScore);
         matchRepository.save(match);
 
         // Les statistiques des deux équipes sont incrémentées selon le résultat : victoire, défaite ou nul.
@@ -275,6 +276,31 @@ public class MatchServiceImpl implements MatchService {
         }
         userRepository.saveAll(impactedUsers);
 
+        List<MatchPlayerResult> playerResults = teamMembers.stream()
+                .filter(teamMember -> teamMember.getUser() != null && teamMember.getTeam() != null)
+                .<MatchPlayerResult>map(teamMember -> {
+                    User user = teamMember.getUser();
+                    FinishMatchPlayerResultDto playerResult = submittedPlayersByUserId.get(user.getId());
+                    int goals = playerResult != null && playerResult.getGoals() != null ? Math.max(0, playerResult.getGoals()) : 0;
+                    boolean played = playerResult != null && playerResult.isPlayed();
+                    String playerName = ((Optional.ofNullable(user.getFirstName()).orElse("") + " " + Optional.ofNullable(user.getLastName()).orElse(""))).trim();
+
+                    return MatchPlayerResult.builder()
+                            .match(match)
+                            .team(teamMember.getTeam())
+                            .user(user)
+                            .playerName(playerName.isBlank() ? user.getEmail() : playerName)
+                            .jerseyNumber(teamMember.getJerseyNumber())
+                            .position(teamMember.getPosition())
+                            .selection(teamMember.getSelection())
+                            .captain(teamMember.isCaptain())
+                            .played(played)
+                            .goals(goals)
+                            .build();
+                })
+                .toList();
+        matchPlayerResultRepository.saveAll(playerResults);
+
         // Une fois les statistiques sauvegardées, les compositions du match terminé sont supprimées des deux équipes.
         teamMemberRepository.deleteAllInBatch(teamMembers);
     }
@@ -296,7 +322,7 @@ public class MatchServiceImpl implements MatchService {
         for (Team team : teams) {
             team.setStatus(TeamStatus.INACTIVE);
             team.setIsAnnuleMatch(false);
-            team.setMatchesCanceled(1);
+            team.setMatchesCanceled(safeInteger(team.getMatchesCanceled()) + 1);
             team.setFormation(null);
             team.setTarificationTerrain(null);
             team.setTitleAddress(null);
@@ -343,6 +369,33 @@ public class MatchServiceImpl implements MatchService {
         team.setStartTime(null);
         team.setEndTime(null);
         team.setAvailableDate(null);
+    }
+
+    private List<Team> extractTeams(Match match) {
+        return Optional.ofNullable(match.getMatchTeams())
+                .orElseGet(List::of)
+                .stream()
+                .map(MatchTeam::getTeam)
+                .filter(team -> team != null)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private void applyMatchTeamResult(Match match, Long teamId, int teamScore, int opponentScore) {
+        MatchTeam matchTeam = Optional.ofNullable(match.getMatchTeams())
+                .orElseGet(List::of)
+                .stream()
+                .filter(item -> item.getTeam() != null && item.getTeam().getId().equals(teamId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("L'équipe n'est pas rattachée au match courant"));
+
+        matchTeam.setScore(teamScore);
+        if (teamScore > opponentScore) {
+            matchTeam.setResult(MatchTeamResult.WON);
+        } else if (teamScore < opponentScore) {
+            matchTeam.setResult(MatchTeamResult.LOST);
+        } else {
+            matchTeam.setResult(MatchTeamResult.DRAW);
+        }
     }
 
     private int safeInteger(Integer value) {

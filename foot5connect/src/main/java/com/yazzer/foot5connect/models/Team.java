@@ -12,11 +12,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Set;
 
 @Data
-@EqualsAndHashCode(callSuper = true, exclude = {"teamMembers", "captain", "matches", "sentInvitations", "receivedInvitations"})
-@ToString(callSuper = true, exclude = {"teamMembers", "captain", "matches", "sentInvitations", "receivedInvitations"})
+@EqualsAndHashCode(callSuper = true, exclude = {"teamMembers", "captain", "matchTeams", "sentInvitations", "receivedInvitations"})
+@ToString(callSuper = true, exclude = {"teamMembers", "captain", "matchTeams", "sentInvitations", "receivedInvitations"})
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
@@ -89,8 +88,8 @@ public class Team extends AbstractEntity {
     @JoinColumn(name = "captain_id", nullable = false)
     private User captain;
 
-    @ManyToMany(mappedBy = "teams")
-    private Set<Match> matches;
+    @OneToMany(mappedBy = "team")
+    private List<MatchTeam> matchTeams;
 
     @OneToMany(mappedBy = "senderTeam")
     private List<TeamInvitation> sentInvitations;
