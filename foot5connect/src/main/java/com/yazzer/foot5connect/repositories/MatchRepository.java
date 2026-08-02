@@ -15,15 +15,13 @@ import com.yazzer.foot5connect.models.Team;
 
 public interface MatchRepository extends JpaRepository<Match, Long> {
 
-    @Query("SELECT DISTINCT m FROM Match m JOIN m.teams team WHERE team.id = :teamId AND m.status = :status")
+    @Query("SELECT DISTINCT m FROM Match m JOIN FETCH m.matchTeams mt JOIN FETCH mt.team WHERE mt.team.id = :teamId AND m.status = :status")
     Optional<Match> findByTeamIdAndStatusWithTeams(@Param("teamId") Long teamId, @Param("status") MatchStatus status);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    // On verrouille le match courant pour éviter qu'une double confirmation simultanée exécute deux fois l'annulation complète.
-    // La sous-requête sert à identifier le bon match via l'équipe courante, puis le JOIN FETCH recharge les deux équipes du match.
-    @Query("SELECT DISTINCT m FROM Match m JOIN FETCH m.teams fetchedTeams WHERE m.id IN (SELECT DISTINCT lockedMatch.id FROM Match lockedMatch JOIN lockedMatch.teams filteredTeam WHERE filteredTeam.id = :teamId AND lockedMatch.status = :status)")
+    @Query("SELECT DISTINCT m FROM Match m JOIN FETCH m.matchTeams fetchedMatchTeams JOIN FETCH fetchedMatchTeams.team WHERE m.id IN (SELECT DISTINCT lockedMatch.id FROM Match lockedMatch JOIN lockedMatch.matchTeams filteredMatchTeam WHERE filteredMatchTeam.team.id = :teamId AND lockedMatch.status = :status)")
     Optional<Match> findByTeamIdAndStatusWithTeamsForUpdate(@Param("teamId") Long teamId, @Param("status") MatchStatus status);
 
-    @Query("SELECT t FROM Match m JOIN m.teams t WHERE m.id = :matchId AND t.id <> :teamId")
+    @Query("SELECT mt.team FROM Match m JOIN m.matchTeams mt WHERE m.id = :matchId AND mt.team.id <> :teamId")
     Optional<Team> findOpponentTeamByMatchIdAndTeamId(@Param("matchId") Long matchId, @Param("teamId") Long teamId);
 }

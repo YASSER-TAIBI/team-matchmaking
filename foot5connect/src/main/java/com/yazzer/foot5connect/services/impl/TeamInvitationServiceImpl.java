@@ -1,7 +1,6 @@
 package com.yazzer.foot5connect.services.impl;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -15,6 +14,7 @@ import com.yazzer.foot5connect.models.InvitationStatus;
 import com.yazzer.foot5connect.models.InvitationType;
 import com.yazzer.foot5connect.models.Match;
 import com.yazzer.foot5connect.models.MatchStatus;
+import com.yazzer.foot5connect.models.MatchTeam;
 import com.yazzer.foot5connect.models.Team;
 import com.yazzer.foot5connect.models.TeamInvitation;
 import com.yazzer.foot5connect.models.TeamMember;
@@ -236,11 +236,27 @@ public class TeamInvitationServiceImpl implements TeamInvitationService {
         Match match = Match.builder()
                 .matchDate(invitation.getAvailableDate())
                 .startTime(invitation.getStartTime())
+                .endTime(invitation.getEndTime())
                 .location(receiverTeam.getPitchAddress())
+                .pitchAddress(receiverTeam.getPitchAddress())
+                .titleAddress(receiverTeam.getTitleAddress())
+                .price(receiverTeam.getPrix())
+                .tarificationTerrain(receiverTeam.getTarificationTerrain())
                 .status(MatchStatus.DUAL)
-                .teams(Set.of(senderTeam, receiverTeam))
                 .invitation(saved)
                 .build();
+        match.setMatchTeams(List.of(
+                MatchTeam.builder()
+                        .match(match)
+                        .team(senderTeam)
+                        .score(0)
+                        .build(),
+                MatchTeam.builder()
+                        .match(match)
+                        .team(receiverTeam)
+                        .score(0)
+                        .build()
+        ));
         matchRepository.save(match);
 
         senderTeam.setStatus(TeamStatus.IN_MATCH);

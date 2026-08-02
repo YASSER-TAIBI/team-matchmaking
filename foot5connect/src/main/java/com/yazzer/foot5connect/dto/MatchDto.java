@@ -2,15 +2,16 @@ package com.yazzer.foot5connect.dto;
 
 import com.yazzer.foot5connect.models.Match;
 import com.yazzer.foot5connect.models.MatchStatus;
-import com.yazzer.foot5connect.models.Team;
+import com.yazzer.foot5connect.models.MatchTeam;
+import com.yazzer.foot5connect.models.MatchTeamResult;
 import com.yazzer.foot5connect.models.TeamInvitation;
 
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -26,10 +27,7 @@ public class MatchDto {
 
     private MatchStatus status;
 
-    private Integer scoreTeamA;
-    private Integer scoreTeamB;
-
-    private Set<Long> teamIds;
+    private List<MatchTeamDto> teams;
 
     private Long invitationId;
 
@@ -44,12 +42,12 @@ public class MatchDto {
                 .startTime(match.getStartTime())
                 .location(match.getLocation())
                 .status(match.getStatus())
-                .scoreTeamA(match.getScoreTeamA())
-                .scoreTeamB(match.getScoreTeamB())
-                .teamIds(match.getTeams()
-                        .stream().map(Team::getId)
-                        .collect(Collectors.toSet()))
-                .invitationId(match.getInvitation().getId())
+                .teams(Optional.ofNullable(match.getMatchTeams())
+                        .orElseGet(List::of)
+                        .stream()
+                        .map(MatchTeamDto::fromEntity)
+                        .toList())
+                .invitationId(match.getInvitation() != null ? match.getInvitation().getId() : null)
                 .build();
     }
 
@@ -64,13 +62,32 @@ public class MatchDto {
                 .startTime(matchDto.getStartTime())
                 .location(matchDto.getLocation())
                 .status(matchDto.getStatus())
-                .scoreTeamA(matchDto.getScoreTeamA())
-                .scoreTeamB(matchDto.getScoreTeamB())
                 .invitation(
                         TeamInvitation.builder()
                                 .id(matchDto.getInvitationId())
                                 .build()
                 )
                 .build();
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @Builder
+    public static class MatchTeamDto {
+        private Long teamId;
+        private Integer score;
+        private MatchTeamResult result;
+
+        public static MatchTeamDto fromEntity(MatchTeam matchTeam) {
+            if (matchTeam == null) {
+                return null;
+            }
+            return MatchTeamDto.builder()
+                    .teamId(matchTeam.getTeam() != null ? matchTeam.getTeam().getId() : null)
+                    .score(matchTeam.getScore())
+                    .result(matchTeam.getResult())
+                    .build();
+        }
     }
 }
